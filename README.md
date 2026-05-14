@@ -58,6 +58,28 @@ graph LR
 
 ---
 
+## 🛠️ Metodología y Documentación Técnica
+
+Este proyecto no solo es una implementación técnica, sino que sigue un proceso de ingeniería de IA riguroso:
+
+- **Metodología CRISP-ML**: El desarrollo se rige bajo el estándar *Cross-Industry Standard Process for Machine Learning*, cubriendo desde el entendimiento del negocio hasta el despliegue.
+- **Orquestación con Genkit**: Implementación de flujos de IA avanzados, permitiendo una separación clara entre la lógica de aplicación y la inteligencia artificial.
+- **Documentación Exhaustiva**: Contamos con una memoria técnica detallada que incluye el análisis de datos, flujos de trabajo y justificación de arquitectura.
+
+👉 **[Consulta la Memoria Técnica Completa aquí](./DOCUMENTACION_TECNICA.md)**
+
+---
+
+## 🌍 Impacto Esperado
+
+La implementación de **Salud IA Bot** busca generar un valor tangible en tres dimensiones:
+
+- **Social**: Democratización del acceso a la información de salud pública y fomento de la cultura de prevención en toda la población colombiana.
+- **Económico**: Reducción de la saturación en los servicios de primer nivel de atención y optimización de los costos operativos del sistema de salud.
+- **Ambiental**: Digitalización de la comunicación sanitaria, eliminando la dependencia de material impreso para campañas de prevención.
+
+---
+
 ## 🛠️ Stack Tecnológico
 
 | Componente | Tecnología | Propósito |
