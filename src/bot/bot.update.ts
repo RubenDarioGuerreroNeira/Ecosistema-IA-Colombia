@@ -5,6 +5,7 @@ import { HealthDataService } from './health-data.service';
 import { SexualHealthService } from './sexual-health.service';
 import { MentalHealthService } from './mental-health.service';
 import { UserService } from './user.service';
+import { StatsService } from './stats/stats.service';
 
 @Update()
 export class BotUpdate {
@@ -14,6 +15,7 @@ export class BotUpdate {
     private readonly sexualHealthService: SexualHealthService,
     private readonly mentalHealthService: MentalHealthService,
     private readonly userService: UserService,
+    private readonly statsService: StatsService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -122,6 +124,14 @@ Año de registro: ${mentalHealthStats.a_o_diagn_stico}
 `;
     }
 
+    // 4. Check for Statistical Analysis (StatsService)
+    const statsSummary = await this.statsService.getSummary(message);
+    if (statsSummary && !statsSummary.startsWith('[INFO]')) {
+      contextData += `
+${statsSummary}
+`;
+    }
+
     let augmentedPrompt = message;
     if (contextData) {
       augmentedPrompt = `
@@ -129,7 +139,7 @@ Año de registro: ${mentalHealthStats.a_o_diagn_stico}
         
         ${contextData}
         
-        Por favor, utiliza la información de contexto proporcionada arriba para dar una respuesta precisa, profesional y empática. Si los datos no están presentes o son insuficientes, usa tu conocimiento general como experto en salud pública.
+        Por favor, utiliza la información de contexto proporcionada arriba para dar una respuesta precisa, profesional y empática. Si los datos son estadísticos, interprétalos para el usuario explicando qué significan esos números en términos de salud pública. Si los datos no están presentes o son insuficientes, usa tu conocimiento general como experto en salud pública.
       `;
     }
 
