@@ -1,13 +1,20 @@
 import { Update, Start, Help, On, Ctx } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { GenkitService } from './genkit.service';
+import { HealthDataService } from './health-data.service';
+import { SexualHealthService } from './sexual-health.service';
+import { MentalHealthService } from './mental-health.service';
+import { UserService } from './user.service';
 
 @Update()
 export class BotUpdate {
-  // In-memory store to track users who have already been greeted in their current session
-  private greetedUsers = new Map<number, boolean>();
-
-  constructor(private readonly genkitService: GenkitService) {}
+  constructor(
+    private readonly genkitService: GenkitService,
+    private readonly healthDataService: HealthDataService,
+    private readonly sexualHealthService: SexualHealthService,
+    private readonly mentalHealthService: MentalHealthService,
+    private readonly userService: UserService,
+  ) {}
 
   private getTimeGreeting(): string {
     const hour = new Date().getHours();
@@ -19,12 +26,12 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA para el Concurso Colombia. Estoy aquí para informarte sobre brotes de enfermedades y salud pública.`;
+    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
     
     await ctx.reply(welcomeMessage);
     
     if (ctx.from?.id) {
-      this.greetedUsers.set(ctx.from.id, true);
+      await this.userService.markAsGreeted(ctx.from.id);
     }
   }
 
@@ -36,7 +43,7 @@ export class BotUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
-    await ctx.reply('Puedes preguntarme sobre enfermedades transmisibles o reportar síntomas.');
+    await ctx.reply('Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas.');
   }
 
   private async sendLongMessage(ctx: Context, text: string) {
@@ -68,12 +75,65 @@ export class BotUpdate {
     const userId = ctx.from?.id;
     const message = (ctx.message as any).text;
 
-    // If it's a new session (user not in map), greet them first
-    if (userId && !this.greetedUsers.get(userId)) {
+    // If it's a new user (not in persistent storage), greet them first
+    if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       await this.sendPersonalizedGreeting(ctx);
     }
 
-    const response = await this.genkitService.generateResponse(message);
+    // RAG: Gather context from multiple sources
+    let contextData = '';
+    
+    // 1. Check for Health Events (XML 1)
+    const events = await this.healthDataService.getAllEvents();
+    const matchedEventName = events.find(event => message.toLowerCase().includes(event.toLowerCase()));
+    if (matchedEventName) {
+      const stats = await this.healthDataService.getStatsForEvent(matchedEventName);
+      if (stats) {
+        contextData += `
+--- DATOS REALES DE EVENTOS DE SALUD ---
+Evento: ${stats.nombre_del_evento}
+Total: ${stats.total_de_eventos}
+Urbano: ${stats.urbano}, Rural: ${stats.rural}
+Distribución por Edad: Primera Infancia(${stats.primera_infancia}), Infancia(${stats.infancia}), Adolescencia(${stats.adolescencia}), Juventud(${stats.juventud}), Adulto Joven(${stats.adulto_j_ven}), Adulto Mayor(${stats.adulto_mayor})
+`;
+      }
+    }
+
+    // 2. Check for Sexual Health QA (XML 2)
+    const sexualHealthMatches = await this.sexualHealthService.findRelatedQA(message);
+    if (sexualHealthMatches) {
+      const qaContext = sexualHealthMatches.map(qa => `P: ${qa.pregunta}\nR: ${qa.respuesta}`).join('\n\n');
+      contextData += `
+--- DATOS DE SALUD SEXUAL Y REPRODUCTIVA ---
+${qaContext}
+`;
+    }
+
+    // 3. Check for Mental Health Stats (XML 3)
+    const mentalHealthStats = await this.mentalHealthService.getStatsForDiagnosis(message);
+    if (mentalHealthStats) {
+      contextData += `
+--- DATOS DE SALUD MENTAL (CIE-10) ---
+Diagnóstico: ${mentalHealthStats.diagnostico_ingreso}
+Código: ${mentalHealthStats.codigo_dx_ingreso}
+Total Casos: ${mentalHealthStats.total}
+Distribución por Edad: Menor 1(${mentalHealthStats.menor_a_1}), 1-4(${mentalHealthStats.de_1_a_4}), 5-9(${mentalHealthStats.de_5_a_9}), 10-14(${mentalHealthStats.de_10_a_14}), 15-19(${mentalHealthStats.de_15_a_19}), 20-49(${mentalHealthStats.de_20_a_49}), 50-64(${mentalHealthStats.de_50_a_64}), 65+(${mentalHealthStats._65_y_mas})
+Año de registro: ${mentalHealthStats.a_o_diagn_stico}
+`;
+    }
+
+    let augmentedPrompt = message;
+    if (contextData) {
+      augmentedPrompt = `
+        Consulta del usuario: ${message}
+        
+        ${contextData}
+        
+        Por favor, utiliza la información de contexto proporcionada arriba para dar una respuesta precisa, profesional y empática. Si los datos no están presentes o son insuficientes, usa tu conocimiento general como experto en salud pública.
+      `;
+    }
+
+    const response = await this.genkitService.generateResponse(augmentedPrompt);
     await this.sendLongMessage(ctx, response);
   }
 }
