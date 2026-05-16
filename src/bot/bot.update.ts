@@ -6,6 +6,7 @@ import { SexualHealthService } from './sexual-health.service';
 import { MentalHealthService } from './mental-health.service';
 import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
+import { Message } from 'telegraf/types';
 
 @Update()
 export class BotUpdate {
@@ -29,9 +30,9 @@ export class BotUpdate {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
     const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
-    
+
     await ctx.reply(welcomeMessage);
-    
+
     if (ctx.from?.id) {
       await this.userService.markAsGreeted(ctx.from.id);
     }
@@ -45,7 +46,9 @@ export class BotUpdate {
 
   @Help()
   async help(@Ctx() ctx: Context) {
-    await ctx.reply('Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas.');
+    await ctx.reply(
+      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas.',
+    );
   }
 
   private async sendLongMessage(ctx: Context, text: string) {
@@ -58,7 +61,7 @@ export class BotUpdate {
     let currentPosition = 0;
     while (currentPosition < text.length) {
       let endPosition = currentPosition + MAX_LENGTH;
-      
+
       // Try to split at the last newline to avoid cutting sentences
       if (endPosition < text.length) {
         const lastNewline = text.lastIndexOf('\n', endPosition);
@@ -75,7 +78,7 @@ export class BotUpdate {
   @On('text')
   async onText(@Ctx() ctx: Context) {
     const userId = ctx.from?.id;
-    const message = (ctx.message as any).text;
+    const message = (ctx.message as Message.TextMessage).text;
 
     // If it's a new user (not in persistent storage), greet them first
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
@@ -84,12 +87,15 @@ export class BotUpdate {
 
     // RAG: Gather context from multiple sources
     let contextData = '';
-    
+
     // 1. Check for Health Events (XML 1)
     const events = await this.healthDataService.getAllEvents();
-    const matchedEventName = events.find(event => message.toLowerCase().includes(event.toLowerCase()));
+    const matchedEventName = events.find((event) =>
+      message.toLowerCase().includes(event.toLowerCase()),
+    );
     if (matchedEventName) {
-      const stats = await this.healthDataService.getStatsForEvent(matchedEventName);
+      const stats =
+        await this.healthDataService.getStatsForEvent(matchedEventName);
       if (stats) {
         contextData += `
 --- DATOS REALES DE EVENTOS DE SALUD ---
@@ -102,9 +108,12 @@ Distribución por Edad: Primera Infancia(${stats.primera_infancia}), Infancia(${
     }
 
     // 2. Check for Sexual Health QA (XML 2)
-    const sexualHealthMatches = await this.sexualHealthService.findRelatedQA(message);
+    const sexualHealthMatches =
+      await this.sexualHealthService.findRelatedQA(message);
     if (sexualHealthMatches) {
-      const qaContext = sexualHealthMatches.map(qa => `P: ${qa.pregunta}\nR: ${qa.respuesta}`).join('\n\n');
+      const qaContext = sexualHealthMatches
+        .map((qa) => `P: ${qa.pregunta}\nR: ${qa.respuesta}`)
+        .join('\n\n');
       contextData += `
 --- DATOS DE SALUD SEXUAL Y REPRODUCTIVA ---
 ${qaContext}
@@ -112,7 +121,8 @@ ${qaContext}
     }
 
     // 3. Check for Mental Health Stats (XML 3)
-    const mentalHealthStats = await this.mentalHealthService.getStatsForDiagnosis(message);
+    const mentalHealthStats =
+      await this.mentalHealthService.getStatsForDiagnosis(message);
     if (mentalHealthStats) {
       contextData += `
 --- DATOS DE SALUD MENTAL (CIE-10) ---

@@ -12,7 +12,13 @@ import { BotModule } from './bot/bot.module';
       isGlobal: true,
       validationSchema: Joi.object({
         TELEGRAM_BOT_TOKEN: Joi.string().required(),
-        GOOGLE_GENAI_API_KEY: Joi.string().required(),
+        OPENROUTER_API_KEY: Joi.string().required(),
+        OPENROUTER_MODEL: Joi.string().default(
+          'nvidia/nemotron-3-super-120b-a12b:free',
+        ),
+        OPENROUTER_BASE_URL: Joi.string().default(
+          'https://openrouter.ai/api/v1',
+        ),
         PORT: Joi.number().default(3000),
       }),
     }),
