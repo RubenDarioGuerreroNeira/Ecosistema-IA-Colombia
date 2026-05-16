@@ -32,7 +32,32 @@ export class StatsService {
       return this.getGlobalCapabilities();
     }
 
-    // 1. Detección de Comparación Urbana/Rural
+    // 1. Detección de Ranking de Enfermedades (Top 5)
+    const rankingKeywords = [
+      'ranking',
+      'top',
+      'más frecuentes',
+      'peores',
+      'mayor incidencia',
+      'peor enfermedad',
+    ];
+    if (rankingKeywords.some((kw) => queryLower.includes(kw))) {
+      return this.healthStatsService.getTopDiseasesRanking();
+    }
+
+    // 2. Detección de Análisis de Género Global (Hombres vs Mujeres)
+    const globalGenderKeywords = [
+      'género global',
+      'brecha de género',
+      'hombres o mujeres',
+      'más hombres',
+      'más mujeres',
+    ];
+    if (globalGenderKeywords.some((kw) => queryLower.includes(kw))) {
+      return this.healthStatsService.getGlobalGenderAnalysis();
+    }
+
+    // 3. Detección de Comparación Urbana/Rural
     if (queryLower.includes('urbano') || queryLower.includes('rural')) {
       const events = await this.healthDataService.getAllEvents();
       const matchedEvent = events.find((e) =>
@@ -42,7 +67,7 @@ export class StatsService {
         return this.healthStatsService.getDiseaseComparison(matchedEvent);
     }
 
-    // 2. Detección de Salud Mental por Ciclo de Vida o Edad
+    // 4. Detección de Salud Mental por Ciclo de Vida o Edad
     const mentalKeywords = [
       'ansiedad',
       'depresión',
@@ -67,7 +92,7 @@ export class StatsService {
         );
     }
 
-    // 3. Detección de Análisis de Edad General
+    // 5. Detección de Análisis de Edad General
     const ageKeywords = [
       'edad',
       'años',
@@ -86,7 +111,7 @@ export class StatsService {
         return this.healthStatsService.getHealthEventAgeAnalysis(matchedEvent);
     }
 
-    // 4. Detección de Cobertura de Salud Sexual
+    // 6. Detección de Cobertura de Salud Sexual
     if (queryLower.includes('sexual') || queryLower.includes('reproductiva')) {
       return this.sexualHealthStatsService.getSexualHealthCoverage();
     }

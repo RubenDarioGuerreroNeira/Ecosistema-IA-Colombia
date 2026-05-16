@@ -1,4 +1,5 @@
 # 🏥 Salud IA Bot - Colombia
+
 > **Asistente inteligente de salud pública impulsado por IA Generativa para la prevención y monitoreo de enfermedades en Colombia.**
 
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
@@ -9,6 +10,7 @@
 ---
 
 ## 🌟 Descripción
+
 **Salud IA Bot** es una solución innovadora diseñada para democratizar el acceso a la información de salud pública en Colombia. Utilizando la potencia de **Genkit** y el modelo **Gemini 2.5 Flash**, el bot actúa como un experto en salud pública, proporcionando respuestas precisas sobre prevención de enfermedades, reportes de brotes y orientación sanitaria.
 
 El objetivo principal es servir como un puente eficiente entre los datos complejos de salud pública y el ciudadano común a través de una interfaz familiar: **Telegram**.
@@ -51,7 +53,8 @@ graph LR
 ## 🚀 Características Principales
 
 - **🧠 IA Especializada**: Configurado con un rol de experto en salud pública colombiana para garantizar respuestas contextualizadas.
-- **⚡ Respuesta Ultra-Rápida**: Implementado con `gemini-2.5-flash` para una latencia mínima.
+- **📊 Análisis Estadístico Real**: Procesa y resume datos epidemiológicos (SIVIGILA), de salud mental (CIE-10) y salud sexual en tiempo real.
+- **📈 Rankings y Tendencias**: Generación de rankings de incidencia, análisis de brechas de género y distribución por ciclos de vida.
 - **🛠️ Arquitectura Robusta**: Construido sobre NestJS, asegurando escalabilidad y mantenibilidad.
 - **🔒 Seguridad de Datos**: Manejo estricto de variables de entorno y validación de esquemas con Joi.
 - **💬 Interacción Natural**: Interfaz conversacional fluida a través de Telegram.
@@ -62,7 +65,7 @@ graph LR
 
 Este proyecto no solo es una implementación técnica, sino que sigue un proceso de ingeniería de IA riguroso:
 
-- **Metodología CRISP-ML**: El desarrollo se rige bajo el estándar *Cross-Industry Standard Process for Machine Learning*, cubriendo desde el entendimiento del negocio hasta el despliegue.
+- **Metodología CRISP-ML**: El desarrollo se rige bajo el estándar _Cross-Industry Standard Process for Machine Learning_, cubriendo desde el entendimiento del negocio hasta el despliegue.
 - **Orquestación con Genkit**: Implementación de flujos de IA avanzados, permitiendo una separación clara entre la lógica de aplicación y la inteligencia artificial.
 - **Documentación Exhaustiva**: Contamos con una memoria técnica detallada que incluye el análisis de datos, flujos de trabajo y justificación de arquitectura.
 
@@ -82,19 +85,20 @@ La implementación de **Salud IA Bot** busca generar un valor tangible en tres d
 
 ## 🛠️ Stack Tecnológico
 
-| Componente | Tecnología | Propósito |
-| :--- | :--- | :--- |
-| **Framework** | [NestJS](https://nestjs.com/) | Arquitectura backend modular y escalable. |
-| **IA Orchestration** | [Genkit](https://firebase.google.com/docs/genkit) | Gestión de flujos de IA y despliegue. |
-| **LLM** | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/) | Generación de respuestas inteligentes y rápidas. |
-| **Bot Framework** | [Telegraf](https://telegraf.js.org/) | Comunicación con la API de Telegram. |
-| **Validación** | [Joi](https://joi.dev/) | Validación de variables de entorno. |
+| Componente           | Tecnología                                                       | Propósito                                        |
+| :------------------- | :--------------------------------------------------------------- | :----------------------------------------------- |
+| **Framework**        | [NestJS](https://nestjs.com/)                                    | Arquitectura backend modular y escalable.        |
+| **IA Orchestration** | [Genkit](https://firebase.google.com/docs/genkit)                | Gestión de flujos de IA y despliegue.            |
+| **LLM**              | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/) | Generación de respuestas inteligentes y rápidas. |
+| **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                             | Comunicación con la API de Telegram.             |
+| **Validación**       | [Joi](https://joi.dev/)                                          | Validación de variables de entorno.              |
 
 ---
 
 ## ⚙️ Instalación y Configuración
 
 ### Requisitos Previos
+
 - Node.js (v18+)
 - npm o yarn
 - Un Bot Token de Telegram (obtenido vía `@BotFather`)
@@ -103,18 +107,21 @@ La implementación de **Salud IA Bot** busca generar un valor tangible en tres d
 ### Pasos para ejecutar localmente
 
 1. **Clonar el repositorio:**
+
    ```bash
    git clone https://github.com/tu-usuario/salud-ia-bot.git
    cd salud-ia-bot
    ```
 
 2. **Instalar dependencias:**
+
    ```bash
    npm install
    ```
 
 3. **Configurar variables de entorno:**
    Crea un archivo `.env` en la raíz del proyecto basado en `.env.example`:
+
    ```env
    TELEGRAM_BOT_TOKEN=tu_token_de_telegram
    GOOGLE_GENAI_API_KEY=tu_api_key_de_google
@@ -129,5 +136,6 @@ La implementación de **Salud IA Bot** busca generar un valor tangible en tres d
 ---
 
 ## 📝 Licencia
+
 Este proyecto ha sido desarrollado para el **Concurso IA Colombia**.
 © 2026 - Todos los derechos reservados.

@@ -85,6 +85,43 @@ Conclusión: Se recomienda priorizar campañas de prevención en el grupo de ${t
   }
 
   /**
+   * Obtiene un ranking de las enfermedades con mayor incidencia.
+   */
+  async getTopDiseasesRanking(): Promise<string> {
+    const topEvents = await this.healthDataService.getTopEvents(5);
+    const ranking = topEvents
+      .map(
+        (e, i) =>
+          `${i + 1}. ${e.nombre_del_evento}: ${e.total_de_eventos} casos`,
+      )
+      .join('\n');
+
+    return `
+--- RANKING DE INCIDENCIA EN SALUD PÚBLICA ---
+Las 5 condiciones con más reportes registrados son:
+${ranking}
+📍 Fuente: Datos SIVIGILA procesados.
+`;
+  }
+
+  /**
+   * Proporciona un análisis de la brecha de género global.
+   */
+  async getGlobalGenderAnalysis(): Promise<string> {
+    const totals = await this.healthDataService.getGlobalTotals();
+    const percFem = ((totals.femenino / totals.total) * 100).toFixed(1);
+    const percMasc = ((totals.masculino / totals.total) * 100).toFixed(1);
+
+    return `
+--- ANÁLISIS GLOBAL DE GÉNERO (SALUD PÚBLICA) ---
+De un total de ${totals.total} eventos analizados:
+👩 Mujeres: ${totals.femenino} casos (${percFem}%)
+👨 Hombres: ${totals.masculino} casos (${percMasc}%)
+${totals.femenino > totals.masculino ? 'Se observa una mayor incidencia en la población femenina.' : 'Se observa una mayor incidencia en la población masculina.'}
+`;
+  }
+
+  /**
    * Resumen de capacidades de datos de salud pública.
    */
   async getHealthKnowledgeSummary(): Promise<string> {

@@ -29,7 +29,7 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
+    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. También puedo realizar análisis estadísticos, como rankings de incidencia por enfermedad y brechas de género a nivel nacional. Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
 
     await ctx.reply(welcomeMessage);
 
