@@ -74,6 +74,18 @@ export class AntioquiaHealthService implements OnModuleInit {
     }
   }
 
+  /**
+   * Devuelve la lista única de municipios presentes en los datos cargados.
+   */
+  getMunicipios(): string[] {
+    const municipios = this.providers
+      .map((p) => p.municipio || '')
+      .filter((m) => m && m.trim().length > 0)
+      .map((m) => m.toString());
+
+    return Array.from(new Set(municipios.map((m) => m.toLowerCase())));
+  }
+
   searchProviders(query: string): AntioquiaHealthProvider[] {
     const q = query.toLowerCase();
 

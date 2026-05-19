@@ -22,7 +22,11 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
+    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Además, puedo buscar información sobre centros de salud y prestadores de servicios en Antioquia (por municipio o "Valle de Aburrá").
+
+Ejemplo: "centros de salud en Itagüí".
+
+Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
 
     await ctx.reply(welcomeMessage);
 
@@ -40,7 +44,7 @@ export class BotUpdate {
   @Help()
   async help(@Ctx() ctx: Context) {
     await ctx.reply(
-      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas.',
+      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas. También puedes buscar centros de salud o prestadores de servicios en Antioquia, por ejemplo: "centros de salud en Itagüí" o "prestadores en Valle de Aburrá".',
     );
   }
 
@@ -78,6 +82,20 @@ export class BotUpdate {
     // If it's a new user (not in persistent storage), greet them first
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       await this.sendPersonalizedGreeting(ctx);
+    }
+
+    // Priorizar búsquedas directas por identificador (código, nombre o sede)
+    try {
+      const direct = await this.statsService.lookupProviderByIdentifier(messageText);
+      if (direct) {
+        await this.sendLongMessage(ctx, direct);
+        return;
+      }
+    } catch (err) {
+      // Si falla la búsqueda directa, continuar con el flujo normal
+      // (no interrumpimos la experiencia del usuario)
+      // eslint-disable-next-line no-console
+      console.error('Direct provider lookup failed', err);
     }
 
     // RAG: Gather context through the StatsService (data-driven summaries)
