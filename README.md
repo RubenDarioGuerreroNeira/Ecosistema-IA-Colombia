@@ -21,43 +21,57 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 
 ```mermaid
 graph LR
-    Root((🏥 Salud IA Bot)) --> Interface[📱 Interface de Usuario]
-    Root --> Core[⚙️ Core de Aplicación]
-    Root --> AI[🤖 Motor de IA]
-    Root --> Knowledge[📚 Base de Conocimiento]
+    Root((🏥 Salud IA Bot)) --> Interface[📱 Interfaz de Usuario]
+    Root --> Core[⚙️ Backend NestJS]
+    Root --> AI[🤖 Orquestador de IA]
+    Root --> Data[📚 Datos Locales]
 
     Interface --> Telegram[Telegram Bot API]
     Interface --> Telegraf[nestjs-telegraf]
 
-    Core --> NestJS[NestJS Framework]
+    Core --> AppModule[AppModule]
+    Core --> BotModule[BotModule]
     Core --> Config[ConfigModule / Joi]
-    Core --> BotModule[Bot Logic Module]
+    BotModule --> BotUpdate[BotUpdate]
+    BotModule --> GenkitService[GenkitService]
+    BotModule --> UserService[UserService]
+    BotModule --> StatsModule[StatsModule]
+    BotModule --> DataModule[DataModule]
 
-    AI --> Genkit[Genkit Framework]
-    AI --> Gemini[Gemini 2.5 Flash]
-    AI --> Prompting[System Prompting Especializado]
+    Data --> HealthData[Eventos de Salud Pública]
+    Data --> MentalHealth[Salud Mental (CIE-10)]
+    Data --> SexualHealth[Salud Sexual / Reproductiva]
+    Data --> Antioquia[Antioquia]
+    Data --> Boyaca[Boyacá]
+    Data --> Yopal[Yopal]
+    Data --> Cali[Cali]
 
-    Knowledge --> HealthCol[Salud Pública Colombia]
-    Knowledge --> Prevention[Prevención de Enfermedades]
-    Knowledge --> Epidemiology[Datos Epidemiológicos]
+    StatsModule --> HealthStats[HealthStatsService]
+    StatsModule --> MentalHealthStats[MentalHealthStatsService]
+    StatsModule --> SexualHealthStats[SexualHealthStatsService]
+
+    AI --> Genkit[Genkit]
+    AI --> Gemini[Google Gemini 2.5 Flash]
+    AI --> RAG[Contexto RAG / Datos Reales]
 
     style Root fill:#f9f,stroke:#333,stroke-width:4px
     style AI fill:#bbf,stroke:#333,stroke-width:2px
     style Core fill:#dfd,stroke:#333,stroke-width:2px
     style Interface fill:#ffd,stroke:#333,stroke-width:2px
-    style Knowledge fill:#fdd,stroke:#333,stroke-width:2px
+    style Data fill:#fdd,stroke:#333,stroke-width:2px
 ```
 
 ---
 
 ## 🚀 Características Principales
 
-- **🧠 IA Especializada**: Configurado con un rol de experto en salud pública colombiana para garantizar respuestas contextualizadas.
-- **📊 Análisis Estadístico Real**: Procesa y resume datos epidemiológicos (SIVIGILA), de salud mental (CIE-10) y salud sexual en tiempo real.
-- **📈 Rankings y Tendencias**: Generación de rankings de incidencia, análisis de brechas de género y distribución por ciclos de vida.
-- **🛠️ Arquitectura Robusta**: Construido sobre NestJS, asegurando escalabilidad y mantenibilidad.
-- **🔒 Seguridad de Datos**: Manejo estricto de variables de entorno y validación de esquemas con Joi.
-- **💬 Interacción Natural**: Interfaz conversacional fluida a través de Telegram.
+- **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
+- **📊 Datos reales cargados en XML**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
+- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia (incluyendo Valle de Aburrá), Boyacá, Yopal y Cali por municipio, sede, código, prestador o teléfono.
+- **📈 Análisis inteligente**: Rankings de incidencia, brechas de género, comparaciones urbano/rural, distribución etaria y ciclo de vida en salud mental.
+- **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada para textos largos, saludos personalizados y soporte de `/start` y `/help`.
+- **🛠️ Plataforma modular**: NestJS + módulos de datos, estadísticas y bot que facilitan ampliaciones futuras.
+- **🔒 Validación de configuración**: Configuración de entorno robusta con `ConfigModule` y `Joi`.
 
 ---
 
