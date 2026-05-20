@@ -4,6 +4,8 @@ import { SexualHealthService } from './sexual-health.service';
 import { MentalHealthService } from './mental-health.service';
 import { AntioquiaHealthService } from './antioquia-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
+import { YopalHealthService } from './yopal-health.service';
+import { CaliHealthService } from './cali-health.service';
 
 @Module({
   providers: [
@@ -12,6 +14,8 @@ import { BoyacaHealthService } from './boyaca-health.service';
     MentalHealthService,
     AntioquiaHealthService,
     BoyacaHealthService,
+    YopalHealthService,
+    CaliHealthService,
   ],
   exports: [
     HealthDataService,
@@ -19,6 +23,8 @@ import { BoyacaHealthService } from './boyaca-health.service';
     MentalHealthService,
     AntioquiaHealthService,
     BoyacaHealthService,
+    YopalHealthService,
+    CaliHealthService,
   ],
 })
 export class DataModule {}

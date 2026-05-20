@@ -3,6 +3,7 @@ import { Context } from 'telegraf';
 import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
+import { CaliHealthService } from './cali-health.service';
 
 @Update()
 export class BotUpdate {
@@ -10,6 +11,7 @@ export class BotUpdate {
     private readonly genkitService: GenkitService,
     private readonly userService: UserService,
     private readonly statsService: StatsService,
+    private readonly caliHealthService: CaliHealthService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -22,11 +24,11 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Además, puedo buscar información sobre centros de salud y prestadores de servicios en Antioquia (por municipio o "Valle de Aburrá").
+    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Además, puedo buscar información sobre centros de salud y prestadores de servicios en Antioquia (por municipio o "Valle de Aburrá"), en Boyacá (por municipio, nombre de sede o código de prestador) y en Yopal (por nombre, teléfono, gerente o dirección).
 
-Ejemplo: "centros de salud en Itagüí".
+  Ejemplos: "centros de salud en Itagüí", "centros de salud en Tunja", "prestadores en Yopal" o "codigo 123456".
 
-Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
+  Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
 
     await ctx.reply(welcomeMessage);
 
@@ -86,7 +88,76 @@ Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En q
 
     // Priorizar búsquedas directas por identificador (código, nombre o sede)
     try {
-      const direct = await this.statsService.lookupProviderByIdentifier(messageText);
+      // Revisión rápida para prestadores en Cali (ej.: "HOSPITAL PRIMITIVO IGLESIAS")
+      try {
+        const caliMatches = this.caliHealthService.findByIdentifier(
+          messageText || '',
+        );
+        if (caliMatches && caliMatches.length > 0) {
+          const slice = caliMatches.slice(0, 10);
+          const lines = slice.map((p, idx) => {
+            const nombre = p.sede || p.servicio || 'N/A';
+            const grupo = p.grupo || 'N/A';
+            const direccion = p.direccion || 'N/A';
+            const departamento = p.departamento || 'N/A';
+            const ciudad = p.ciudad || 'N/A';
+            return `#${idx + 1} ${nombre}\nGrupo: ${grupo}\nServicio: ${p.servicio || 'N/A'}\nDirección: ${direccion}\nDepartamento: ${departamento}\nCiudad: ${ciudad}`;
+          });
+          const exampleHint = this.caliHealthService.getExampleSearchHints();
+          const morePrompt =
+            caliMatches.length > slice.length
+              ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
+                  exampleHint ? ' ' + exampleHint : ''
+                }`
+              : '';
+          await this.sendLongMessage(
+            ctx,
+            `He encontrado ${caliMatches.length} coincidencia(s) en Cali. Mostrando ${slice.length}:\n\n${lines.join('\n\n')}${morePrompt}`,
+          );
+          return;
+        }
+      } catch (err) {
+        // ignore cali search errors and fallback to statsService lookup
+        // eslint-disable-next-line no-console
+        console.error('Cali provider lookup failed', err);
+      }
+      // If the user explicitly mentions Cali, prioritize the Cali dataset
+      try {
+        const lcQuery = (messageText || '').toLowerCase();
+        if (/\bcali\b/.test(lcQuery) || lcQuery.includes('santiago de cali')) {
+          const caliResults = this.caliHealthService.searchProviders(
+            messageText || '',
+          );
+          if (caliResults && caliResults.length > 0) {
+            const uniqueCenters =
+              this.caliHealthService.getUniqueProvidersByCenter(caliResults);
+            const slice = uniqueCenters.slice(0, 10);
+            const lines = slice.map((p, idx) => {
+              const nombre = p.sede || p.servicio || 'N/A';
+              const municipio = p.ciudad || 'N/A';
+              const direccion = p.direccion || 'N/A';
+              return `#${idx + 1}\nNombre sede: ${nombre}\nMunicipio: ${municipio}\nDirección: ${direccion}\nTeléfono: ${p.telefono || 'N/A'}\nEmail: ${p.extension || 'N/A'}\nNivel: ${p.complejidad || 'N/A'}\nCoordenadas: ${p.geolocalizacion || 'N/A'}`;
+            });
+            const exampleHint = this.caliHealthService.getExampleSearchHints();
+            const morePrompt =
+              uniqueCenters.length > slice.length
+                ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
+                    exampleHint ? ' ' + exampleHint : ''
+                  }`
+                : '';
+            await this.sendLongMessage(
+              ctx,
+              `He encontrado ${caliResults.length} coincidencia(s) en Cali, agrupadas en ${uniqueCenters.length} centros diferentes. Mostrando ${slice.length} primero(s):\n\n${lines.join('\n\n')}${morePrompt}`,
+            );
+            return;
+          }
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('Cali search routing failed', err);
+      }
+      const direct =
+        await this.statsService.lookupProviderByIdentifier(messageText);
       if (direct) {
         await this.sendLongMessage(ctx, direct);
         return;
