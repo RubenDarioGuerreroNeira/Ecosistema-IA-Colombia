@@ -4,6 +4,7 @@ import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
+import { BoyacaHealthService } from './boyaca-health.service';
 
 @Update()
 export class BotUpdate {
@@ -11,6 +12,7 @@ export class BotUpdate {
     private readonly genkitService: GenkitService,
     private readonly userService: UserService,
     private readonly statsService: StatsService,
+    private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
   ) {}
 
