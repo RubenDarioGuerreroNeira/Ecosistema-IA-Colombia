@@ -277,14 +277,14 @@ export class StatsService {
     // Yopal: detección de municipio o departamento (Casanare) en la consulta
     const yopalKeywords = ['yopal', 'casanare'];
     const yopalMunicipios = this.yopalHealthService.getMunicipios();
-    const matchedYopalMunicipios = yopalMunicipios.filter((m) =>
-      normalizedQuery.includes(normalize(m)),
-    );
-    const isYopalQuery =
-      yopalKeywords.some((kw) => normalizedQuery.includes(normalize(kw))) ||
-      matchedYopalMunicipios.length > 0;
+    // Buscar la palabra 'yopal' o 'casanare' en la consulta, sin importar el contexto
+    const isYopalQuery = yopalKeywords.some((kw) => queryLower.includes(kw));
 
     if (isYopalQuery) {
+      const matchedYopalMunicipios = yopalMunicipios.filter((m) =>
+        normalizedQuery.includes(normalize(m)),
+      );
+
       if (matchedYopalMunicipios.length > 0) {
         return this.buildProviderResponse(
           matchedYopalMunicipios,
@@ -298,15 +298,14 @@ export class StatsService {
         const lines = allYopalProviders.slice(0, 50).map((p) => {
           const provider = p as any;
           const nombre = provider.entidad_2 || 'Nombre no disponible';
-          const municipio = p.municipio || '—';
+          const gerente = provider.gerente || 'N/A';
           const direccion = p.direccion || 'N/A';
-          const telefono = provider.telefono || 'N/A';
-          const webOrEmail = provider.correo_electronico || 'N/A';
-          const latitud = provider.latitud || 'N/A';
-          const longitud = provider.longitud || 'N/A';
-          return `- ${nombre} — ${municipio}\n  Dirección: ${direccion}\n  Teléfono: ${telefono}\n  Email/Web: ${webOrEmail}\n  Coordenadas: ${latitud}, ${longitud}`;
+          const telefono = p.telefono || 'N/A';
+          const email = provider.correo_electronico || 'N/A';
+          
+          return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
         });
-        return `Centros de salud en Yopal (según archivos locales):\n${lines.join('\n\n')}`;
+        return `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`;
       }
     }
 
@@ -428,31 +427,29 @@ export class StatsService {
     const q = query.toString().trim();
     if (!q || q.length === 0) return null;
 
-    // Extraer posible código numérico si el usuario escribió 'codigo 123' o solo '123'
-    const codeMatch = q.match(/(?:codigo\s*[:#-]?\s*)?(\d{3,})$/i);
+    const qLower = q.toLowerCase();
     let matches: any[] = [];
 
-    if (codeMatch) {
-      const code = codeMatch[1];
-      matches = this.boyacaHealthService.findByIdentifier(code) || [];
-      if (matches.length === 0 && this.antioquiaHealthService) {
-        matches = this.antioquiaHealthService.searchProviders(code) || [];
-      }
-      if (matches.length === 0 && this.yopalHealthService) {
-        matches = this.yopalHealthService.findByIdentifier(code) || [];
-      }
-    } else {
-      // Buscar por texto en Boyacá, Antioquia y Yopal
+    // Priorizar búsqueda según la región detectada en la consulta
+    if (qLower.includes('yopal') || qLower.includes('casanare')) {
+      matches = this.yopalHealthService.findByIdentifier(q) || [];
+    } else if (qLower.includes('cali')) {
+      matches = this.caliHealthService.findByIdentifier(q) || [];
+    } else if (qLower.includes('antioquia') || qLower.includes('medellin') || qLower.includes('medellín')) {
+      matches = this.antioquiaHealthService.searchProviders(q) || [];
+    } else if (qLower.includes('boyaca') || qLower.includes('boyacá')) {
       matches = this.boyacaHealthService.findByIdentifier(q) || [];
-      if (matches.length === 0 && this.antioquiaHealthService) {
-        matches = this.antioquiaHealthService.searchProviders(q) || [];
-      }
-      if (matches.length === 0 && this.yopalHealthService) {
-        matches = this.yopalHealthService.findByIdentifier(q) || [];
-      }
+    } else {
+      // Búsqueda global si no hay región explícita
+      matches = [
+        ...(this.boyacaHealthService.findByIdentifier(q) || []),
+        ...(this.antioquiaHealthService.searchProviders(q) || []),
+        ...(this.yopalHealthService.findByIdentifier(q) || []),
+      ];
     }
 
     if (!matches || matches.length === 0) return null;
+
 
     // Formatear la respuesta (máximo 20 resultados para evitar mensajes gigantes)
     const slice = matches.slice(0, 20);
@@ -534,8 +531,15 @@ ${d1.total > d2.total ? `📈 El primer diagnóstico (${d1.diagnostico_ingreso})
       await this.sexualHealthStatsService.getSexualHealthCoverage();
     const mental =
       await this.mentalHealthStatsService.getMentalHealthKnowledgeSummary();
-    const yopal = this.yopalHealthService.getKnowledgeSummary();
+    
+    // Resumen de regiones cubiertas
+    const regionsSummary = `
+- Antioquia (incluyendo Valle de Aburrá)
+- Boyacá (todos los municipios)
+- Cali
+- Yopal (Casanare)`;
 
-    return `Soy un Asistente de IA especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales cargados en mi sistema:\n${health}${sexual}${mental}\n- Yopal: ${yopal}\n¿Sobre cuál de estos temas te gustaría profundizar hoy?`;
+    return `Soy un Asistente de IA especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales cargados en mi sistema. Actualmente tengo información de centros de salud, hospitales y clínicas en las siguientes regiones:\n${regionsSummary}\n\n${health}${sexual}${mental}\n¿Sobre cuál de estos temas o regiones te gustaría profundizar hoy?`;
   }
+
 }

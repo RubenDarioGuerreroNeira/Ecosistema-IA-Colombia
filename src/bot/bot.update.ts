@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
+import { YopalHealthService } from './yopal-health.service';
 
 @Update()
 export class BotUpdate {
@@ -14,6 +15,7 @@ export class BotUpdate {
     private readonly statsService: StatsService,
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
+    private readonly yopalHealthService: YopalHealthService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -99,10 +101,16 @@ export class BotUpdate {
 
     // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
     // Esto evita que "cual es la enfermedad mental" dispare una búsqueda de hospital por la palabra "mental".
+    const regions = ['cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle'];
+    const containsRegion = regions.some(r => messageText.toLowerCase().includes(r));
+    console.log(`DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`);
+    
     const isAnalyticalQuery =
-      /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
+      (/^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
         messageText.trim().toLowerCase(),
-      ) || messageText.split(/\s+/).length > 5;
+      ) || messageText.split(/\s+/).length > 5) && !containsRegion;
+
+    console.log(`DEBUG: isAnalyticalQuery=${isAnalyticalQuery}`);
 
     // Solo intentar búsqueda directa de prestadores si NO es una consulta analítica.
     try {
@@ -177,11 +185,27 @@ export class BotUpdate {
         // eslint-disable-next-line no-console
         console.error('Cali search routing failed', err);
       }
-      const direct =
-        await this.statsService.lookupProviderByIdentifier(messageText);
-      if (direct) {
-        await this.sendLongMessage(ctx, direct);
-        return;
+      // If the user explicitly mentions Yopal, prioritize the Yopal dataset and bypass RAG
+      try {
+        const lcQuery = (messageText || '').toLowerCase();
+        if (lcQuery.includes('yopal')) {
+          const direct = await this.yopalHealthService.searchProviders(''); // Obtener todos si es necesario
+          const lines = direct.slice(0, 10).map((p) => {
+            const nombre = p.entidad_2 || 'Nombre no disponible';
+            const gerente = p.gerente || 'N/A';
+            const direccion = p.direccion || 'N/A';
+            const telefono = p.telefono || 'N/A';
+            const email = p.correo_electronico || 'N/A';
+            return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
+          });
+          
+          if (lines.length > 0) {
+             await this.sendLongMessage(ctx, `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`);
+             return;
+          }
+        }
+      } catch (err) {
+        console.error('Yopal bypass failed', err);
       }
     } catch (err) {
       // Si falla la búsqueda directa, continuar con el flujo normal
