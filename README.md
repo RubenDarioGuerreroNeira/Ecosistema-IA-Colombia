@@ -27,39 +27,25 @@ graph LR
     Root --> Data["📚 Datos Locales"]
 
     Interface --> Telegram("Telegram Bot API")
-    Interface --> Telegraf("nestjs-telegraf")
+    
+    Core --> BotUpdate("BotUpdate [Router]")
+    
+    BotUpdate --> Bypass{{"Bypass (Búsqueda Directa)"}}
+    Bypass --> CaliService("CaliHealthService")
+    Bypass --> YopalService("YopalHealthService")
+    Bypass --> StatsService("StatsService")
+    
+    BotUpdate --> RAG("RAG / Genkit")
+    RAG --> Gemini("Google Gemini 2.5 Flash")
 
-    Core --> AppModule("AppModule")
-    Core --> BotModule("BotModule")
-    Core --> Config("ConfigModule / Joi")
-    BotModule --> BotUpdate("BotUpdate")
-    BotModule --> GenkitService("GenkitService")
-    BotModule --> UserService("UserService")
-    BotModule --> StatsModule("StatsModule")
-    BotModule --> DataModule("DataModule")
-
-    Data --> HealthData("Eventos de Salud Pública")
-    Data --> MentalHealth("Salud Mental CIE-10")
-    Data --> SexualHealth("Salud Sexual / Reproductiva")
-    Data --> Antioquia("Antioquia")
-    Data --> Boyaca("Boyacá")
-    Data --> Yopal("Yopal")
-    Data --> Cali("Cali")
-
-    StatsModule --> HealthStats("HealthStatsService")
-    StatsModule --> MentalHealthStats("MentalHealthStatsService")
-    StatsModule --> SexualHealthStats("SexualHealthStatsService")
-    StatsModule --> RiskProfile("Perfil de Riesgo")
-
-    AI --> Genkit("Genkit")
-    AI --> Gemini("Google Gemini 2.5 Flash")
-    AI --> RAG("Contexto RAG / Datos Reales")
+    CaliService --> Data
+    YopalService --> Data
+    StatsService --> Data
 
     style Root fill:#f9f,stroke:#333,stroke-width:4px
-    style AI fill:#bbf,stroke:#333,stroke-width:2px
+    style Bypass fill:#ff9,stroke:#333,stroke-width:2px
+    style RAG fill:#bbf,stroke:#333,stroke-width:2px
     style Core fill:#dfd,stroke:#333,stroke-width:2px
-    style Interface fill:#ffd,stroke:#333,stroke-width:2px
-    style Data fill:#fdd,stroke:#333,stroke-width:2px
 ```
 
 ---

@@ -28,22 +28,21 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades, brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. 
+    const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente inteligente con datos reales de salud pública en Colombia.
 
-  Mis capacidades incluyen:
-  - Búsqueda de centros de salud y prestadores en Antioquia (incluyendo Valle de Aburrá), Boyacá ,Cali, Yopal.
-  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida, comparativas directas y perfiles de riesgo por diagnóstico.
-  - Rankings de incidencia de enfermedades.
+Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar integral a través de estas funcionalidades:
 
-  Ejemplos: 
-  - "¿Cuál es la enfermedad mental que más afecta a los jóvenes?"
-  - "ansiedad vs depresion"
-  - "centros de salud en Itagüí"
-  - "prestadores en Yopal"
+📍 **Búsqueda de Centros de Salud:** Encuentra información detallada (ubicación, servicios, contactos) de prestadores en **Antioquia, Boyacá, Cali y Yopal**.
+🧠 **Análisis de Salud Mental:** Obtén estadísticas precisas sobre prevalencia, ciclos de vida y perfiles de riesgo.
+📊 **Reportes de Salud Pública:** Consulta rankings de incidencia de enfermedades y temas clave en salud sexual y reproductiva.
 
-  Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
+**¿Cómo puedo ayudarte hoy?**
+*   *"¿Dónde queda el Hospital Primitivo Iglesias?"*
+*   *"Prestadores de salud en Yopal"*
+*   *"Ansiedad vs. depresión"*
+*   *"Enfermedades que más afectan a los jóvenes"*`;
 
-    await ctx.reply(welcomeMessage);
+    await ctx.reply(welcomeMessage, { parse_mode: 'Markdown' });
 
     if (ctx.from?.id) {
       await this.userService.markAsGreeted(ctx.from.id);
