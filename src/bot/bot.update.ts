@@ -26,9 +26,18 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades (como el Dengue y la Varicela), brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. Además, puedo buscar información sobre centros de salud y prestadores de servicios en Antioquia (por municipio o "Valle de Aburrá"), en Boyacá (por municipio, nombre de sede o código de prestador) y en Yopal (por nombre, teléfono, gerente o dirección).
+    const welcomeMessage = `${greeting}, ${firstName}. 👋 Soy tu asistente de Salud IA. Cuento con datos reales de salud pública en Colombia para guiarte en la prevención de enfermedades, brindarte información sobre salud sexual y reproductiva, y apoyarte en tu bienestar de salud mental. 
 
-  Ejemplos: "centros de salud en Itagüí", "centros de salud en Tunja", "prestadores en Yopal" o "codigo 123456".
+  Mis capacidades incluyen:
+  - Búsqueda de centros de salud y prestadores en Antioquia (incluyendo Valle de Aburrá), Boyacá ,Cali, Yopal.
+  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida y comparativas directas entre diagnósticos.
+  - Rankings de incidencia de enfermedades.
+
+  Ejemplos: 
+  - "¿Cuál es la enfermedad mental que más afecta a los jóvenes?"
+  - "ansiedad vs depresion"
+  - "centros de salud en Itagüí"
+  - "prestadores en Yopal"
 
   Mi objetivo es ayudarte a prevenir riesgos y promover una vida más sana. ¿En qué puedo ayudarte hoy?`;
 
@@ -183,7 +192,7 @@ export class BotUpdate {
 
     // RAG: Gather context through the StatsService (data-driven summaries)
     const contextData = await this.statsService.getSummary(messageText);
-    
+
     // Automatización de Bypass: Si la respuesta proviene de un servicio de datos y tiene un formato definido,
     // la entregamos directamente al usuario, evitando alucinaciones de la IA.
     const bypassMarkers = [
@@ -193,12 +202,15 @@ export class BotUpdate {
       '--- ANÁLISIS GLOBAL',
       '--- SALUD MENTAL',
       'En el grupo de',
-      'La enfermedad de salud mental que más afecta'
+      'La enfermedad de salud mental que más afecta',
     ];
 
-    if (contextData && bypassMarkers.some(marker => contextData.includes(marker))) {
-       await this.sendLongMessage(ctx, contextData);
-       return;
+    if (
+      contextData &&
+      bypassMarkers.some((marker) => contextData.includes(marker))
+    ) {
+      await this.sendLongMessage(ctx, contextData);
+      return;
     }
 
     const chartUrl = undefined;
