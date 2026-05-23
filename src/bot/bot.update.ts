@@ -184,9 +184,19 @@ export class BotUpdate {
     // RAG: Gather context through the StatsService (data-driven summaries)
     const contextData = await this.statsService.getSummary(messageText);
     
-    // Si la respuesta proviene directamente de nuestros servicios de datos (StatsService),
-    // la devolvemos directamente para evitar que Genkit "alucine" o diga que no tiene datos.
-    if (contextData && !contextData.includes('[INFO]')) {
+    // Automatización de Bypass: Si la respuesta proviene de un servicio de datos y tiene un formato definido,
+    // la entregamos directamente al usuario, evitando alucinaciones de la IA.
+    const bypassMarkers = [
+      '--- ANÁLISIS',
+      '--- RANKING',
+      '--- DISTRIBUCIÓN',
+      '--- ANÁLISIS GLOBAL',
+      '--- SALUD MENTAL',
+      'En el grupo de',
+      'La enfermedad de salud mental que más afecta'
+    ];
+
+    if (contextData && bypassMarkers.some(marker => contextData.includes(marker))) {
        await this.sendLongMessage(ctx, contextData);
        return;
     }
