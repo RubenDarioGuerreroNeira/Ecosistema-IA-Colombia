@@ -105,50 +105,59 @@ export class BotUpdate {
     const containsRegion = regions.some(r => messageText.toLowerCase().includes(r));
     console.log(`DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`);
     
+    // Ajustar la lógica: detectar si es pregunta analítica PERO permitir búsqueda directa si parece referirse a un centro específico.
     const isAnalyticalQuery =
       (/^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
         messageText.trim().toLowerCase(),
-      ) || messageText.split(/\s+/).length > 5) && !containsRegion;
+      ) || messageText.split(/\s+/).length > 5);
 
-    console.log(`DEBUG: isAnalyticalQuery=${isAnalyticalQuery}`);
+    // Si el usuario pregunta "¿dónde está X?", o busca un hospital, queremos búsqueda directa.
+    // Sobrescribimos isAnalyticalQuery si detectamos intención de búsqueda de entidad.
+    const isSearchIntent = /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(messageText.toLowerCase());
 
-    // Solo intentar búsqueda directa de prestadores si NO es una consulta analítica.
+    console.log(`DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`);
+
+    // Solo intentar búsqueda directa de prestadores si NO es puramente analítica o si tiene intención clara de búsqueda.
     try {
-      if (isAnalyticalQuery)
+      if (isAnalyticalQuery && !isSearchIntent)
         throw new Error('Skip direct lookup: Analytical query detected');
 
       // Revisión de prestadores en Cali
       try {
         const lcQuery = (messageText || '').toLowerCase();
-        if (/\bcali\b/.test(lcQuery) || lcQuery.includes('santiago de cali')) {
-          const caliResults = this.caliHealthService.searchProviders(messageText || '');
-          if (caliResults && caliResults.length > 0) {
-            const slice = caliResults.slice(0, 5); // Mostrar 5 registros reales
-            const lines = slice.map((p) => {
-              const nombre = p.sede || p.servicio || 'N/A';
-              const servicio = p.servicio || 'N/A';
-              const grupo = p.grupo || 'N/A';
-              const direccion = p.direccion || 'N/A';
-              const ciudad = p.ciudad || 'N/A';
-              
-              return `🏢 Entidad: ${nombre}\n🏥 Servicio: ${servicio} (${grupo})\n📍 Dirección: ${direccion}\n🏙️ Ciudad: ${ciudad}`;
-            });
+        
+        // Intentamos buscar siempre, ya que el servicio de Cali puede devolver resultados relevantes
+        const caliResults = this.caliHealthService.searchProviders(messageText || '');
+        
+        if (caliResults && caliResults.length > 0) {
+            // Si hay resultados, priorizamos la respuesta directa
+            const unique = this.caliHealthService.getUniqueProvidersByCenter(caliResults);
             
-            const count = caliResults.length;
-            const footer = count > slice.length 
-              ? `\n\nHe encontrado un total de ${count} registros en Cali. Si buscas un centro específico, intenta indicando el nombre o un dato puntual del lugar para refinar tu búsqueda.`
-              : `\n\nHe encontrado un total de ${count} registros en Cali.`;
+            // Si el usuario preguntó por ubicación o busca una entidad, respondemos con toda la información
+            if (lcQuery.includes('ciudad') || lcQuery.includes('donde esta') || lcQuery.includes('ubicado') || isSearchIntent) {
+              const entity = unique[0];
+              const response = `🏥 *Información del Centro:*
+🏢 Nombre: ${entity.sede || 'N/A'}
+🏙️ Ciudad: ${entity.ciudad || 'N/A'}
+📍 Dirección: ${entity.direccion || 'N/A'}
+💡 Complejidad: ${entity.complejidad || 'N/A'}
+🛠️ Grupo de Servicio: ${entity.grupo || 'N/A'}
+📞 Teléfono: ${entity.telefono || 'N/A'} ${entity.extension ? `(Ext: ${entity.extension})` : ''}
+              `;
+              await this.sendLongMessage(ctx, response);
+              return;
+            }
 
-            await this.sendLongMessage(
-              ctx,
-              `🏥 Servicios de Salud en Cali:\n\n${lines.join('\n\n')}${footer}`,
-            );
+            // Si no fue una pregunta de ubicación, listar brevemente los encontrados
+            const slice = caliResults.slice(0, 3);
+            const lines = slice.map((p) => `🏢 ${p.sede} - 📍 ${p.ciudad} (${p.direccion})`);
+            await this.sendLongMessage(ctx, `🏥 He encontrado los siguientes centros:\n\n${lines.join('\n')}`);
             return;
-          }
         }
       } catch (err) {
         console.error('Cali search routing failed', err);
       }
+
       // If the user explicitly mentions Yopal, prioritize the Yopal dataset and bypass RAG
       try {
         const lcQuery = (messageText || '').toLowerCase();
