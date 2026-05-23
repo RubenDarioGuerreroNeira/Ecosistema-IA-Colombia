@@ -4,9 +4,10 @@ import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
 import { StatsModule } from './stats/stats.module';
 import { DataModule } from './data.module';
+import { BoyacaHealthService } from './boyaca-health.service';
 
 @Module({
   imports: [StatsModule, DataModule],
-  providers: [BotUpdate, GenkitService, UserService],
+  providers: [BotUpdate, GenkitService, UserService, BoyacaHealthService],
 })
 export class BotModule {}

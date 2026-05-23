@@ -88,6 +88,42 @@ export class HealthDataService {
       .slice(0, limit);
   }
 
+  /**
+   * Obtiene los eventos de salud pública más frecuentes por sexo.
+   */
+  async getTopEventsByGender(
+    gender: 'femenino' | 'masculino',
+    limit: number = 5,
+  ): Promise<HealthEvent[]> {
+    return [...this.events]
+      .sort((a, b) => b[gender] - a[gender])
+      .slice(0, limit);
+  }
+
+  /**
+   * Obtiene los eventos más frecuentes por grupo de edad (SIVIGILA).
+   */
+  async getTopEventsByAgeGroup(
+    ageGroup: keyof Omit<
+      HealthEvent,
+      | 'nombre_del_evento'
+      | 'total_de_eventos'
+      | 'urbano'
+      | 'rural'
+      | 'femenino'
+      | 'masculino'
+    >,
+    limit: number = 5,
+  ): Promise<HealthEvent[]> {
+    return [...this.events]
+      .sort((a, b) => {
+        const valB = Number(b[ageGroup]) || 0;
+        const valA = Number(a[ageGroup]) || 0;
+        return valB - valA;
+      })
+      .slice(0, limit);
+  }
+
   async getGlobalTotals() {
     return this.events.reduce(
       (acc, curr) => {

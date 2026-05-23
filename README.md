@@ -21,38 +21,38 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 
 ```mermaid
 graph LR
-    Root((🏥 Salud IA Bot)) --> Interface[📱 Interfaz de Usuario]
-    Root --> Core[⚙️ Backend NestJS]
-    Root --> AI[🤖 Orquestador de IA]
-    Root --> Data[📚 Datos Locales]
+    Root["🏥 Salud IA Bot"] --> Interface["📱 Interfaz de Usuario"]
+    Root --> Core["⚙️ Backend NestJS"]
+    Root --> AI["🤖 Orquestador de IA"]
+    Root --> Data["📚 Datos Locales"]
 
-    Interface --> Telegram[Telegram Bot API]
-    Interface --> Telegraf[nestjs-telegraf]
+    Interface --> Telegram("Telegram Bot API")
+    Interface --> Telegraf("nestjs-telegraf")
 
-    Core --> AppModule[AppModule]
-    Core --> BotModule[BotModule]
-    Core --> Config[ConfigModule / Joi]
-    BotModule --> BotUpdate[BotUpdate]
-    BotModule --> GenkitService[GenkitService]
-    BotModule --> UserService[UserService]
-    BotModule --> StatsModule[StatsModule]
-    BotModule --> DataModule[DataModule]
+    Core --> AppModule("AppModule")
+    Core --> BotModule("BotModule")
+    Core --> Config("ConfigModule / Joi")
+    BotModule --> BotUpdate("BotUpdate")
+    BotModule --> GenkitService("GenkitService")
+    BotModule --> UserService("UserService")
+    BotModule --> StatsModule("StatsModule")
+    BotModule --> DataModule("DataModule")
 
-    Data --> HealthData[Eventos de Salud Pública]
-    Data --> MentalHealth[Salud Mental (CIE-10)]
-    Data --> SexualHealth[Salud Sexual / Reproductiva]
-    Data --> Antioquia[Antioquia]
-    Data --> Boyaca[Boyacá]
-    Data --> Yopal[Yopal]
-    Data --> Cali[Cali]
+    Data --> HealthData("Eventos de Salud Pública")
+    Data --> MentalHealth("Salud Mental CIE-10")
+    Data --> SexualHealth("Salud Sexual / Reproductiva")
+    Data --> Antioquia("Antioquia")
+    Data --> Boyaca("Boyacá")
+    Data --> Yopal("Yopal")
+    Data --> Cali("Cali")
 
-    StatsModule --> HealthStats[HealthStatsService]
-    StatsModule --> MentalHealthStats[MentalHealthStatsService]
-    StatsModule --> SexualHealthStats[SexualHealthStatsService]
+    StatsModule --> HealthStats("HealthStatsService")
+    StatsModule --> MentalHealthStats("MentalHealthStatsService")
+    StatsModule --> SexualHealthStats("SexualHealthStatsService")
 
-    AI --> Genkit[Genkit]
-    AI --> Gemini[Google Gemini 2.5 Flash]
-    AI --> RAG[Contexto RAG / Datos Reales]
+    AI --> Genkit("Genkit")
+    AI --> Gemini("Google Gemini 2.5 Flash")
+    AI --> RAG("Contexto RAG / Datos Reales")
 
     style Root fill:#f9f,stroke:#333,stroke-width:4px
     style AI fill:#bbf,stroke:#333,stroke-width:2px
@@ -68,7 +68,7 @@ graph LR
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
 - **📊 Datos reales cargados en XML**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia (incluyendo Valle de Aburrá), Boyacá, Yopal y Cali por municipio, sede, código, prestador o teléfono.
-- **📈 Análisis inteligente**: Rankings de incidencia, brechas de género, comparaciones urbano/rural, distribución etaria y ciclo de vida en salud mental.
+- **📈 Análisis inteligente**: Rankings de incidencia, brechas de género, comparaciones urbano/rural, análisis de salud mental por **ciclos de vida** (niños, adolescentes, jóvenes, adultos, mayores) y **comparativas directas entre diagnósticos** (ej. "ansiedad vs depresion").
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada para textos largos, saludos personalizados y soporte de `/start` y `/help`.
 - **🛠️ Plataforma modular**: NestJS + módulos de datos, estadísticas y bot que facilitan ampliaciones futuras.
 - **🔒 Validación de configuración**: Configuración de entorno robusta con `ConfigModule` y `Joi`.

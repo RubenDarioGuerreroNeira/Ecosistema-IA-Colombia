@@ -74,14 +74,33 @@ export class CaliHealthService implements OnModuleInit {
       .toLowerCase();
   }
 
-  searchProviders(query: string): CaliHealthProvider[] {
-    const normalizedQuery = this.normalizeString(query);
-    if (!normalizedQuery) return [];
+  private getSignificantTokens(query: string): string[] {
+    const normalized = this.normalizeString(query);
+    if (!normalized) return [];
 
-    const tokens = normalizedQuery
+    const stopWords = new Set([
+      'de', 'del', 'en', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas',
+      'y', 'o', 'u', 'e', 'con', 'sin', 'por', 'para', 'a', 'al', 'que', 'como', 'cual',
+      'cuantos', 'hay', 'tiene', 'esta', 'donde', 'queda', 'buscar', 'busco', 'centros',
+      'centro', 'salud', 'prestadores', 'informacion', 'sobre', 'dónde', 'cuál', 'cómo',
+      'cuáles', 'son', 'clinica', 'clinicas', 'hospital', 'hospitales', 'servicios',
+      'servicio', 'sede', 'sedes', 'grupo', 'grupos', 'departamento', 'ciudad',
+      'municipio', 'direccion'
+    ]);
+
+    return normalized
       .split(/\s+/)
       .map((token) => token.trim())
-      .filter((token) => token.length > 0);
+      .map((t) => t.replace(/[¿?.,;:!¡"'()\[\]{}]/g, ''))
+      .filter((token) => token.length >= 3 && !stopWords.has(token));
+  }
+
+  searchProviders(query: string): CaliHealthProvider[] {
+    const q = this.normalizeString(query);
+    if (!q) return [];
+
+    const tokens = this.getSignificantTokens(query);
+    if (tokens.length === 0) return [];
 
     return this.providers.filter((p) => {
       const fields = [
@@ -93,9 +112,18 @@ export class CaliHealthService implements OnModuleInit {
         this.normalizeString(p.departamento),
       ];
 
-      return tokens.some((token) =>
-        fields.some((field) => field.includes(token)),
-      );
+      // Coincidencia exacta bidireccional
+      const exactMatch = fields.some((f) => f && (f.includes(q) || q.includes(f)));
+      if (exactMatch) return true;
+
+      // Coincidencia por tokens significativos individuales (al menos uno)
+      if (tokens.length > 0) {
+        return tokens.some((token) =>
+          fields.some((field) => field && field.includes(token)),
+        );
+      }
+
+      return false;
     });
   }
 
@@ -164,13 +192,11 @@ export class CaliHealthService implements OnModuleInit {
   }
 
   findByIdentifier(query: string): CaliHealthProvider[] {
-    const normalizedQuery = this.normalizeString(query);
-    if (!normalizedQuery) return [];
+    const q = this.normalizeString(query);
+    if (!q) return [];
 
-    const tokens = normalizedQuery
-      .split(/\s+/)
-      .map((token) => token.trim())
-      .filter((token) => token.length > 0);
+    const tokens = this.getSignificantTokens(query);
+    if (tokens.length === 0) return [];
 
     return this.providers.filter((p) => {
       const fields = [
@@ -180,9 +206,19 @@ export class CaliHealthService implements OnModuleInit {
         this.normalizeString(p.grupo),
         this.normalizeString(p.direccion),
       ];
-      return tokens.some((token) =>
-        fields.some((field) => field.includes(token)),
-      );
+
+      // Coincidencia exacta bidireccional
+      const exactMatch = fields.some((f) => f && (f.includes(q) || q.includes(f)));
+      if (exactMatch) return true;
+
+      // Coincidencia por tokens significativos individuales (al menos uno)
+      if (tokens.length > 0) {
+        return tokens.some((token) =>
+          fields.some((field) => field && field.includes(token)),
+        );
+      }
+
+      return false;
     });
   }
 

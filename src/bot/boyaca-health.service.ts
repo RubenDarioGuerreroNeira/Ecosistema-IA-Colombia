@@ -133,4 +133,12 @@ export class BoyacaHealthService implements OnModuleInit {
   getKnowledgeSummary(): string {
     return `He encontrado ${this.providers.length} prestadores y centros de salud en Boyacá registrados en mi base local.`;
   }
+
+  /** Número de hospitales en Boyacá (determinados por la palabra "HOSPITAL" en nombre o razón social) */
+  getHospitalCount(): number {
+    return this.providers.filter(p =>
+      (p.razon_social?.toUpperCase().includes('HOSPITAL') ||
+       p.nombre_de_sede?.toUpperCase().includes('HOSPITAL'))
+    ).length;
+  }
 }
