@@ -92,6 +92,12 @@ describe('CaliHealthService', () => {
     expect(results[0].sede).toBe('CLINICA ORIENTE');
   });
 
+  it('should prioritize exact name matching in searchProviders (primitivo)', () => {
+    const results = service.searchProviders('primitivo');
+    expect(results).toHaveLength(1);
+    expect(results[0].sede).toBe('HOSPITAL PRIMITIVO IGLESIAS');
+  });
+
   it('should return empty results when query contains only stopwords (hospital)', () => {
     const results = service.searchProviders('hospital');
     expect(results).toHaveLength(0);

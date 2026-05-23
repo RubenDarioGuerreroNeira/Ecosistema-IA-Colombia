@@ -99,31 +99,39 @@ export class CaliHealthService implements OnModuleInit {
     const q = this.normalizeString(query);
     if (!q) return [];
 
+    // Prioridad 1: Coincidencia exacta (solo si no es una stopword)
+    const stopWords = new Set([
+      'de', 'del', 'en', 'el', 'la', 'lo', 'los', 'las', 'un', 'una', 'unos', 'unas',
+      'y', 'o', 'u', 'e', 'con', 'sin', 'por', 'para', 'a', 'al', 'que', 'como', 'cual',
+      'cuantos', 'hay', 'tiene', 'esta', 'donde', 'queda', 'buscar', 'busco', 'centros',
+      'centro', 'salud', 'prestadores', 'informacion', 'sobre', 'dónde', 'cuál', 'cómo',
+      'cuáles', 'son', 'clinica', 'clinicas', 'hospital', 'hospitales', 'servicios',
+      'servicio', 'sede', 'sedes', 'grupo', 'grupos', 'departamento', 'ciudad',
+      'municipio', 'direccion'
+    ]);
+    
+    const isStopWord = stopWords.has(q);
+
+    const exactSedeMatches = this.providers.filter((p) =>
+      this.normalizeString(p.sede).includes(q),
+    );
+    
+    if (exactSedeMatches.length > 0 && !isStopWord) return exactSedeMatches;
+
     const tokens = this.getSignificantTokens(query);
     if (tokens.length === 0) return [];
 
+    // Prioridad 2: Coincidencia por tokens significativos
     return this.providers.filter((p) => {
       const fields = [
         this.normalizeString(p.ciudad),
         this.normalizeString(p.sede),
         this.normalizeString(p.servicio),
-        this.normalizeString(p.grupo),
-        this.normalizeString(p.direccion),
-        this.normalizeString(p.departamento),
       ];
 
-      // Coincidencia exacta bidireccional
-      const exactMatch = fields.some((f) => f && (f.includes(q) || q.includes(f)));
-      if (exactMatch) return true;
-
-      // Coincidencia por tokens significativos individuales (al menos uno)
-      if (tokens.length > 0) {
-        return tokens.some((token) =>
-          fields.some((field) => field && field.includes(token)),
-        );
-      }
-
-      return false;
+      return tokens.some((token) =>
+        fields.some((field) => field && field.includes(token)),
+      );
     });
   }
 

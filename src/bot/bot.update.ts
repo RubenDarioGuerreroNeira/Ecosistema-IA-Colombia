@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
+import { YopalHealthService } from './yopal-health.service';
 
 @Update()
 export class BotUpdate {
@@ -14,6 +15,7 @@ export class BotUpdate {
     private readonly statsService: StatsService,
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
+    private readonly yopalHealthService: YopalHealthService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -30,7 +32,7 @@ export class BotUpdate {
 
   Mis capacidades incluyen:
   - Búsqueda de centros de salud y prestadores en Antioquia (incluyendo Valle de Aburrá), Boyacá ,Cali, Yopal.
-  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida y comparativas directas entre diagnósticos.
+  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida, comparativas directas y perfiles de riesgo por diagnóstico.
   - Rankings de incidencia de enfermedades.
 
   Ejemplos: 
@@ -99,89 +101,92 @@ export class BotUpdate {
 
     // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
     // Esto evita que "cual es la enfermedad mental" dispare una búsqueda de hospital por la palabra "mental".
+    const regions = ['cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle'];
+    const containsRegion = regions.some(r => messageText.toLowerCase().includes(r));
+    console.log(`DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`);
+    
+    // Ajustar la lógica: detectar si es pregunta analítica PERO permitir búsqueda directa si parece referirse a un centro específico.
     const isAnalyticalQuery =
-      /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
+      (/^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
         messageText.trim().toLowerCase(),
-      ) || messageText.split(/\s+/).length > 5;
+      ) || messageText.split(/\s+/).length > 5);
 
-    // Solo intentar búsqueda directa de prestadores si NO es una consulta analítica.
+    // Si el usuario pregunta "¿dónde está X?", o busca un hospital, queremos búsqueda directa.
+    // Sobrescribimos isAnalyticalQuery si detectamos intención de búsqueda de entidad.
+    const isSearchIntent = /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(messageText.toLowerCase());
+
+    console.log(`DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`);
+
+    // Solo intentar búsqueda directa de prestadores si NO es puramente analítica o si tiene intención clara de búsqueda.
     try {
-      if (isAnalyticalQuery)
+      if (isAnalyticalQuery && !isSearchIntent)
         throw new Error('Skip direct lookup: Analytical query detected');
 
-      // Revisión rápida para prestadores en Cali (ej.: "HOSPITAL PRIMITIVO IGLESIAS")
-      try {
-        const caliMatches = this.caliHealthService.findByIdentifier(
-          messageText || '',
-        );
-        if (caliMatches && caliMatches.length > 0) {
-          const slice = caliMatches.slice(0, 10);
-          const lines = slice.map((p, idx) => {
-            const nombre = p.sede || p.servicio || 'N/A';
-            const grupo = p.grupo || 'N/A';
-            const direccion = p.direccion || 'N/A';
-            const departamento = p.departamento || 'N/A';
-            const ciudad = p.ciudad || 'N/A';
-            return `#${idx + 1} ${nombre}\nGrupo: ${grupo}\nServicio: ${p.servicio || 'N/A'}\nDirección: ${direccion}\nDepartamento: ${departamento}\nCiudad: ${ciudad}`;
-          });
-          const exampleHint = this.caliHealthService.getExampleSearchHints();
-          const morePrompt =
-            caliMatches.length > slice.length
-              ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
-                  exampleHint ? ' ' + exampleHint : ''
-                }`
-              : '';
-          await this.sendLongMessage(
-            ctx,
-            `He encontrado ${caliMatches.length} coincidencia(s) en Cali. Mostrando ${slice.length}:\n\n${lines.join('\n\n')}${morePrompt}`,
-          );
-          return;
-        }
-      } catch (err) {
-        // ignore cali search errors and fallback to statsService lookup
-        // eslint-disable-next-line no-console
-        console.error('Cali provider lookup failed', err);
-      }
-      // If the user explicitly mentions Cali, prioritize the Cali dataset
+      // Revisión de prestadores en Cali
       try {
         const lcQuery = (messageText || '').toLowerCase();
-        if (/\bcali\b/.test(lcQuery) || lcQuery.includes('santiago de cali')) {
-          const caliResults = this.caliHealthService.searchProviders(
-            messageText || '',
-          );
-          if (caliResults && caliResults.length > 0) {
-            const uniqueCenters =
-              this.caliHealthService.getUniqueProvidersByCenter(caliResults);
-            const slice = uniqueCenters.slice(0, 10);
-            const lines = slice.map((p, idx) => {
-              const nombre = p.sede || p.servicio || 'N/A';
-              const municipio = p.ciudad || 'N/A';
-              const direccion = p.direccion || 'N/A';
-              return `#${idx + 1}\nNombre sede: ${nombre}\nMunicipio: ${municipio}\nDirección: ${direccion}\nTeléfono: ${p.telefono || 'N/A'}\nEmail: ${p.extension || 'N/A'}\nNivel: ${p.complejidad || 'N/A'}\nCoordenadas: ${p.geolocalizacion || 'N/A'}`;
-            });
-            const exampleHint = this.caliHealthService.getExampleSearchHints();
-            const morePrompt =
-              uniqueCenters.length > slice.length
-                ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
-                    exampleHint ? ' ' + exampleHint : ''
-                  }`
-                : '';
-            await this.sendLongMessage(
-              ctx,
-              `He encontrado ${caliResults.length} coincidencia(s) en Cali, agrupadas en ${uniqueCenters.length} centros diferentes. Mostrando ${slice.length} primero(s):\n\n${lines.join('\n\n')}${morePrompt}`,
-            );
+        
+        // Intentamos buscar siempre, ya que el servicio de Cali puede devolver resultados relevantes
+        const caliResults = this.caliHealthService.searchProviders(messageText || '');
+        
+        if (caliResults && caliResults.length > 0) {
+            // Si hay resultados, priorizamos la respuesta directa
+            const unique = this.caliHealthService.getUniqueProvidersByCenter(caliResults);
+            
+            // Si el usuario preguntó por ubicación o busca una entidad, respondemos con toda la información
+            if (lcQuery.includes('ciudad') || lcQuery.includes('donde esta') || lcQuery.includes('ubicado') || isSearchIntent) {
+              const entity = unique[0];
+              const response = `🏥 *Información del Centro:*
+🏢 Nombre: ${entity.sede || 'N/A'}
+🏙️ Ciudad: ${entity.ciudad || 'N/A'}
+📍 Dirección: ${entity.direccion || 'N/A'}
+💡 Complejidad: ${entity.complejidad || 'N/A'}
+🛠️ Grupo de Servicio: ${entity.grupo || 'N/A'}
+📞 Teléfono: ${entity.telefono || 'N/A'} ${entity.extension ? `(Ext: ${entity.extension})` : ''}
+              `;
+              await this.sendLongMessage(ctx, response);
+              return;
+            }
+
+            // Si no fue una pregunta de ubicación, listar brevemente los encontrados
+            const slice = caliResults.slice(0, 3);
+            const lines = slice.map((p) => `🏢 ${p.sede} - 📍 ${p.ciudad} (${p.direccion})`);
+            await this.sendLongMessage(ctx, `🏥 He encontrado los siguientes centros:\n\n${lines.join('\n')}`);
             return;
+        }
+      } catch (err) {
+        console.error('Cali search routing failed', err);
+      }
+
+      // If the user explicitly mentions Yopal, prioritize the Yopal dataset and bypass RAG
+      try {
+        const lcQuery = (messageText || '').toLowerCase();
+        if (lcQuery.includes('yopal')) {
+          // 1. Intentar búsqueda puntual (si el usuario dio un nombre)
+          const direct = await this.statsService.lookupProviderByIdentifier(messageText);
+          if (direct && !direct.includes('No encontré información específica')) {
+             await this.sendLongMessage(ctx, direct);
+             return;
+          }
+
+          // 2. Si no es búsqueda puntual, listar servicios (formato visual)
+          const allProviders = await this.yopalHealthService.searchProviders('');
+          const lines = allProviders.slice(0, 10).map((p) => {
+            const nombre = p.entidad_2 || 'Nombre no disponible';
+            const gerente = p.gerente || 'N/A';
+            const direccion = p.direccion || 'N/A';
+            const telefono = p.telefono || 'N/A';
+            const email = p.correo_electronico || 'N/A';
+            return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
+          });
+          
+          if (lines.length > 0) {
+             await this.sendLongMessage(ctx, `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`);
+             return;
           }
         }
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('Cali search routing failed', err);
-      }
-      const direct =
-        await this.statsService.lookupProviderByIdentifier(messageText);
-      if (direct) {
-        await this.sendLongMessage(ctx, direct);
-        return;
+        console.error('Yopal bypass failed', err);
       }
     } catch (err) {
       // Si falla la búsqueda directa, continuar con el flujo normal
@@ -201,6 +206,7 @@ export class BotUpdate {
       '--- DISTRIBUCIÓN',
       '--- ANÁLISIS GLOBAL',
       '--- SALUD MENTAL',
+      '--- PERFIL DE RIESGO',
       'En el grupo de',
       'La enfermedad de salud mental que más afecta',
     ];

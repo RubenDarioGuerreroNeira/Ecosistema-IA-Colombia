@@ -94,7 +94,7 @@ export class YopalHealthService implements OnModuleInit {
       'hay', 'tiene', 'esta', 'los', 'las', 'del', 'por', 'para',
       'con', 'sin', 'una', 'uno', 'centros', 'centro', 'salud',
       'yopal', 'casanare', 'prestadores', 'informacion', 'sobre',
-      'dónde', 'cuál', 'cómo', 'cuáles', 'son',
+      'dónde', 'cuál', 'cómo', 'cuáles', 'son', 'hospital', 'hospitales',
     ]);
     const tokens = q
       .split(/\s+/)
