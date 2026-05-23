@@ -30,7 +30,7 @@ export class BotUpdate {
 
   Mis capacidades incluyen:
   - Búsqueda de centros de salud y prestadores en Antioquia (incluyendo Valle de Aburrá), Boyacá ,Cali, Yopal.
-  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida y comparativas directas entre diagnósticos.
+  - Análisis estadístico de salud mental: prevalencia por edad, ciclos de vida, comparativas directas y perfiles de riesgo por diagnóstico.
   - Rankings de incidencia de enfermedades.
 
   Ejemplos: 
@@ -201,6 +201,7 @@ export class BotUpdate {
       '--- DISTRIBUCIÓN',
       '--- ANÁLISIS GLOBAL',
       '--- SALUD MENTAL',
+      '--- PERFIL DE RIESGO',
       'En el grupo de',
       'La enfermedad de salud mental que más afecta',
     ];

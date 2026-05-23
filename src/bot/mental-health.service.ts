@@ -136,6 +136,41 @@ export class MentalHealthService {
   }
 
   /**
+   * Genera un resumen ejecutivo del perfil de riesgo (distribución por ciclos de vida) para un diagnóstico específico.
+   */
+  async getRiskProfileByDiagnosis(diagName: string): Promise<{
+    diagnostico: string;
+    total: number;
+    distribucion: Record<string, number>;
+  } | null> {
+    const diag = await this.getStatsForDiagnosis(diagName);
+    if (!diag) return null;
+
+    const mapping = {
+      niños: ['menor_a_1', 'de_1_a_4', 'de_5_a_9'],
+      adolescentes: ['de_10_a_14', 'de_15_a_19'],
+      jovenes: ['de_15_a_19', 'de_20_a_49'],
+      adultos: ['de_20_a_49', 'de_50_a_64'],
+      mayores: ['_65_y_mas'],
+    };
+
+    const distribucion: Record<string, number> = {};
+
+    for (const [cycle, fields] of Object.entries(mapping)) {
+      distribucion[cycle] = fields.reduce(
+        (sum, f) => sum + (Number(diag[f as keyof MentalHealthEvent]) || 0),
+        0,
+      );
+    }
+
+    return {
+      diagnostico: diag.diagnostico_ingreso,
+      total: diag.total,
+      distribucion,
+    };
+  }
+
+  /**
    * Obtiene los diagnósticos con mayor número de casos
    */
   async getTopDiagnoses(limit: number = 5): Promise<MentalHealthEvent[]> {

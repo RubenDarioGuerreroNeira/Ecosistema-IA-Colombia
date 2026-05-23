@@ -49,6 +49,7 @@ graph LR
     StatsModule --> HealthStats("HealthStatsService")
     StatsModule --> MentalHealthStats("MentalHealthStatsService")
     StatsModule --> SexualHealthStats("SexualHealthStatsService")
+    StatsModule --> RiskProfile("Perfil de Riesgo")
 
     AI --> Genkit("Genkit")
     AI --> Gemini("Google Gemini 2.5 Flash")
@@ -68,7 +69,7 @@ graph LR
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
 - **📊 Datos reales cargados en XML**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia (incluyendo Valle de Aburrá), Boyacá, Yopal y Cali por municipio, sede, código, prestador o teléfono.
-- **📈 Análisis inteligente**: Rankings de incidencia, brechas de género, comparaciones urbano/rural, análisis de salud mental por **ciclos de vida** (niños, adolescentes, jóvenes, adultos, mayores) y **comparativas directas entre diagnósticos** (ej. "ansiedad vs depresion").
+- 📈 Análisis inteligente: Rankings de incidencia, brechas de género, comparaciones urbano/rural, análisis de salud mental por **ciclos de vida** (niños, adolescentes, jóvenes, adultos, mayores), **comparativas directas entre diagnósticos** y **perfiles de riesgo específicos por diagnóstico** (ej. "perfil de riesgo de ansiedad").
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada para textos largos, saludos personalizados y soporte de `/start` y `/help`.
 - **🛠️ Plataforma modular**: NestJS + módulos de datos, estadísticas y bot que facilitan ampliaciones futuras.
 - **🔒 Validación de configuración**: Configuración de entorno robusta con `ConfigModule` y `Joi`.
