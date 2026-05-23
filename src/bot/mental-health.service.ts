@@ -113,6 +113,20 @@ export class MentalHealthService {
   }
 
   /**
+   * Compara la prevalencia total de dos diagnósticos específicos.
+   */
+  async getComparisonBetweenDiagnoses(
+    diag1Name: string,
+    diag2Name: string,
+  ): Promise<{ d1: MentalHealthEvent; d2: MentalHealthEvent } | null> {
+    const d1 = await this.getStatsForDiagnosis(diag1Name);
+    const d2 = await this.getStatsForDiagnosis(diag2Name);
+
+    if (!d1 || !d2) return null;
+    return { d1, d2 };
+  }
+
+  /**
    * Obtiene los diagnósticos con mayor número de casos
    */
   async getTopDiagnoses(limit: number = 5): Promise<MentalHealthEvent[]> {
