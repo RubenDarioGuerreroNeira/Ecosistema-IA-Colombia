@@ -88,8 +88,18 @@ export class BotUpdate {
       await this.sendPersonalizedGreeting(ctx);
     }
 
-    // Priorizar búsquedas directas por identificador (código, nombre o sede)
+    // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
+    // Esto evita que "cual es la enfermedad mental" dispare una búsqueda de hospital por la palabra "mental".
+    const isAnalyticalQuery =
+      /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
+        messageText.trim().toLowerCase(),
+      ) || messageText.split(/\s+/).length > 5;
+
+    // Solo intentar búsqueda directa de prestadores si NO es una consulta analítica.
     try {
+      if (isAnalyticalQuery)
+        throw new Error('Skip direct lookup: Analytical query detected');
+
       // Revisión rápida para prestadores en Cali (ej.: "HOSPITAL PRIMITIVO IGLESIAS")
       try {
         const caliMatches = this.caliHealthService.findByIdentifier(
@@ -173,6 +183,14 @@ export class BotUpdate {
 
     // RAG: Gather context through the StatsService (data-driven summaries)
     const contextData = await this.statsService.getSummary(messageText);
+    
+    // Si la respuesta proviene directamente de nuestros servicios de datos (StatsService),
+    // la devolvemos directamente para evitar que Genkit "alucine" o diga que no tiene datos.
+    if (contextData && !contextData.includes('[INFO]')) {
+       await this.sendLongMessage(ctx, contextData);
+       return;
+    }
+
     const chartUrl = undefined;
 
     if (chartUrl) {
