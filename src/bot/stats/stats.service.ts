@@ -505,6 +505,7 @@ export class StatsService {
 ${lines.join('\n')}
 
 Total registrado: ${profile.total} casos.
+*(Nota: La suma de ciclos puede superar el total debido a que los rangos de edad son categorías solapadas).*
 `;
   }
 
