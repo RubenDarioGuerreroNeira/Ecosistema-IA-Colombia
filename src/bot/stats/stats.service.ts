@@ -448,7 +448,9 @@ export class StatsService {
       ];
     }
 
-    if (!matches || matches.length === 0) return null;
+    if (!matches || matches.length === 0) {
+      return `⚠️ No encontré información específica para "${q}" en mi base de datos.\n\nActualmente, dispongo de información detallada de centros de salud, hospitales y clínicas en las siguientes regiones:\n- Antioquia (incluyendo Valle de Aburrá)\n- Boyacá\n- Cali\n- Yopal (Casanare)\n\nPor favor, intenta con el nombre de una sede, código de prestador o un dato más específico de estas regiones.`;
+    }
 
 
     // Formatear la respuesta (máximo 20 resultados para evitar mensajes gigantes)

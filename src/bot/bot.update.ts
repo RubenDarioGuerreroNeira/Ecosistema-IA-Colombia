@@ -153,8 +153,16 @@ export class BotUpdate {
       try {
         const lcQuery = (messageText || '').toLowerCase();
         if (lcQuery.includes('yopal')) {
-          const direct = await this.yopalHealthService.searchProviders(''); // Obtener todos si es necesario
-          const lines = direct.slice(0, 10).map((p) => {
+          // 1. Intentar búsqueda puntual (si el usuario dio un nombre)
+          const direct = await this.statsService.lookupProviderByIdentifier(messageText);
+          if (direct && !direct.includes('No encontré información específica')) {
+             await this.sendLongMessage(ctx, direct);
+             return;
+          }
+
+          // 2. Si no es búsqueda puntual, listar servicios (formato visual)
+          const allProviders = await this.yopalHealthService.searchProviders('');
+          const lines = allProviders.slice(0, 10).map((p) => {
             const nombre = p.entidad_2 || 'Nombre no disponible';
             const gerente = p.gerente || 'N/A';
             const direccion = p.direccion || 'N/A';
