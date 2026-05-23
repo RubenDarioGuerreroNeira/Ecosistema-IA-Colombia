@@ -87,7 +87,16 @@ export class MentalHealthService {
   }
 
   async getStatsForDiagnosis(query: string): Promise<MentalHealthEvent | null> {
-    const queryLower = query.toLowerCase();
+    const queryLower = query.toLowerCase().trim();
+    // Priorizar coincidencia exacta
+    const exactMatch = this.events.find(
+      (e) =>
+        e.diagnostico_ingreso.toLowerCase() === queryLower ||
+        e.codigo_dx_ingreso.toLowerCase() === queryLower,
+    );
+    if (exactMatch) return exactMatch;
+
+    // Si no hay exacta, buscar por inclusión pero asegurando que sea relevante
     const event = this.events.find(
       (e) =>
         e.diagnostico_ingreso.toLowerCase().includes(queryLower) ||
