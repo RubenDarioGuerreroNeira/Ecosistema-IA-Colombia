@@ -117,72 +117,36 @@ export class BotUpdate {
       if (isAnalyticalQuery)
         throw new Error('Skip direct lookup: Analytical query detected');
 
-      // Revisión rápida para prestadores en Cali (ej.: "HOSPITAL PRIMITIVO IGLESIAS")
-      try {
-        const caliMatches = this.caliHealthService.findByIdentifier(
-          messageText || '',
-        );
-        if (caliMatches && caliMatches.length > 0) {
-          const slice = caliMatches.slice(0, 10);
-          const lines = slice.map((p, idx) => {
-            const nombre = p.sede || p.servicio || 'N/A';
-            const grupo = p.grupo || 'N/A';
-            const direccion = p.direccion || 'N/A';
-            const departamento = p.departamento || 'N/A';
-            const ciudad = p.ciudad || 'N/A';
-            return `#${idx + 1} ${nombre}\nGrupo: ${grupo}\nServicio: ${p.servicio || 'N/A'}\nDirección: ${direccion}\nDepartamento: ${departamento}\nCiudad: ${ciudad}`;
-          });
-          const exampleHint = this.caliHealthService.getExampleSearchHints();
-          const morePrompt =
-            caliMatches.length > slice.length
-              ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
-                  exampleHint ? ' ' + exampleHint : ''
-                }`
-              : '';
-          await this.sendLongMessage(
-            ctx,
-            `He encontrado ${caliMatches.length} coincidencia(s) en Cali. Mostrando ${slice.length}:\n\n${lines.join('\n\n')}${morePrompt}`,
-          );
-          return;
-        }
-      } catch (err) {
-        // ignore cali search errors and fallback to statsService lookup
-        // eslint-disable-next-line no-console
-        console.error('Cali provider lookup failed', err);
-      }
-      // If the user explicitly mentions Cali, prioritize the Cali dataset
+      // Revisión de prestadores en Cali
       try {
         const lcQuery = (messageText || '').toLowerCase();
         if (/\bcali\b/.test(lcQuery) || lcQuery.includes('santiago de cali')) {
-          const caliResults = this.caliHealthService.searchProviders(
-            messageText || '',
-          );
+          const caliResults = this.caliHealthService.searchProviders(messageText || '');
           if (caliResults && caliResults.length > 0) {
-            const uniqueCenters =
-              this.caliHealthService.getUniqueProvidersByCenter(caliResults);
-            const slice = uniqueCenters.slice(0, 10);
-            const lines = slice.map((p, idx) => {
+            const slice = caliResults.slice(0, 5); // Mostrar 5 registros reales
+            const lines = slice.map((p) => {
               const nombre = p.sede || p.servicio || 'N/A';
-              const municipio = p.ciudad || 'N/A';
+              const servicio = p.servicio || 'N/A';
+              const grupo = p.grupo || 'N/A';
               const direccion = p.direccion || 'N/A';
-              return `#${idx + 1}\nNombre sede: ${nombre}\nMunicipio: ${municipio}\nDirección: ${direccion}\nTeléfono: ${p.telefono || 'N/A'}\nEmail: ${p.extension || 'N/A'}\nNivel: ${p.complejidad || 'N/A'}\nCoordenadas: ${p.geolocalizacion || 'N/A'}`;
+              const ciudad = p.ciudad || 'N/A';
+              
+              return `🏢 Entidad: ${nombre}\n🏥 Servicio: ${servicio} (${grupo})\n📍 Dirección: ${direccion}\n🏙️ Ciudad: ${ciudad}`;
             });
-            const exampleHint = this.caliHealthService.getExampleSearchHints();
-            const morePrompt =
-              uniqueCenters.length > slice.length
-                ? `\n\nSi desea conocer la info de algún centro específico en Cali, digite algún campo que sea puntual para búsqueda en mi base de datos?${
-                    exampleHint ? ' ' + exampleHint : ''
-                  }`
-                : '';
+            
+            const count = caliResults.length;
+            const footer = count > slice.length 
+              ? `\n\nHe encontrado un total de ${count} registros en Cali. Si buscas un centro específico, intenta indicando el nombre o un dato puntual del lugar para refinar tu búsqueda.`
+              : `\n\nHe encontrado un total de ${count} registros en Cali.`;
+
             await this.sendLongMessage(
               ctx,
-              `He encontrado ${caliResults.length} coincidencia(s) en Cali, agrupadas en ${uniqueCenters.length} centros diferentes. Mostrando ${slice.length} primero(s):\n\n${lines.join('\n\n')}${morePrompt}`,
+              `🏥 Servicios de Salud en Cali:\n\n${lines.join('\n\n')}${footer}`,
             );
             return;
           }
         }
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error('Cali search routing failed', err);
       }
       // If the user explicitly mentions Yopal, prioritize the Yopal dataset and bypass RAG
