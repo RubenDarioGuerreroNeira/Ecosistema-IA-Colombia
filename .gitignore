@@ -15,3 +15,7 @@ yarn-error.log*
 # IDEs
 .vscode/
 .idea/
+
+# Documentacion de funciones
+@FUNCIONES SALUD PUBLICA.md
+validacion de datos salud publica.txt

@@ -6,6 +6,7 @@ import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
+import { SaludPublicaService } from './salud-publica.service';
 
 @Update()
 export class BotUpdate {
@@ -16,6 +17,7 @@ export class BotUpdate {
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
+    private readonly saludPublicaService: SaludPublicaService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -34,13 +36,15 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
 
 📍 **Búsqueda de Centros de Salud:** Encuentra información detallada (ubicación, servicios, contactos) de prestadores en **Antioquia, Boyacá, Cali y Yopal**.
 🧠 **Análisis de Salud Mental:** Obtén estadísticas precisas sobre prevalencia, ciclos de vida y perfiles de riesgo.
-📊 **Reportes de Salud Pública:** Consulta rankings de incidencia de enfermedades y temas clave en salud sexual y reproductiva.
+📊 **Reportes de Salud Pública:** Consulta rankings de incidencia, distribuciones geográficas y comparativas de enfermedades de interés público.
 
 **¿Cómo puedo ayudarte hoy?**
 *   *"¿Dónde queda el Hospital Primitivo Iglesias?"*
 *   *"Prestadores de salud en Yopal"*
 *   *"Ansiedad vs. depresión"*
-*   *"Enfermedades que más afectan a los jóvenes"*`;
+*   *"¿Cuántos casos de dengue hay?"*
+*   *"Top 3 eventos más comunes"*
+*   *"¿El dengue afecta más a hombres o mujeres?"*`;
 
     await ctx.reply(welcomeMessage, { parse_mode: 'Markdown' });
 
@@ -58,7 +62,7 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
   @Help()
   async help(@Ctx() ctx: Context) {
     await ctx.reply(
-      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas. También puedes buscar centros de salud o prestadores de servicios en Antioquia, por ejemplo: "centros de salud en Itagüí" o "prestadores en Valle de Aburrá".',
+      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas. También puedes buscar centros de salud o prestadores de servicios en Antioquia, por ejemplo: "centros de salud en Itagüí" o "prestadores en Valle de Aburrá".\n\nAdemás, cuento con análisis de salud pública:\n- "Casos de dengue"\n- "Top eventos más comunes"\n- "Comparar dengue y chikungunya"',
     );
   }
 
@@ -101,20 +105,36 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
     // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
     // Esto evita que "cual es la enfermedad mental" dispare una búsqueda de hospital por la palabra "mental".
     const regions = ['cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle'];
-    const containsRegion = regions.some(r => messageText.toLowerCase().includes(r));
-    console.log(`DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`);
-    
+    const containsRegion = regions.some((r) =>
+      messageText.toLowerCase().includes(r),
+    );
+    console.log(
+      `DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`,
+    );
+
     // Ajustar la lógica: detectar si es pregunta analítica PERO permitir búsqueda directa si parece referirse a un centro específico.
     const isAnalyticalQuery =
-      (/^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
+      /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
         messageText.trim().toLowerCase(),
-      ) || messageText.split(/\s+/).length > 5);
+      ) || messageText.split(/\s+/).length > 5;
 
     // Si el usuario pregunta "¿dónde está X?", o busca un hospital, queremos búsqueda directa.
     // Sobrescribimos isAnalyticalQuery si detectamos intención de búsqueda de entidad.
-    const isSearchIntent = /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(messageText.toLowerCase());
+    const isSearchIntent =
+      /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(
+        messageText.toLowerCase(),
+      );
 
-    console.log(`DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`);
+    console.log(
+      `DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`,
+    );
+
+    // Nueva integración de Salud Pública (Prioridad absoluta)
+    const { contenido, encontrado } = this.saludPublicaService.procesarPregunta(messageText);
+    if (encontrado) {
+      await this.sendLongMessage(ctx, contenido);
+      return;
+    }
 
     // Solo intentar búsqueda directa de prestadores si NO es puramente analítica o si tiene intención clara de búsqueda.
     try {
@@ -124,18 +144,26 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
       // Revisión de prestadores en Cali
       try {
         const lcQuery = (messageText || '').toLowerCase();
-        
+
         // Intentamos buscar siempre, ya que el servicio de Cali puede devolver resultados relevantes
-        const caliResults = this.caliHealthService.searchProviders(messageText || '');
-        
+        const caliResults = this.caliHealthService.searchProviders(
+          messageText || '',
+        );
+
         if (caliResults && caliResults.length > 0) {
-            // Si hay resultados, priorizamos la respuesta directa
-            const unique = this.caliHealthService.getUniqueProvidersByCenter(caliResults);
-            
-            // Si el usuario preguntó por ubicación o busca una entidad, respondemos con toda la información
-            if (lcQuery.includes('ciudad') || lcQuery.includes('donde esta') || lcQuery.includes('ubicado') || isSearchIntent) {
-              const entity = unique[0];
-              const response = `🏥 *Información del Centro:*
+          // Si hay resultados, priorizamos la respuesta directa
+          const unique =
+            this.caliHealthService.getUniqueProvidersByCenter(caliResults);
+
+          // Si el usuario preguntó por ubicación o busca una entidad, respondemos con toda la información
+          if (
+            lcQuery.includes('ciudad') ||
+            lcQuery.includes('donde esta') ||
+            lcQuery.includes('ubicado') ||
+            isSearchIntent
+          ) {
+            const entity = unique[0];
+            const response = `🏥 *Información del Centro:*
 🏢 Nombre: ${entity.sede || 'N/A'}
 🏙️ Ciudad: ${entity.ciudad || 'N/A'}
 📍 Dirección: ${entity.direccion || 'N/A'}
@@ -143,15 +171,20 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
 🛠️ Grupo de Servicio: ${entity.grupo || 'N/A'}
 📞 Teléfono: ${entity.telefono || 'N/A'} ${entity.extension ? `(Ext: ${entity.extension})` : ''}
               `;
-              await this.sendLongMessage(ctx, response);
-              return;
-            }
-
-            // Si no fue una pregunta de ubicación, listar brevemente los encontrados
-            const slice = caliResults.slice(0, 3);
-            const lines = slice.map((p) => `🏢 ${p.sede} - 📍 ${p.ciudad} (${p.direccion})`);
-            await this.sendLongMessage(ctx, `🏥 He encontrado los siguientes centros:\n\n${lines.join('\n')}`);
+            await this.sendLongMessage(ctx, response);
             return;
+          }
+
+          // Si no fue una pregunta de ubicación, listar brevemente los encontrados
+          const slice = caliResults.slice(0, 3);
+          const lines = slice.map(
+            (p) => `🏢 ${p.sede} - 📍 ${p.ciudad} (${p.direccion})`,
+          );
+          await this.sendLongMessage(
+            ctx,
+            `🏥 He encontrado los siguientes centros:\n\n${lines.join('\n')}`,
+          );
+          return;
         }
       } catch (err) {
         console.error('Cali search routing failed', err);
@@ -162,14 +195,19 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
         const lcQuery = (messageText || '').toLowerCase();
         if (lcQuery.includes('yopal')) {
           // 1. Intentar búsqueda puntual (si el usuario dio un nombre)
-          const direct = await this.statsService.lookupProviderByIdentifier(messageText);
-          if (direct && !direct.includes('No encontré información específica')) {
-             await this.sendLongMessage(ctx, direct);
-             return;
+          const direct =
+            await this.statsService.lookupProviderByIdentifier(messageText);
+          if (
+            direct &&
+            !direct.includes('No encontré información específica')
+          ) {
+            await this.sendLongMessage(ctx, direct);
+            return;
           }
 
           // 2. Si no es búsqueda puntual, listar servicios (formato visual)
-          const allProviders = await this.yopalHealthService.searchProviders('');
+          const allProviders =
+            await this.yopalHealthService.searchProviders('');
           const lines = allProviders.slice(0, 10).map((p) => {
             const nombre = p.entidad_2 || 'Nombre no disponible';
             const gerente = p.gerente || 'N/A';
@@ -178,10 +216,13 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
             const email = p.correo_electronico || 'N/A';
             return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
           });
-          
+
           if (lines.length > 0) {
-             await this.sendLongMessage(ctx, `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`);
-             return;
+            await this.sendLongMessage(
+              ctx,
+              `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`,
+            );
+            return;
           }
         }
       } catch (err) {
@@ -190,7 +231,7 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
     } catch (err) {
       // Si falla la búsqueda directa, continuar con el flujo normal
       // (no interrumpimos la experiencia del usuario)
-      // eslint-disable-next-line no-console
+
       console.error('Direct provider lookup failed', err);
     }
 

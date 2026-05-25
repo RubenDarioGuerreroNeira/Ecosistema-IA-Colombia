@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { SaludPublicaService } from './salud-publica.service';
 import { HealthDataService } from './health-data.service';
 import { SexualHealthService } from './sexual-health.service';
 import { MentalHealthService } from './mental-health.service';
@@ -9,6 +10,7 @@ import { CaliHealthService } from './cali-health.service';
 
 @Module({
   providers: [
+    SaludPublicaService,
     HealthDataService,
     SexualHealthService,
     MentalHealthService,
@@ -18,6 +20,7 @@ import { CaliHealthService } from './cali-health.service';
     CaliHealthService,
   ],
   exports: [
+    SaludPublicaService,
     HealthDataService,
     SexualHealthService,
     MentalHealthService,
