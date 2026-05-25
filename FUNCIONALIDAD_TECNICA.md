@@ -1,0 +1,36 @@
+# FUNCIONALIDAD TÉCNICA - Módulo Salud Pública
+
+## Descripción
+El servicio `SaludPublicaService` es un motor de análisis epidemiológico basado en datos estructurados (XML). Permite consultas analíticas, comparativas y estadísticas sin depender de modelos generativos (Genkit) para datos precisos, garantizando veracidad y evitando alucinaciones.
+
+## Arquitectura del Servicio
+
+```mermaid
+graph TD
+    User["Usuario (Telegram)"] --> Router["BotUpdate.onText"]
+    Router --> Publica["SaludPublicaService"]
+    Router --> RAG["Genkit (RAG)"]
+    
+    subgraph "SaludPublicaService"
+        Normalizer["Normalización de Texto"]
+        SearchEngine["Motor de Búsqueda (Sinónimos)"]
+        Analytics["Análisis (Ranking, Zona, Sexo, Edad, Rango)"]
+        NLG["Generador de Respuestas (NLG)"]
+    end
+    
+    Publica --> Normalizer
+    Publica --> SearchEngine
+    Publica --> Analytics
+    Publica --> NLG
+    
+    Analytics --> Data["XML Datos (SIVIGILA)"]
+```
+
+## Métodos Clave
+
+1. **`procesarPregunta(texto)`**: Router de intenciones que clasifica la consulta y delega al análisis correspondiente o al fallback/ambigüedad.
+2. **`buscarEventosAmbigua(nombre)`**: Motor de búsqueda con soporte de sinónimos y resolución de coincidencias múltiples.
+3. **`topEventos(n)` / `bottomEventos(n)`**: Rankings de incidencia epidemiológica.
+4. **`eventosPorRango(min, max)`**: Filtro estadístico avanzado.
+5. **`procesarPreguntaCompleja(texto)`**: Motor de análisis para comparativas directas (ej: Dengue vs Chikungunya).
+6. **`_formatearRespuesta(datos, tipo)`**: Motor de generación de lenguaje natural (NLG) que asegura salidas coherentes y con contexto (porcentajes, emojis, conclusiones).
