@@ -30,21 +30,29 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente inteligente con datos reales de salud pública en Colombia.
+    const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente inteligente con datos oficiales de salud pública en Colombia.
 
-Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar integral a través de estas funcionalidades:
+Mi objetivo es apoyarte en la prevención de riesgos y promover tu bienestar integral. Aquí tienes una guía rápida de todo lo que puedes consultar conmigo:
 
-📍 **Búsqueda de Centros de Salud:** Encuentra información detallada (ubicación, servicios, contactos) de prestadores en **Antioquia, Boyacá, Cali y Yopal**.
-🧠 **Análisis de Salud Mental:** Obtén estadísticas precisas sobre prevalencia, ciclos de vida y perfiles de riesgo.
-📊 **Reportes de Salud Pública:** Consulta rankings de incidencia, distribuciones geográficas y comparativas de enfermedades de interés público.
+📍 **Búsqueda de Centros de Salud:**
+- *"¿Dónde queda el Hospital Primitivo Iglesias?"*
+- *"Prestadores de salud en Yopal"*
+- *"Centros de salud en Itagüí"*
 
-**¿Cómo puedo ayudarte hoy?**
-*   *"¿Dónde queda el Hospital Primitivo Iglesias?"*
-*   *"Prestadores de salud en Yopal"*
-*   *"Ansiedad vs. depresión"*
-*   *"¿Cuántos casos de dengue hay?"*
-*   *"Top 3 eventos más comunes"*
-*   *"¿El dengue afecta más a hombres o mujeres?"*`;
+🧠 **Salud Mental y Riesgos:**
+- *"Ansiedad vs. depresión"*
+- *"Perfil de riesgo de depresión"*
+- *"Enfermedades que más afectan a los jóvenes"*
+
+📊 **Análisis Epidemiológico Avanzado:**
+- **Estadísticas:** *"¿Cuántos casos de dengue hay?"*
+- **Rankings:** *"Top 5 eventos más comunes"*, *"Ranking completo de eventos"* o *"Eventos con menos casos"*
+- **Comparativas:** *"Compara hombres con mujeres en depresión"*
+- **Filtros avanzados:** *"Eventos entre 10 y 50 casos"*, *"Eventos que solo afectan mujeres"*
+- **Análisis geográficos:** *"Violencia en zona rural"*
+- **Categorías:** *"Eventos infecciosos en niños"*
+
+**¿Cómo puedo ayudarte hoy?**`;
 
     await ctx.reply(welcomeMessage, { parse_mode: 'Markdown' });
 
@@ -55,14 +63,33 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
 
   @Start()
   async start(@Ctx() ctx: Context) {
-    // Explicitly reset session greeting when /start is called
     await this.sendPersonalizedGreeting(ctx);
   }
 
   @Help()
   async help(@Ctx() ctx: Context) {
     await ctx.reply(
-      'Puedes preguntarme sobre enfermedades transmisibles, salud sexual y reproductiva, salud mental, o reportar síntomas. También puedes buscar centros de salud o prestadores de servicios en Antioquia, por ejemplo: "centros de salud en Itagüí" o "prestadores en Valle de Aburrá".\n\nAdemás, cuento con análisis de salud pública:\n- "Casos de dengue"\n- "Top eventos más comunes"\n- "Comparar dengue y chikungunya"',
+      `🤖 **Menú de Ayuda - Salud IA**
+
+Puedes hacerme consultas sobre diversos temas de salud:
+
+🏢 **Búsqueda de Servicios:**
+- "Hospitales en [Municipio]"
+- "Centros de salud en [Región]"
+
+📝 **Salud Mental:**
+- Perfiles de riesgo por diagnóstico.
+- Comparativas de trastornos (ej. "ansiedad vs depresión").
+
+🔬 **Análisis de Salud Pública (SIVIGILA):**
+- **Consultas directas:** "¿Cuántos casos de [enfermedad] hay?"
+- **Análisis de género:** "Compara hombres con mujeres en [enfermedad]" o "¿qué evento afecta más a mujeres?"
+- **Rankings:** "Top 10 eventos", "Ranking completo", "Eventos raros".
+- **Filtros avanzados:** "Eventos infecciosos", "Eventos entre 20 y 100 casos", "Violencia en zona rural".
+- **Categorías:** "Eventos infecciosos en niños".
+
+💬 *Tip: Soy muy flexible con el lenguaje. ¡Prueba preguntar de forma natural!*`,
+      { parse_mode: 'Markdown' }
     );
   }
 
@@ -97,9 +124,17 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
     const userId = ctx.from?.id;
     const messageText = (ctx.message as any).text;
 
+    // Identificar si el mensaje es un saludo
+    const isGreeting = /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello)/i.test(messageText.trim());
+
     // If it's a new user (not in persistent storage), greet them first
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       await this.sendPersonalizedGreeting(ctx);
+      return;
+    } else if (isGreeting) {
+      const firstName = ctx.from?.first_name || 'usuario';
+      await ctx.reply(`¡Hola, ${firstName}! 👋 ¿En qué puedo ayudarte hoy con tu consulta de salud?`);
+      return;
     }
 
     // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
