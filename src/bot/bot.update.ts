@@ -130,11 +130,9 @@ Mi propósito es apoyarte en la prevención de riesgos y promover tu bienestar i
     );
 
     // Nueva integración de Salud Pública (Prioridad absoluta)
-    const respuestaSalud = this.saludPublicaService.procesarPregunta(messageText);
-    if (!respuestaSalud.toLowerCase().includes('lo siento') && 
-        !respuestaSalud.toLowerCase().includes('no encontré resultados') &&
-        !respuestaSalud.toLowerCase().includes('no pude entender')) {
-      await this.sendLongMessage(ctx, respuestaSalud);
+    const { contenido, encontrado } = this.saludPublicaService.procesarPregunta(messageText);
+    if (encontrado) {
+      await this.sendLongMessage(ctx, contenido);
       return;
     }
 

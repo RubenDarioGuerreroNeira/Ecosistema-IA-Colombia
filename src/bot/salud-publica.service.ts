@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
 import { parseStringPromise } from 'xml2js';
 import { HealthEvent } from './types/health-event.interface';
@@ -15,10 +15,12 @@ export class SaludPublicaService {
 
   private async loadData() {
     try {
-      const xmlData = fs.readFileSync(this.dataPath, 'utf-8');
+      const xmlData = await fs.readFile(this.dataPath, 'utf-8');
       const result = await parseStringPromise(xmlData, { explicitArray: false });
-      const rows = result.response.rows.row;
-      this.events = Array.isArray(rows) ? rows.map(this.mapRowToEvent) : [this.mapRowToEvent(rows)];
+      const rows = result?.response?.rows?.row;
+      if (rows) {
+        this.events = Array.isArray(rows) ? rows.map(this.mapRowToEvent) : [this.mapRowToEvent(rows)];
+      }
     } catch (error) {
       console.error('Error loading health data:', error);
     }
@@ -26,18 +28,18 @@ export class SaludPublicaService {
 
   private mapRowToEvent(row: any): HealthEvent {
     return {
-      nombre_del_evento: row.nombre_del_evento,
-      urbano: parseInt(row.urbano, 10),
-      rural: parseInt(row.rural, 10),
-      primera_infancia: parseInt(row.primera_infancia, 10),
-      infancia: parseInt(row.infancia, 10),
-      adolescencia: parseInt(row.adolescencia, 10),
-      juventud: parseInt(row.juventud, 10),
-      adulto_j_ven: parseInt(row.adulto_j_ven, 10),
-      adulto_mayor: parseInt(row.adulto_mayor, 10),
-      femenino: parseInt(row.femenino, 10),
-      masculino: parseInt(row.masculino, 10),
-      total_de_eventos: parseInt(row.total_de_eventos, 10),
+      nombre_del_evento: row.nombre_del_evento || 'Desconocido',
+      urbano: parseInt(row.urbano, 10) || 0,
+      rural: parseInt(row.rural, 10) || 0,
+      primera_infancia: parseInt(row.primera_infancia, 10) || 0,
+      infancia: parseInt(row.infancia, 10) || 0,
+      adolescencia: parseInt(row.adolescencia, 10) || 0,
+      juventud: parseInt(row.juventud, 10) || 0,
+      adulto_j_ven: parseInt(row.adulto_j_ven, 10) || 0,
+      adulto_mayor: parseInt(row.adulto_mayor, 10) || 0,
+      femenino: parseInt(row.femenino, 10) || 0,
+      masculino: parseInt(row.masculino, 10) || 0,
+      total_de_eventos: parseInt(row.total_de_eventos, 10) || 0,
     };
   }
 
@@ -96,7 +98,6 @@ export class SaludPublicaService {
     'espirometria': 'ESI-IRAG (VIGILANCIA CENTINELA)', 'esi-irag': 'ESI-IRAG (VIGILANCIA CENTINELA)', 'vigilancia centinela': 'ESI-IRAG (VIGILANCIA CENTINELA)'
   };
 
-  // --- Métodos de búsqueda ---
   public buscarEventosAmbigua(nombre: string): HealthEvent[] {
     const normNombre = this._normalizarTexto(nombre);
     const nombreExacto = this.sinonimos[normNombre];
@@ -104,83 +105,67 @@ export class SaludPublicaService {
     return this.events.filter((e) => this._normalizarTexto(e.nombre_del_evento).includes(normNombre));
   }
 
-  public sugerirEventos(nombre: string): HealthEvent[] {
-    const normNombre = this._normalizarTexto(nombre);
-    return this.events.filter(e => {
-      const eNorm = this._normalizarTexto(e.nombre_del_evento);
-      return eNorm.length > 3 && (eNorm.includes(normNombre) || normNombre.includes(eNorm.substring(0, 4)));
-    }).slice(0, 3);
-  }
-
   // --- Análisis ---
-  public listarEventos(): string[] { return this.events.map((e) => e.nombre_del_evento); }
   public topEventos(n = 5): HealthEvent[] {
     return [...this.events].sort((a, b) => b.total_de_eventos - a.total_de_eventos).slice(0, n);
   }
   public bottomEventos(n = 3): HealthEvent[] {
     return [...this.events].sort((a, b) => a.total_de_eventos - b.total_de_eventos).slice(0, n);
   }
-
   public eventosPorRango(min: number, max: number): HealthEvent[] {
     return this.events.filter(e => e.total_de_eventos >= min && e.total_de_eventos <= max);
   }
 
   // --- NLG ---
-  public _formatearRespuesta(datos: any, tipo: string): string {
+  public _formatearRespuesta(datos: any, tipo: string): { contenido: string, encontrado: boolean } {
     switch (tipo) {
-      case 'total': return `El evento **${datos.evento}** registra **${datos.total} casos** en total.`;
-      case 'ranking': return `Los eventos más frecuentes son:\n${datos.top.map((e: any, i: number) => `${i + 1}. 🥇 **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`;
-      case 'raros': return `Los eventos con menos incidencia son:\n${datos.bottom.map((e: any, i: number) => `${i + 1}. 📉 **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`;
-      case 'rango': return `Eventos con entre ${datos.min} y ${datos.max} casos:\n${datos.lista.map((e: any) => `- **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`;
-      default: return JSON.stringify(datos);
+      case 'total': return { contenido: `El evento **${datos.evento}** registra **${datos.total} casos** en total.`, encontrado: true };
+      case 'ranking': return { contenido: `Los eventos más frecuentes son:\n${datos.top.map((e: any, i: number) => `${i + 1}. 🥇 **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`, encontrado: true };
+      case 'raros': return { contenido: `Los eventos con menos incidencia son:\n${datos.bottom.map((e: any, i: number) => `${i + 1}. 📉 **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`, encontrado: true };
+      case 'rango': return { contenido: `Eventos con entre ${datos.min} y ${datos.max} casos:\n${datos.lista.map((e: any) => `- **${e.nombre_del_evento}**: ${e.total_de_eventos} casos`).join('\n')}`, encontrado: true };
+      default: return { contenido: "", encontrado: false };
     }
   }
 
-  public procesarPreguntaCompleja(texto: string): string {
+  public procesarPreguntaCompleja(texto: string): { contenido: string, encontrado: boolean } {
     const eDengue = this.buscarEventosAmbigua('dengue')[0];
     const eChik = this.buscarEventosAmbigua('chikungunya')[0];
-    if (!eDengue || !eChik) return "No tengo suficientes datos.";
+    if (!eDengue || !eChik || eChik.total_de_eventos === 0) return { contenido: "No tengo suficientes datos.", encontrado: true };
     const totalD = eDengue.total_de_eventos;
-    const pctUrbD = (eDengue.urbano / totalD) * 100;
-    const pctRurD = (eDengue.rural / totalD) * 100;
-    const pctMasD = (eDengue.masculino / totalD) * 100;
-    const pctFemD = (eDengue.femenino / totalD) * 100;
+    const pctUrbD = totalD > 0 ? (eDengue.urbano / totalD) * 100 : 0;
+    const pctRurD = totalD > 0 ? (eDengue.rural / totalD) * 100 : 0;
+    const pctMasD = totalD > 0 ? (eDengue.masculino / totalD) * 100 : 0;
+    const pctFemD = totalD > 0 ? (eDengue.femenino / totalD) * 100 : 0;
     const difAbs = totalD - eChik.total_de_eventos;
     const difRel = (difAbs / eChik.total_de_eventos) * 100;
-    return `El ${eDengue.nombre_del_evento} registra ${totalD} casos: ${eDengue.rural} rural (${pctRurD.toFixed(1)}%) y ${eDengue.urbano} urbana (${pctUrbD.toFixed(1)}%).
+    return { contenido: `El ${eDengue.nombre_del_evento} registra ${totalD} casos: ${eDengue.rural} rural (${pctRurD.toFixed(1)}%) y ${eDengue.urbano} urbana (${pctUrbD.toFixed(1)}%).
 Por sexo, afecta a ${eDengue.masculino} hombres (${pctMasD.toFixed(1)}%) y ${eDengue.femenino} mujeres (${pctFemD.toFixed(1)}%).
-Comparado con ${eChik.nombre_del_evento} (${eChik.total_de_eventos} casos), tiene ${difAbs} casos más (${difRel.toFixed(0)}% más).`;
+Comparado con ${eChik.nombre_del_evento} (${eChik.total_de_eventos} casos), tiene ${difAbs} casos más (${difRel.toFixed(0)}% más).`, encontrado: true };
   }
 
-  public procesarPregunta(texto: string): string {
+  public procesarPregunta(texto: string): { contenido: string, encontrado: boolean } {
     const norm = this._normalizarTexto(texto);
     if (norm.includes('dengue') && (norm.includes('rural') || norm.includes('urbana') || norm.includes('hombre') || norm.includes('mujer') || norm.includes('chikungunya'))) {
       return this.procesarPreguntaCompleja(texto);
     }
     if (norm.includes('ranking completo')) {
-        const top = this.topEventos(this.events.length);
-        return this._formatearRespuesta({ top }, 'ranking');
+        return this._formatearRespuesta({ top: this.topEventos(this.events.length) }, 'ranking');
     }
     if (norm.includes('top') || norm.includes('comunes')) {
         const n = parseInt(texto.match(/\d+/)?.[0] || '5');
-        const top = this.topEventos(n);
-        return this._formatearRespuesta({ top }, 'ranking');
+        return this._formatearRespuesta({ top: this.topEventos(n) }, 'ranking');
     }
     if (norm.includes('raros') || norm.includes('menos casos')) {
         const n = parseInt(texto.match(/\d+/)?.[0] || '3');
-        const bottom = this.bottomEventos(n);
-        return this._formatearRespuesta({ bottom }, 'raros');
+        return this._formatearRespuesta({ bottom: this.bottomEventos(n) }, 'raros');
     }
     const matches = texto.match(/entre (\d+) y (\d+)/);
     if (matches) {
-        const min = parseInt(matches[1]);
-        const max = parseInt(matches[2]);
-        const lista = this.eventosPorRango(min, max);
-        return this._formatearRespuesta({ min, max, lista }, 'rango');
+        return this._formatearRespuesta({ min: matches[1], max: matches[2], lista: this.eventosPorRango(parseInt(matches[1]), parseInt(matches[2])) }, 'rango');
     }
     const coincidencias = this.buscarEventosAmbigua(texto);
-    if (coincidencias.length > 1) return "Encontré varios eventos relacionados. ¿Cuál te interesa?";
-    if (coincidencias.length === 0) return "No encontré resultados. Intenta buscar por nombre de evento.";
+    if (coincidencias.length > 1) return { contenido: "Encontré varios eventos relacionados. ¿Cuál te interesa?", encontrado: true };
+    if (coincidencias.length === 0) return { contenido: "No encontré resultados.", encontrado: false };
     const evento = coincidencias[0];
     return this._formatearRespuesta({ evento: evento.nombre_del_evento, total: evento.total_de_eventos }, 'total');
   }
