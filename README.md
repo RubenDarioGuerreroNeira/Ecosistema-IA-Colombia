@@ -31,6 +31,7 @@ graph LR
     Core --> BotUpdate("BotUpdate [Router]")
     
     BotUpdate --> Bypass{{"Bypass (Búsqueda Directa)"}}
+    Bypass --> SexualHealth("SexualHealthService")
     Bypass --> CaliService("CaliHealthService")
     Bypass --> YopalService("YopalHealthService")
     Bypass --> StatsService("StatsService")
@@ -38,6 +39,7 @@ graph LR
     BotUpdate --> RAG("RAG / Genkit")
     RAG --> Gemini("Google Gemini 2.5 Flash")
 
+    SexualHealth --> Data
     CaliService --> Data
     YopalService --> Data
     StatsService --> Data
@@ -53,40 +55,23 @@ graph LR
 ## 🚀 Características Principales
 
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
+- **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
+- **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto y *stemming* de raíces, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales cargados en XML**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia (incluyendo Valle de Aburrá), Boyacá, Yopal y Cali por municipio, sede, código, prestador o teléfono.
 - **📈 Análisis Epidemiológico Avanzado**: 
-    - Rankings de incidencia (Top N, Ranking completo).
-    - Identificación de eventos con menor incidencia (eventos raros).
-    - Comparativas directas entre diagnósticos (ej. Dengue vs Chikungunya).
-    - Análisis de distribución demográfica (zona urbana/rural, sexo).
-    - Filtrado de eventos por rangos de casos y categorías clínicas.
-- **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada para textos largos, saludos personalizados y soporte de `/start` y `/help`.
-- **🛠️ Plataforma modular**: NestJS + módulos de datos, estadísticas y bot que facilitan ampliaciones futuras.
-- **🔒 Validación de configuración**: Configuración de entorno robusta con `ConfigModule` y `Joi`.
-
+    - Rankings de incidencia.
+    - Comparativas directas y demográficas.
+    - Filtrado de eventos.
+- **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados y soporte de `/start` y `/help`.
 
 ---
 
 ## 🛠️ Metodología y Documentación Técnica
 
-Este proyecto no solo es una implementación técnica, sino que sigue un proceso de ingeniería de IA riguroso:
-
-- **Metodología CRISP-ML**: El desarrollo se rige bajo el estándar _Cross-Industry Standard Process for Machine Learning_, cubriendo desde el entendimiento del negocio hasta el despliegue.
-- **Orquestación con Genkit**: Implementación de flujos de IA avanzados, permitiendo una separación clara entre la lógica de aplicación y la inteligencia artificial.
-- **Documentación Exhaustiva**: Contamos con una memoria técnica detallada que incluye el análisis de datos, flujos de trabajo y justificación de arquitectura.
+Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando **CRISP-ML** y arquitectura basada en servicios, priorizando la integridad de los datos sobre la verbosidad de la IA mediante un sistema de *bypass* de respuesta.
 
 👉 **[Consulta la Memoria Técnica Completa aquí](./DOCUMENTACION_TECNICA.md)**
-
----
-
-## 🌍 Impacto Esperado
-
-La implementación de **Salud IA Bot** busca generar un valor tangible en tres dimensiones:
-
-- **Social**: Democratización del acceso a la información de salud pública y fomento de la cultura de prevención en toda la población colombiana.
-- **Económico**: Reducción de la saturación en los servicios de primer nivel de atención y optimización de los costos operativos del sistema de salud.
-- **Ambiental**: Digitalización de la comunicación sanitaria, eliminando la dependencia de material impreso para campañas de prevención.
 
 ---
 
@@ -98,18 +83,10 @@ La implementación de **Salud IA Bot** busca generar un valor tangible en tres d
 | **IA Orchestration** | [Genkit](https://firebase.google.com/docs/genkit)                | Gestión de flujos de IA y despliegue.            |
 | **LLM**              | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/) | Generación de respuestas inteligentes y rápidas. |
 | **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                             | Comunicación con la API de Telegram.             |
-| **Validación**       | [Joi](https://joi.dev/)                                          | Validación de variables de entorno.              |
 
 ---
 
 ## ⚙️ Instalación y Configuración
-
-### Requisitos Previos
-
-- Node.js (v18+)
-- npm o yarn
-- Un Bot Token de Telegram (obtenido vía `@BotFather`)
-- Una API Key de Google AI Studio
 
 ### Pasos para ejecutar localmente
 
@@ -127,7 +104,7 @@ La implementación de **Salud IA Bot** busca generar un valor tangible en tres d
    ```
 
 3. **Configurar variables de entorno:**
-   Crea un archivo `.env` en la raíz del proyecto basado en `.env.example`:
+   Crea un archivo `.env` basado en `.env.example`:
 
    ```env
    TELEGRAM_BOT_TOKEN=tu_token_de_telegram

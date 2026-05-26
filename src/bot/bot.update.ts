@@ -7,6 +7,7 @@ import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { SaludPublicaService } from './salud-publica.service';
+import { SexualHealthService } from './sexual-health.service';
 
 @Update()
 export class BotUpdate {
@@ -18,6 +19,7 @@ export class BotUpdate {
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
     private readonly saludPublicaService: SaludPublicaService,
+    private readonly sexualHealthService: SexualHealthService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -41,19 +43,16 @@ Estoy aquí para darte una experiencia clara, cercana y segura en cada consulta.
 - Comparar enfermedades, grupos de edad, género y zonas geográficas.
 - Explorar salud mental, riesgos y factores que afectan a tu comunidad.
 - Entender datos complejos con explicaciones fáciles y respetuosas.
+- **Acceder a guías de salud sexual y reproductiva**, incluyendo rutas de atención, derechos y prevención.
 
-🔎 **Ejemplos de preguntas que puedo resolver:**
+🔎 **Ejemplos de preguntas que puedes hacerme:**
 - *"¿Dónde queda el Hospital Primitivo Iglesias?"*
-- *"Hospitales en Yopal"*
+- *"¿Qué son los Derechos Reproductivos?"*
+- *"¿Qué hacer si sufrí una violación?"*
+- *"¿Qué preguntas hacerle al médico si tengo cáncer de próstata?"*
 - *"¿Cuántos casos de dengue hay?"*
-- *"Ansiedad vs depresión"*
-- *"Eventos infecciosos en niños"*
-- *"¿Qué afecta más a mujeres?"*
-- *"Perfil de riesgo para salud mental"*
-- *"¿Qué servicios de urgencias hay en [ciudad]?"*
-- *"Prestadores de salud sexual en [municipio]"*
 - *"¿Cuáles son los eventos con mayor incidencia en Antioquia?"*
-- *"Comparar casos de violencia en zona rural y urbana"*
+- *"¿Qué servicios de salud sexual hay en [ciudad]?"*
 
 💬 Estoy listo para escucharte y apoyarte paso a paso. 
 **¿Qué quisieras explorar hoy?**`;
@@ -175,7 +174,15 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
       `DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`,
     );
 
-    // Nueva integración de Salud Pública (Prioridad absoluta)
+    // Prioridad: Salud Sexual (Dataset específico)
+    const sexualMatches = await this.sexualHealthService.searchByKeyword(messageText);
+    if (sexualMatches && sexualMatches.length > 0) {
+      const bestMatch = sexualMatches[0];
+      await ctx.reply(`💡 *Respuesta encontrada sobre Salud Sexual:*\n\n*Pregunta:* ${bestMatch.pregunta}\n*Respuesta:* ${bestMatch.respuesta}`, { parse_mode: 'Markdown' });
+      return;
+    }
+
+    // Nueva integración de Salud Pública
     const { contenido, encontrado } =
       this.saludPublicaService.procesarPregunta(messageText);
     if (encontrado) {
