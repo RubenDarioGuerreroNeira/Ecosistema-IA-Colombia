@@ -5,6 +5,12 @@ import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
+import { YopalHealthService } from './yopal-health.service';
+import { SaludPublicaService } from './salud-publica.service';
+
+const mockGenkitService = {
+  generateResponse: jest.fn(),
+};
 
 const mockUserService = {
   hasBeenGreeted: jest.fn(),
@@ -25,6 +31,14 @@ const mockCaliHealthService = {
 
 const mockBoyacaHealthService = {};
 
+const mockYopalHealthService = {
+  searchProviders: jest.fn(),
+};
+
+const mockSaludPublicaService = {
+  procesarPregunta: jest.fn(),
+};
+
 describe('BotUpdate', () => {
   let botUpdate: BotUpdate;
 
@@ -32,11 +46,13 @@ describe('BotUpdate', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BotUpdate,
-        GenkitService,
+        { provide: GenkitService, useValue: mockGenkitService },
         { provide: UserService, useValue: mockUserService },
         { provide: StatsService, useValue: mockStatsService },
         { provide: CaliHealthService, useValue: mockCaliHealthService },
         { provide: BoyacaHealthService, useValue: mockBoyacaHealthService },
+        { provide: YopalHealthService, useValue: mockYopalHealthService },
+        { provide: SaludPublicaService, useValue: mockSaludPublicaService },
       ],
     }).compile();
     botUpdate = module.get<BotUpdate>(BotUpdate);
@@ -44,5 +60,22 @@ describe('BotUpdate', () => {
 
   it('should be defined', () => {
     expect(botUpdate).toBeDefined();
+  });
+
+  it('should send a warm, capability-focused greeting on /start', async () => {
+    const mockCtx: any = {
+      from: { first_name: 'Camila', id: 123 },
+      reply: jest.fn(),
+    };
+
+    await botUpdate.start(mockCtx);
+
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const message = mockCtx.reply.mock.calls[0][0];
+    expect(message).toContain('Salud IA');
+    expect(message).toContain('datos oficiales');
+    expect(message).toContain('Buscar hospitales');
+    expect(mockCtx.reply.mock.calls[0][1]).toEqual({ parse_mode: 'Markdown' });
+    expect(mockUserService.markAsGreeted).toHaveBeenCalledWith(123);
   });
 });
