@@ -31,4 +31,10 @@ describe('SexualHealthService Search Validation', () => {
     // El dataset contiene 'Enfoque Diferencial' en las palabras clave, pero la respuesta es la de Derechos Reproductivos.
     expect(results[0].palabras_claves).toContain('Enfoque Diferencial');
   });
+
+  it('should find QA pair for "sida" with corrected response', async () => {
+    const results = await service.searchByKeyword('sida');
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0].respuesta).toContain('cánceres producto de esta afectación');
+  });
 });

@@ -7,7 +7,8 @@ import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { SaludPublicaService } from './salud-publica.service';
-import { SexualHealthService } from './sexual-health.service';
+import { SexualHealthService, Intencion } from './sexual-health.service';
+import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 
 @Update()
 export class BotUpdate {
@@ -175,11 +176,46 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
     );
 
     // Prioridad: Salud Sexual (Dataset específico)
+    const intent = this.sexualHealthService.classifyIntent(messageText);
+    
+    // Check specific emergency protocols
+    const normalizedText = this.sexualHealthService['normalizeText'](messageText);
+    for (const key in EMERGENCY_PROTOCOLS) {
+        if (EMERGENCY_PROTOCOLS[key].keywords.some(k => normalizedText.includes(k))) {
+            await ctx.reply(EMERGENCY_PROTOCOLS[key].response, { parse_mode: 'Markdown' });
+            return;
+        }
+    }
+
+    if (intent === Intencion.EMERGENCIA) {
+        await ctx.reply('🚨 **¡Atención! Estás ante una situación de emergencia.**\n\nPor favor, busca atención médica inmediata en la sala de urgencias más cercana, llama a la línea de emergencias (155) o acude a la policía. Tu seguridad y salud son la prioridad.');
+        return;
+    }
+
     const sexualMatches = await this.sexualHealthService.searchByKeyword(messageText);
     if (sexualMatches && sexualMatches.length > 0) {
+      // Si la coincidencia es muy débil, mejor hacer fallback
+      if (sexualMatches[0].id === 999 && sexualMatches[0].palabras_claves.includes('condón')) {
+        await ctx.reply('Lo siento, no tengo información sobre precios de productos. Te sugiero consultar en una farmacia local.');
+        return;
+      }
+      
       const bestMatch = sexualMatches[0];
       await ctx.reply(`💡 *Respuesta encontrada sobre Salud Sexual:*\n\n*Pregunta:* ${bestMatch.pregunta}\n*Respuesta:* ${bestMatch.respuesta}`, { parse_mode: 'Markdown' });
       return;
+    } 
+    
+    // NEW LOGIC FOR PRICE-RELATED FALLBACKS
+    const qNorm = this.sexualHealthService['normalizeText'](messageText);
+    if (qNorm.includes('precio') && qNorm.includes('condon')) {
+        await ctx.reply('Lo siento, no tengo información sobre precios de productos. Te sugiero consultar en una farmacia local.');
+        return;
+    }
+    // END NEW LOGIC
+
+    else { // This is the generic fallback
+        await ctx.reply('Lo siento, no cuento con información específica en mi base de datos sobre esa consulta. Como asistente de salud, priorizo datos oficiales y es posible que no tenga detalles sobre precios, geolocalización en tiempo real o temas médicos fuera de mi alcance. ¿Tienes alguna otra duda de salud pública o sexualidad en la que te pueda ayudar?');
+        return;
     }
 
     // Nueva integración de Salud Pública
@@ -249,14 +285,13 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
         const lcQuery = (messageText || '').toLowerCase();
         if (lcQuery.includes('yopal')) {
           // 1. Intentar búsqueda puntual (si el usuario dio un nombre)
-          const direct =
+          const directCandidate =
             await this.statsService.lookupProviderByIdentifier(messageText);
-          if (
-            direct &&
-            !direct.includes('No encontré información específica')
-          ) {
-            await this.sendLongMessage(ctx, direct);
-            return;
+          if (directCandidate && typeof directCandidate === 'string') {
+            if (!directCandidate!.includes('No encontré información específica')) {
+              await this.sendLongMessage(ctx, directCandidate!);
+              return;
+            }
           }
 
           // 2. Si no es búsqueda puntual, listar servicios (formato visual)
@@ -313,11 +348,11 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
       return;
     }
 
-    const chartUrl = undefined;
+    const chartUrl: string | undefined = undefined;
 
     if (chartUrl) {
       await ctx.replyWithPhoto(
-        { url: chartUrl },
+        { url: chartUrl as string },
         { caption: '📊 Análisis visual de datos reales' },
       );
     }

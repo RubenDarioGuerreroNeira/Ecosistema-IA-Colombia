@@ -7,6 +7,7 @@ import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { SaludPublicaService } from './salud-publica.service';
+import { SexualHealthService } from './sexual-health.service';
 
 const mockGenkitService = {
   generateResponse: jest.fn(),
@@ -39,6 +40,11 @@ const mockSaludPublicaService = {
   procesarPregunta: jest.fn(),
 };
 
+const mockSexualHealthService = {
+  searchByKeyword: jest.fn(),
+  classifyIntent: jest.fn(),
+};
+
 describe('BotUpdate', () => {
   let botUpdate: BotUpdate;
 
@@ -53,6 +59,7 @@ describe('BotUpdate', () => {
         { provide: BoyacaHealthService, useValue: mockBoyacaHealthService },
         { provide: YopalHealthService, useValue: mockYopalHealthService },
         { provide: SaludPublicaService, useValue: mockSaludPublicaService },
+        { provide: SexualHealthService, useValue: mockSexualHealthService },
       ],
     }).compile();
     botUpdate = module.get<BotUpdate>(BotUpdate);
