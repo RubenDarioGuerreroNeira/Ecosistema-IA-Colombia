@@ -1,0 +1,17 @@
+api: https://www.datos.gov.co/resource/6i25-2hdt.json
+
+interface:
+{
+"coddepto": "08",
+"departamento": "AtlÃ¡ntico",
+"a_o": "2019",
+"biol_gico": "BCG - Antituberculosa ReciÃ©n Nacido",
+"cobertura_de_vacunaci_n": "10379",
+"indicator1_statename": "IndicatorState3",
+"indicator1": "0",
+"indicator1_1": "49.99",
+"indicator1_2": "80",
+"indicator1_3": "89.99",
+"indicator1_4": "90",
+"indicator1_5": "94.99"
+},

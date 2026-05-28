@@ -206,87 +206,111 @@ export class SaludPublicaService {
 Por sexo, afecta a ${eDengue.masculino} hombres (${pctMasD.toFixed(1)}%) y ${eDengue.femenino} mujeres (${pctFemD.toFixed(1)}%).
 Comparado con ${eChik.nombre_del_evento} (${eChik.total_de_eventos} casos), tiene ${difAbs} casos más (${difRel.toFixed(0)}% más).`, encontrado: true };
   }
+public procesarPregunta(texto: string): { contenido?: string, evento?: HealthEvent, encontrado: boolean } {
+  const norm = this._normalizarTexto(texto);
 
-  public procesarPregunta(texto: string): { contenido: string, encontrado: boolean } {
-    const norm = this._normalizarTexto(texto);
-    if (norm.includes('dengue') && (norm.includes('rural') || norm.includes('urbana') || norm.includes('hombre') || norm.includes('mujer') || norm.includes('chikungunya'))) {
-      return this.procesarPreguntaCompleja(texto);
-    }
-    if (norm.includes('infecciosos') && norm.includes('ninos')) {
-        return this._formatearRespuesta({ categoria: 'infecciosos', lista: this.eventosInfantiles(this.eventosPorCategoria('infecciosos')) }, 'categoria_edad');
-    }
-    if (norm.includes('violencia') && norm.includes('zona rural')) {
-        return this._formatearRespuesta({ lista: this.eventosPorZona('violencia', 'rural'), zona: 'rural' }, 'categoria_zona');
-    }
-    if (norm.includes('ranking completo')) {
-        return this._formatearRespuesta({ top: this.topEventos(this.events.length) }, 'ranking');
-    }
-    if (norm.includes('listar todo')) {
-        return { contenido: `Eventos disponibles:\n- ${this.listarEventos().join('\n- ')}`, encontrado: true };
-    }
-    if (norm.includes('top') || norm.includes('comunes')) {
-        const n = parseInt(texto.match(/\d+/)?.[0] || '5');
-        return this._formatearRespuesta({ top: this.topEventos(n) }, 'ranking');
-    }
-    if (norm.includes('raros') || norm.includes('menos casos')) {
-        const n = parseInt(texto.match(/\d+/)?.[0] || '3');
-        return this._formatearRespuesta({ bottom: this.bottomEventos(n) }, 'raros');
-    }
-    if (norm.includes('solo afectan mujeres')) return this._formatearRespuesta({ tipo: 'femenino', lista: this.eventosExclusivamenteFemeninos() }, 'sexo_exclusivo');
-    if (norm.includes('solo afectan hombres')) return this._formatearRespuesta({ tipo: 'masculino', lista: this.eventosExclusivamenteMasculinos() }, 'sexo_exclusivo');
-    if (norm.includes('afecta mas a mujeres')) {
-        const e = this.eventosMasFemeninos(1)[0];
-        const pct = (e.femenino / (e.femenino + e.masculino)) * 100;
-        return this._formatearRespuesta({ evento: e, pct }, 'sexo_mas');
-    }
-    if (norm.includes('compara') && (norm.includes('hombre') || norm.includes('mujer'))) {
-        let nombreEvento = texto.toLowerCase();
-        ['comparar', 'compara', 'comparamelo', 'hombres', 'mujeres', 'hombre', 'mujer', 'con', 'y', 'en', 'el', 'la', 'los', 'las', 'que'].forEach(p => {
-            nombreEvento = nombreEvento.replace(new RegExp(`\\b${p}\\b`, 'g'), '');
-        });
-        nombreEvento = nombreEvento.trim();
-        
-        const res = this.compararSexo(nombreEvento);
-        return res?.error 
-            ? { contenido: `⚠️ ${res.error}`, encontrado: true } 
-            : this._formatearRespuesta(res, 'sexo_comp');
-    }
-    const matches = texto.match(/entre (\d+) y (\d+)/);
-    if (matches) {
-        return this._formatearRespuesta({ min: matches[1], max: matches[2], lista: this.eventosPorRango(parseInt(matches[1]), parseInt(matches[2])) }, 'rango');
-    }
-    
-    const coincidencias = this.buscarEventosAmbigua(texto);
-    if (coincidencias.length > 1) {
-        const opciones = coincidencias.map((e, i) => `${i + 1}. ${e.nombre_del_evento} (${e.total_de_eventos} casos)`).join('\n');
-        return { 
-            contenido: `Encontré ${coincidencias.length} eventos con '${texto}':\n${opciones}\n\n¿Cuál te interesa? Escribe el número o el nombre exacto.`, 
-            encontrado: true 
-        };
-    }
-    if (coincidencias.length === 0) {
-      const categorias = {
-        'infecciosos': ['DENGUE', 'ZIKA', 'CHIKUNGUYA', 'TUBERCULOSIS'],
-        'mental': ['ansiedad', 'depresion', 'psicosis', 'bipolar'],
-        'materno': ['mortalidad', 'materna', 'perinatal', 'parto']
-      };
-      
-      for (const [cat, keywords] of Object.entries(categorias)) {
-        if (keywords.some(k => norm.includes(k.toLowerCase()) || (cat === 'infecciosos' && norm.includes('covid')))) {
-            const ejemplos = cat === 'infecciosos' ? 'DENGUE, ZIKA, CHIKUNGUYA, TUBERCULOSIS' : this.eventosPorCategoria(cat).slice(0, 4).map(e => e.nombre_del_evento).join(', ');
-            return { 
-                contenido: `No encontré '${texto}'. Los eventos ${cat} disponibles son: ${ejemplos}.`, 
-                encontrado: true 
-            };
-        }
-      }
-      const ejemplos = this.topEventos(3).map(e => e.nombre_del_evento).join(', ');
-      return { 
-        contenido: `⚠️ No encontré el evento solicitado. Manejo información sobre eventos como: ${ejemplos}. \n\nEscribe 'listar todo' para ver la lista completa o intenta con otro nombre.`, 
-        encontrado: true 
-      };
-    }
-    const e = coincidencias[0];
-    return this._formatearRespuesta({ evento: e }, 'detalle');
+  // --- 1. Lógica para casos complejos o preguntas específicas (PRIORIDAD ALTA) ---
+  if (norm.includes('dengue') && (norm.includes('rural') || norm.includes('urbana') || norm.includes('hombre') || norm.includes('mujer') || norm.includes('chikungunya'))) {
+    return this.procesarPreguntaCompleja(texto);
   }
+  if (norm.includes('infecciosos') && norm.includes('ninos')) {
+      return this._formatearRespuesta({ categoria: 'infecciosos', lista: this.eventosInfantiles(this.eventosPorCategoria('infecciosos')) }, 'categoria_edad');
+  }
+  if (norm.includes('violencia') && norm.includes('zona rural')) {
+      return this._formatearRespuesta({ lista: this.eventosPorZona('violencia', 'rural'), zona: 'rural' }, 'categoria_zona');
+  }
+  if (norm.includes('ranking completo')) {
+      return this._formatearRespuesta({ top: this.topEventos(this.events.length) }, 'ranking');
+  }
+  if (norm.includes('listar todo')) {
+      return { contenido: `Eventos disponibles:\n- ${this.listarEventos().join('\n- ')}`, encontrado: true };
+  }
+  if (norm.includes('top') || norm.includes('comunes')) {
+      const n = parseInt(texto.match(/\d+/)?.[0] || '5');
+      return this._formatearRespuesta({ top: this.topEventos(n) }, 'ranking');
+  }
+  if (norm.includes('raros') || norm.includes('menos casos')) {
+      const n = parseInt(texto.match(/\d+/)?.[0] || '3');
+      return this._formatearRespuesta({ bottom: this.bottomEventos(n) }, 'raros');
+  }
+  if (norm.includes('solo afectan mujeres')) return this._formatearRespuesta({ tipo: 'femenino', lista: this.eventosExclusivamenteFemeninos() }, 'sexo_exclusivo');
+  if (norm.includes('solo afectan hombres')) return this._formatearRespuesta({ tipo: 'masculino', lista: this.eventosExclusivamenteMasculinos() }, 'sexo_exclusivo');
+  if (norm.includes('afecta mas a mujeres')) {
+      const e = this.eventosMasFemeninos(1)[0];
+      const pct = (e.femenino / (e.femenino + e.masculino)) * 100;
+      return this._formatearRespuesta({ evento: e, pct }, 'sexo_mas');
+  }
+  if (norm.includes('compara') && (norm.includes('hombre') || norm.includes('mujer'))) {
+      let nombreEvento = texto.toLowerCase();
+      ['comparar', 'compara', 'comparamelo', 'hombres', 'mujeres', 'hombre', 'mujer', 'con', 'y', 'en', 'el', 'la', 'los', 'las', 'que'].forEach(p => {
+          nombreEvento = nombreEvento.replace(new RegExp(`\\b${p}\\b`, 'g'), '');
+      });
+      nombreEvento = nombreEvento.trim();
+
+      const res = this.compararSexo(nombreEvento);
+      return res?.error 
+          ? { contenido: `⚠️ ${res.error}`, encontrado: true } 
+          : this._formatearRespuesta(res, 'sexo_comp');
+  }
+  const matches = texto.match(/entre (\d+) y (\d+)/);
+  if (matches) {
+      return this._formatearRespuesta({ min: matches[1], max: matches[2], lista: this.eventosPorRango(parseInt(matches[1]), parseInt(matches[2])) }, 'rango');
+  }
+
+  // --- 2. Intentar detectar si el usuario pregunta por un evento específico (Extracción de entidad) ---
+  let eventoBuscado = '';
+  // Mapeo sinónimos
+  for (const [sinonimo, nombreTecnico] of Object.entries(this.sinonimos)) {
+      if (norm.includes(this._normalizarTexto(sinonimo))) {
+          eventoBuscado = nombreTecnico;
+          break;
+      }
+  }
+  // Si no se encontró por sinónimos, buscar en eventos
+  if (!eventoBuscado) {
+      for (const evento of this.listarEventos()) {
+          if (norm.includes(this._normalizarTexto(evento))) {
+              eventoBuscado = evento;
+              break;
+          }
+      }
+  }
+
+  if (eventoBuscado) {
+      const eventos = this.buscarEventosAmbigua(eventoBuscado);
+      if (eventos.length >= 1) {
+           return { evento: eventos[0], encontrado: true };
+      }
+  }
+
+  // --- 3. Manejo de error o eventos no encontrados ---
+  const coincidencias = this.buscarEventosAmbigua(texto);
+  if (coincidencias.length > 1) {
+      const opciones = coincidencias.map((e, i) => `${i + 1}. ${e.nombre_del_evento} (${e.total_de_eventos} casos)`).join('\n');
+      return { 
+          contenido: `Encontré ${coincidencias.length} eventos con '${texto}':\n${opciones}\n\n¿Cuál te interesa? Escribe el número o el nombre exacto.`, 
+          encontrado: true 
+      };
+  }
+
+  // Fallback de categorías
+  const categorias = {
+      'infecciosos': ['DENGUE', 'ZIKA', 'CHIKUNGUYA', 'TUBERCULOSIS'],
+      'mental': ['ansiedad', 'depresion', 'psicosis', 'bipolar'],
+      'materno': ['mortalidad', 'materna', 'perinatal', 'parto']
+  };
+
+  for (const [cat, keywords] of Object.entries(categorias)) {
+      if (keywords.some(k => norm.includes(k.toLowerCase()) || (cat === 'infecciosos' && norm.includes('covid')))) {
+          const ejemplos = cat === 'infecciosos' ? 'DENGUE, ZIKA, CHIKUNGUYA, TUBERCULOSIS' : this.eventosPorCategoria(cat).slice(0, 4).map(e => e.nombre_del_evento).join(', ');
+          return { 
+              contenido: `No encontré '${texto}'. Los eventos ${cat} disponibles son: ${ejemplos}.`, 
+              encontrado: true 
+          };
+      }
+  }
+
+  return { encontrado: false };
+}
+
 }

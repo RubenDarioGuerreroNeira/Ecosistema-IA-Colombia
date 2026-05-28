@@ -7,6 +7,7 @@ import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { SaludPublicaService } from './salud-publica.service';
+import { SaludAnaliticaService } from './salud-analitica.service';
 import { SexualHealthService, Intencion } from './sexual-health.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 
@@ -20,6 +21,7 @@ export class BotUpdate {
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
     private readonly saludPublicaService: SaludPublicaService,
+    private readonly saludAnaliticaService: SaludAnaliticaService,
     private readonly sexualHealthService: SexualHealthService,
   ) {}
 
@@ -45,6 +47,7 @@ Estoy aquí para darte una experiencia clara, cercana y segura en cada consulta.
 - Explorar salud mental, riesgos y factores que afectan a tu comunidad.
 - Entender datos complejos con explicaciones fáciles y respetuosas.
 - **Acceder a guías de salud sexual y reproductiva**, incluyendo rutas de atención, derechos y prevención.
+- **Análisis automático de riesgos en salud**, incluyendo indicadores de vacunación para una respuesta más completa.
 
 🔎 **Ejemplos de preguntas que puedes hacerme:**
 - *"¿Dónde queda el Hospital Primitivo Iglesias?"*
@@ -99,10 +102,14 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
     );
   }
 
-  private async sendLongMessage(ctx: Context, text: string) {
-    const MAX_LENGTH = 4000; // Slightly under the 4096 limit for safety
+  private async sendLongMessage(
+    ctx: Context,
+    text: string,
+    options: { parse_mode?: 'Markdown' | 'MarkdownV2' | 'HTML' } = {},
+  ) {
+    const MAX_LENGTH = 4000;
     if (text.length <= MAX_LENGTH) {
-      await ctx.reply(text);
+      await ctx.reply(text, options);
       return;
     }
 
@@ -110,7 +117,6 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
     while (currentPosition < text.length) {
       let endPosition = currentPosition + MAX_LENGTH;
 
-      // Try to split at the last newline to avoid cutting sentences
       if (endPosition < text.length) {
         const lastNewline = text.lastIndexOf('\n', endPosition);
         if (lastNewline > currentPosition) {
@@ -118,7 +124,7 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
         }
       }
 
-      await ctx.reply(text.substring(currentPosition, endPosition));
+      await ctx.reply(text.substring(currentPosition, endPosition), options);
       currentPosition = endPosition;
     }
   }
@@ -149,179 +155,105 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
     }
 
     // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
-    // Esto evita que "cual es la enfermedad mental" dispare una búsqueda de hospital por la palabra "mental".
-    const regions = ['cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle'];
+    const regions = [
+      'cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle',
+      'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps', 'coosalud'
+    ];
     const containsRegion = regions.some((r) =>
       messageText.toLowerCase().includes(r),
     );
-    console.log(
-      `DEBUG: messageText=${messageText}, containsRegion=${containsRegion}`,
-    );
 
-    // Ajustar la lógica: detectar si es pregunta analítica PERO permitir búsqueda directa si parece referirse a un centro específico.
+    // Ajustar la lógica: detectar si es pregunta analítica
     const isAnalyticalQuery =
       /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
         messageText.trim().toLowerCase(),
       ) || messageText.split(/\s+/).length > 5;
 
-    // Si el usuario pregunta "¿dónde está X?", o busca un hospital, queremos búsqueda directa.
-    // Sobrescribimos isAnalyticalQuery si detectamos intención de búsqueda de entidad.
     const isSearchIntent =
       /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(
         messageText.toLowerCase(),
       );
 
     console.log(
-      `DEBUG: isAnalyticalQuery=${isAnalyticalQuery}, isSearchIntent=${isSearchIntent}`,
+      `DEBUG: messageText=${messageText}, containsRegion=${containsRegion}, isAnalyticalQuery=${isAnalyticalQuery}`,
     );
 
-    // Prioridad: Salud Sexual (Dataset específico)
-    const intent = this.sexualHealthService.classifyIntent(messageText);
-    
-    // Check specific emergency protocols
-    const normalizedText = this.sexualHealthService['normalizeText'](messageText);
-    for (const key in EMERGENCY_PROTOCOLS) {
-        if (EMERGENCY_PROTOCOLS[key].keywords.some(k => normalizedText.includes(k))) {
-            await ctx.reply(EMERGENCY_PROTOCOLS[key].response, { parse_mode: 'Markdown' });
-            return;
+    // PRIORIDAD 1: YOPAL (Dataset especializado con bypass)
+    try {
+      const lcQuery = messageText.toLowerCase();
+      // Si menciona Yopal o alguna de sus entidades principales
+      if (lcQuery.includes('yopal') || 
+          ['capresoca', 'coomeva', 'horo', 'orinoquia'].some(e => lcQuery.includes(e))) {
+        const { content, found } =
+          await this.yopalHealthService.answerNaturalQuestion(messageText);
+
+        if (found) {
+          await this.sendLongMessage(ctx, content, {
+            parse_mode: 'Markdown',
+          });
+          return;
         }
+      }
+    } catch (err) {
+      console.error('Yopal bypass failed', err);
     }
 
-    if (intent === Intencion.EMERGENCIA) {
-        await ctx.reply('🚨 **¡Atención! Estás ante una situación de emergencia.**\n\nPor favor, busca atención médica inmediata en la sala de urgencias más cercana, llama a la línea de emergencias (155) o acude a la policía. Tu seguridad y salud son la prioridad.');
-        return;
-    }
-
-    const sexualMatches = await this.sexualHealthService.searchByKeyword(messageText);
-    if (sexualMatches && sexualMatches.length > 0) {
-      // Si la coincidencia es muy débil, mejor hacer fallback
-      if (sexualMatches[0].id === 999 && sexualMatches[0].palabras_claves.includes('condón')) {
-        await ctx.reply('Lo siento, no tengo información sobre precios de productos. Te sugiero consultar en una farmacia local.');
+    // PRIORIDAD 2: SALUD PÚBLICA (SIVIGILA)
+    try {
+      const resultado = this.saludPublicaService.procesarPregunta(messageText);
+      
+      if (resultado.encontrado) {
+        let respuestaFinal = '';
+        
+        // Si el resultado trae un evento, lo formateamos y añadimos el análisis
+        if (resultado.evento) {
+            const { contenido } = this.saludPublicaService._formatearRespuesta({ evento: resultado.evento }, 'detalle');
+            respuestaFinal = contenido;
+            
+            // Añadir el análisis de riesgo (asíncrono)
+            const analisis = await this.saludAnaliticaService.analizarRiesgoEvento(resultado.evento.nombre_del_evento);
+            respuestaFinal += `\n\n${analisis}`;
+        } else if (resultado.contenido) {
+            respuestaFinal = resultado.contenido;
+        }
+        
+        await this.sendLongMessage(ctx, respuestaFinal);
         return;
       }
-      
-      const bestMatch = sexualMatches[0];
-      await ctx.reply(`💡 *Respuesta encontrada sobre Salud Sexual:*\n\n*Pregunta:* ${bestMatch.pregunta}\n*Respuesta:* ${bestMatch.respuesta}`, { parse_mode: 'Markdown' });
-      return;
-    } 
-    
-    // NEW LOGIC FOR PRICE-RELATED FALLBACKS
-    const qNorm = this.sexualHealthService['normalizeText'](messageText);
-    if (qNorm.includes('precio') && qNorm.includes('condon')) {
-        await ctx.reply('Lo siento, no tengo información sobre precios de productos. Te sugiero consultar en una farmacia local.');
-        return;
-    }
-    // END NEW LOGIC
-
-    else { // This is the generic fallback
-        await ctx.reply('Lo siento, no cuento con información específica en mi base de datos sobre esa consulta. Como asistente de salud, priorizo datos oficiales y es posible que no tenga detalles sobre precios, geolocalización en tiempo real o temas médicos fuera de mi alcance. ¿Tienes alguna otra duda de salud pública o sexualidad en la que te pueda ayudar?');
-        return;
+    } catch (err) {
+      console.error('Salud Publica routing failed', err);
     }
 
-    // Nueva integración de Salud Pública
-    const { contenido, encontrado } =
-      this.saludPublicaService.procesarPregunta(messageText);
-    if (encontrado) {
-      await this.sendLongMessage(ctx, contenido);
-      return;
-    }
-
-    // Solo intentar búsqueda directa de prestadores si NO es puramente analítica o si tiene intención clara de búsqueda.
+    // PRIORIDAD 3: BÚSQUEDA DIRECTA DE PRESTADORES (Cali y otros)
     try {
-      if (isAnalyticalQuery && !isSearchIntent)
-        throw new Error('Skip direct lookup: Analytical query detected');
-
-      // Revisión de prestadores en Cali
-      try {
-        const lcQuery = (messageText || '').toLowerCase();
-
-        // Intentamos buscar siempre, ya que el servicio de Cali puede devolver resultados relevantes
-        const caliResults = this.caliHealthService.searchProviders(
-          messageText || '',
-        );
-
+      const shouldSkipDirect = isAnalyticalQuery && !isSearchIntent;
+      
+      if (!shouldSkipDirect) {
+        // Revisión de prestadores en Cali
+        const caliResults = this.caliHealthService.searchProviders(messageText);
         if (caliResults && caliResults.length > 0) {
-          // Si hay resultados, priorizamos la respuesta directa
-          const unique =
-            this.caliHealthService.getUniqueProvidersByCenter(caliResults);
-
-          // Si el usuario preguntó por ubicación o busca una entidad, respondemos con toda la información
-          if (
-            lcQuery.includes('ciudad') ||
-            lcQuery.includes('donde esta') ||
-            lcQuery.includes('ubicado') ||
-            isSearchIntent
-          ) {
+          const unique = this.caliHealthService.getUniqueProvidersByCenter(caliResults);
+          const lcQuery = messageText.toLowerCase();
+          
+          if (lcQuery.includes('ciudad') || lcQuery.includes('donde') || isSearchIntent) {
             const entity = unique[0];
             const response = `🏥 *Información del Centro:*
 🏢 Nombre: ${entity.sede || 'N/A'}
 🏙️ Ciudad: ${entity.ciudad || 'N/A'}
 📍 Dirección: ${entity.direccion || 'N/A'}
-💡 Complejidad: ${entity.complejidad || 'N/A'}
-🛠️ Grupo de Servicio: ${entity.grupo || 'N/A'}
-📞 Teléfono: ${entity.telefono || 'N/A'} ${entity.extension ? `(Ext: ${entity.extension})` : ''}
+📞 Teléfono: ${entity.telefono || 'N/A'}
               `;
-            await this.sendLongMessage(ctx, response);
+            await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
             return;
           }
 
-          // Si no fue una pregunta de ubicación, listar brevemente los encontrados
-          const slice = caliResults.slice(0, 3);
-          const lines = slice.map(
-            (p) => `🏢 ${p.sede} - 📍 ${p.ciudad} (${p.direccion})`,
-          );
-          await this.sendLongMessage(
-            ctx,
-            `🏥 He encontrado los siguientes centros:\n\n${lines.join('\n')}`,
-          );
+          const lines = caliResults.slice(0, 3).map(p => `🏢 ${p.sede} - 📍 ${p.ciudad}`);
+          await this.sendLongMessage(ctx, `🏥 He encontrado estos centros:\n\n${lines.join('\n')}`);
           return;
         }
-      } catch (err) {
-        console.error('Cali search routing failed', err);
-      }
-
-      // If the user explicitly mentions Yopal, prioritize the Yopal dataset and bypass RAG
-      try {
-        const lcQuery = (messageText || '').toLowerCase();
-        if (lcQuery.includes('yopal')) {
-          // 1. Intentar búsqueda puntual (si el usuario dio un nombre)
-          const directCandidate =
-            await this.statsService.lookupProviderByIdentifier(messageText);
-          if (directCandidate && typeof directCandidate === 'string') {
-            if (!directCandidate!.includes('No encontré información específica')) {
-              await this.sendLongMessage(ctx, directCandidate!);
-              return;
-            }
-          }
-
-          // 2. Si no es búsqueda puntual, listar servicios (formato visual)
-          const allProviders =
-            await this.yopalHealthService.searchProviders('');
-          const lines = allProviders.slice(0, 10).map((p) => {
-            const nombre = p.entidad_2 || 'Nombre no disponible';
-            const gerente = p.gerente || 'N/A';
-            const direccion = p.direccion || 'N/A';
-            const telefono = p.telefono || 'N/A';
-            const email = p.correo_electronico || 'N/A';
-            return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
-          });
-
-          if (lines.length > 0) {
-            await this.sendLongMessage(
-              ctx,
-              `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`,
-            );
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Yopal bypass failed', err);
       }
     } catch (err) {
-      // Si falla la búsqueda directa, continuar con el flujo normal
-      // (no interrumpimos la experiencia del usuario)
-
-      console.error('Direct provider lookup failed', err);
+      console.error('Direct lookup block failed', err);
     }
 
     // RAG: Gather context through the StatsService (data-driven summaries)
@@ -358,6 +290,17 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
     }
 
     let augmentedPrompt = messageText;
+    const respuestaProfesionalNoInformacion = `Lo siento, no tengo información sobre ese tema en mi base de datos actual. 
+    
+    Mi especialidad es la salud pública en Colombia. Puedo ayudarte con:
+    1. 🏢 Buscar hospitales, clínicas y prestadores de servicios de salud en diversas ciudades.
+    2. 🔬 Consultar estadísticas oficiales (SIVIGILA) y análisis de riesgo de enfermedades.
+    3. 🧠 Recibir orientación sobre salud mental y perfiles de riesgo.
+    4. 🛡️ Acceder a protocolos de emergencia.
+    5. ❤️ Obtener guías sobre salud sexual y reproductiva.
+
+    ¿Te gustaría consultar alguna de estas áreas?`;
+
     if (contextData) {
       augmentedPrompt = `
 ### CONTEXTO DE DATOS REALES (COLOMBIA) ###
@@ -365,10 +308,15 @@ ${contextData}
 ### FIN DEL CONTEXTO ###
 
 INSTRUCCIÓN: Responde a la consulta del usuario utilizando EXCLUSIVAMENTE los datos del contexto anterior. 
+Si el contexto no contiene información relevante para responder la consulta, responde EXACTAMENTE con este mensaje: "${respuestaProfesionalNoInformacion}"
 Si el contexto contiene estadísticas, limítate a analizarlas y presentarlas. NO generes información que no esté presente en el contexto.
 
 Consulta: ${messageText}
       `;
+    } else {
+        augmentedPrompt = `Consulta: ${messageText}
+
+INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consulta no está relacionada con tus capacidades (servicios de salud, estadísticas de salud pública, salud mental o sexual), responde EXACTAMENTE con este mensaje: "${respuestaProfesionalNoInformacion}"`;
     }
 
     try {

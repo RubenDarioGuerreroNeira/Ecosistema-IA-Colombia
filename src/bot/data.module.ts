@@ -1,27 +1,33 @@
 import { Module } from '@nestjs/common';
-// Servicios existentes...
-import { EnvironmentalModule } from './environmental/environmental.module';
-import { PredictionModule } from './prediction/prediction.module';
-import { AlertsModule } from './alerts/alerts.module';
-import { SharedDataModule } from '../shared/data/shared-data.module';
-import { TensorflowModule } from '../shared/tensorflow/tensorflow.module';
+import { SaludPublicaService } from './salud-publica.service';
+import { HealthDataService } from './health-data.service';
+import { SexualHealthService } from './sexual-health.service';
+import { MentalHealthService } from './mental-health.service';
+import { AntioquiaHealthService } from './antioquia-health.service';
+import { BoyacaHealthService } from './boyaca-health.service';
+import { YopalHealthService } from './yopal-health.service';
+import { CaliHealthService } from './cali-health.service';
 
 @Module({
-  imports: [
-    EnvironmentalModule,
-    PredictionModule,
-    AlertsModule,
-    SharedDataModule,
-    TensorflowModule
-  ],
   providers: [
-    // Servicios existentes...
+    SaludPublicaService,
+    HealthDataService,
+    SexualHealthService,
+    MentalHealthService,
+    AntioquiaHealthService,
+    BoyacaHealthService,
+    YopalHealthService,
+    CaliHealthService,
   ],
   exports: [
-    // Servicios existentes...
-    EnvironmentalModule,
-    PredictionModule,
-    AlertsModule
+    SaludPublicaService,
+    HealthDataService,
+    SexualHealthService,
+    MentalHealthService,
+    AntioquiaHealthService,
+    BoyacaHealthService,
+    YopalHealthService,
+    CaliHealthService,
   ],
 })
 export class DataModule {}

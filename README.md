@@ -17,59 +17,25 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 
 ---
 
-## 🧠 Mapa Mental del Proyecto
-
-```mermaid
-graph LR
-    Root["🏥 Salud IA Bot"] --> Interface["📱 Interfaz de Usuario"]
-    Root --> Core["⚙️ Backend NestJS"]
-    Root --> AI["🤖 Orquestador de IA"]
-    Root --> Data["📚 Datos Locales"]
-
-    Interface --> Telegram("Telegram Bot API")
-    
-    Core --> BotUpdate("BotUpdate [Router]")
-    
-    BotUpdate --> Bypass{{"Bypass (Búsqueda Directa)"}}
-    Bypass --> SexualHealth("SexualHealthService")
-    Bypass --> CaliService("CaliHealthService")
-    Bypass --> YopalService("YopalHealthService")
-    Bypass --> StatsService("StatsService")
-    
-    BotUpdate --> RAG("RAG / Genkit")
-    RAG --> Gemini("Google Gemini 2.5 Flash")
-
-    SexualHealth --> Data
-    CaliService --> Data
-    YopalService --> Data
-    StatsService --> Data
-
-    style Root fill:#f9f,stroke:#333,stroke-width:4px
-    style Bypass fill:#ff9,stroke:#333,stroke-width:2px
-    style RAG fill:#bbf,stroke:#333,stroke-width:2px
-    style Core fill:#dfd,stroke:#333,stroke-width:2px
-```
-
----
-
 ## 🚀 Características Principales
 
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
 - **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
-- **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto y *stemming* de raíces, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
+- **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales cargados en XML**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
-- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia (incluyendo Valle de Aburrá), Boyacá, Yopal y Cali por municipio, sede, código, prestador o teléfono.
+- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
 - **📈 Análisis Epidemiológico Avanzado**: 
     - Rankings de incidencia.
     - Comparativas directas y demográficas.
     - Filtrado de eventos.
-- **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados y soporte de `/start` y `/help`.
+- **🤖 Análisis Automático de Riesgos**: Integración inteligente de indicadores de salud pública (distribución rural/urbana, grupos etarios) junto con datos de **cobertura de vacunación** para brindar alertas tempranas y recomendaciones proactivas.
+- **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
 
 ---
 
 ## 🛠️ Metodología y Documentación Técnica
 
-Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando **CRISP-ML** y arquitectura basada en servicios, priorizando la integridad de los datos sobre la verbosidad de la IA mediante un sistema de *bypass* de respuesta.
+Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquitectura basada en servicios y priorizando la integridad de los datos sobre la verbosidad de la IA mediante un sistema de *bypass* de respuesta.
 
 👉 **[Consulta la Memoria Técnica Completa aquí](./DOCUMENTACION_TECNICA.md)**
 
@@ -83,6 +49,7 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando **CRISP
 | **IA Orchestration** | [Genkit](https://firebase.google.com/docs/genkit)                | Gestión de flujos de IA y despliegue.            |
 | **LLM**              | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/) | Generación de respuestas inteligentes y rápidas. |
 | **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                             | Comunicación con la API de Telegram.             |
+| **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser) | Procesamiento eficiente de fuentes XML locales. |
 
 ---
 
