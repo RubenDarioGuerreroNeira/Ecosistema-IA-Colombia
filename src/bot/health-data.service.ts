@@ -78,6 +78,27 @@ export class HealthDataService {
     return event || null;
   }
 
+  /**
+   * Genera una serie temporal sintética para un evento basándose en su total.
+   */
+  public async getTemporalSeries(eventName: string): Promise<{date: Date; cases: number}[]> {
+    const event = this.events.find(e => e.nombre_del_evento.toLowerCase().includes(eventName.toLowerCase()));
+    if (!event) return [];
+    
+    const months = 6;
+    const mean = event.total_de_eventos / months;
+    return Array.from({ length: months }, (_, i) => {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (months - i));
+        // Añadir fluctuación aleatoria +/- 20%
+        const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
+        return {
+            date,
+            cases: Math.round(mean * fluctuation)
+        };
+    });
+  }
+
   async getAllEvents(): Promise<string[]> {
     return this.events.map((e) => e.nombre_del_evento);
   }

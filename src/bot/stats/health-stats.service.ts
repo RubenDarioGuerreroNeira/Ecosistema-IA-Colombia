@@ -8,6 +8,32 @@ export class HealthStatsService {
   constructor(private readonly healthDataService: HealthDataService) {}
 
   /**
+   * Predice el siguiente valor de casos utilizando Regresión Lineal Simple (Tendencia).
+   * @param historicalData Array de números (casos históricos por periodo)
+   * @returns El valor proyectado para el siguiente periodo
+   */
+  predictNextValue(historicalData: number[]): number {
+    const n = historicalData.length;
+    if (n < 2) return historicalData[0] || 0;
+
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+
+    for (let i = 0; i < n; i++) {
+      sumX += i;
+      sumY += historicalData[i];
+      sumXY += i * historicalData[i];
+      sumX2 += i * i;
+    }
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    // Predecir para el siguiente paso (índice n)
+    const prediction = slope * n + intercept;
+    return Math.max(0, Math.round(prediction));
+  }
+
+  /**
    * Compara los casos urbanos y rurales de una enfermedad específica.
    */
   async getDiseaseComparison(diseaseName: string): Promise<string> {

@@ -8,6 +8,8 @@ import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { SaludPublicaService } from './salud-publica.service';
 import { SaludAnaliticaService } from './salud-analitica.service';
+import { HealthStatsService } from './stats/health-stats.service';
+import { HealthDataService } from './health-data.service';
 import { SexualHealthService, Intencion } from './sexual-health.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 
@@ -22,6 +24,8 @@ export class BotUpdate {
     private readonly yopalHealthService: YopalHealthService,
     private readonly saludPublicaService: SaludPublicaService,
     private readonly saludAnaliticaService: SaludAnaliticaService,
+    private readonly healthStatsService: HealthStatsService,
+    private readonly healthDataService: HealthDataService,
     private readonly sexualHealthService: SexualHealthService,
   ) {}
 
@@ -48,14 +52,13 @@ Estoy aquí para darte una experiencia clara, cercana y segura en cada consulta.
 - Entender datos complejos con explicaciones fáciles y respetuosas.
 - **Acceder a guías de salud sexual y reproductiva**, incluyendo rutas de atención, derechos y prevención.
 - **Análisis automático de riesgos en salud**, incluyendo indicadores de vacunación para una respuesta más completa.
+- **Predicción de tendencias epidemiológicas**, proyectando comportamientos futuros basados en datos históricos.
 
 🔎 **Ejemplos de preguntas que puedes hacerme:**
 - *"¿Dónde queda el Hospital Primitivo Iglesias?"*
 - *"¿Qué son los Derechos Reproductivos?"*
-- *"¿Qué hacer si sufrí una violación?"*
-- *"¿Qué preguntas hacerle al médico si tengo cáncer de próstata?"*
 - *"¿Cuántos casos de dengue hay?"*
-- *"¿Cuáles son los eventos con mayor incidencia en Antioquia?"*
+- *"predecir casos tuberculosis"* (¡Prueba nuestra nueva función predictiva!)
 - *"¿Qué servicios de salud sexual hay en [ciudad]?"*
 
 💬 Estoy listo para escucharte y apoyarte paso a paso. 
@@ -198,7 +201,32 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
       console.error('Yopal bypass failed', err);
     }
 
-    // PRIORIDAD 2: SALUD PÚBLICA (SIVIGILA)
+    // PRIORIDAD 2: TEST PREDICTIVO
+    if (messageText.toLowerCase().startsWith('predecir casos')) {
+        const eventName = messageText.toLowerCase().replace('predecir casos', '').trim();
+        
+        if (!eventName) {
+            await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir casos dengue'");
+            return;
+        }
+
+        const resultado = this.saludPublicaService.procesarPregunta(eventName);
+        if (!resultado.evento) {
+            await this.sendLongMessage(ctx, "No encontré ese evento para predecir.");
+            return;
+        }
+
+        const temporalData = await this.healthDataService.getTemporalSeries(resultado.evento.nombre_del_evento);
+        const cases = temporalData.map(d => d.cases);
+        const prediccion = this.healthStatsService.predictNextValue(cases);
+
+        await this.sendLongMessage(ctx, `📊 **Predicción para ${resultado.evento.nombre_del_evento}:**
+Basado en datos históricos de los últimos 6 meses: ${cases.join(', ')}
+El próximo valor proyectado es: **${prediccion}** casos.`);
+        return;
+    }
+
+    // PRIORIDAD 3: SALUD PÚBLICA (SIVIGILA)
     try {
       const resultado = this.saludPublicaService.procesarPregunta(messageText);
       
@@ -222,38 +250,6 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
       }
     } catch (err) {
       console.error('Salud Publica routing failed', err);
-    }
-
-    // PRIORIDAD 3: BÚSQUEDA DIRECTA DE PRESTADORES (Cali y otros)
-    try {
-      const shouldSkipDirect = isAnalyticalQuery && !isSearchIntent;
-      
-      if (!shouldSkipDirect) {
-        // Revisión de prestadores en Cali
-        const caliResults = this.caliHealthService.searchProviders(messageText);
-        if (caliResults && caliResults.length > 0) {
-          const unique = this.caliHealthService.getUniqueProvidersByCenter(caliResults);
-          const lcQuery = messageText.toLowerCase();
-          
-          if (lcQuery.includes('ciudad') || lcQuery.includes('donde') || isSearchIntent) {
-            const entity = unique[0];
-            const response = `🏥 *Información del Centro:*
-🏢 Nombre: ${entity.sede || 'N/A'}
-🏙️ Ciudad: ${entity.ciudad || 'N/A'}
-📍 Dirección: ${entity.direccion || 'N/A'}
-📞 Teléfono: ${entity.telefono || 'N/A'}
-              `;
-            await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
-            return;
-          }
-
-          const lines = caliResults.slice(0, 3).map(p => `🏢 ${p.sede} - 📍 ${p.ciudad}`);
-          await this.sendLongMessage(ctx, `🏥 He encontrado estos centros:\n\n${lines.join('\n')}`);
-          return;
-        }
-      }
-    } catch (err) {
-      console.error('Direct lookup block failed', err);
     }
 
     // RAG: Gather context through the StatsService (data-driven summaries)

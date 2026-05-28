@@ -42,9 +42,11 @@ export class SaludAnaliticaService {
     try {
         const mapeoEventoVacuna: Record<string, string> = {
             'tuberculosis': 'bcg',
-            'varicela individual': 'varicela',
-            'tos ferina': 'tos ferina',
+            'tos ferina': 'penta',
             'hepatitis b, c y coinfección hepatitis b y delta': 'hepatitis',
+            'hepatitis a': 'hepatitis',
+            'hepatitis b': 'hepatitis',
+            'parotiditis': 'tv',
             'agresiones por animales potencialmente transmisores de rabia': 'rabia',
             'dengue': 'dengue',
             'zika': 'zika'
@@ -59,10 +61,11 @@ export class SaludAnaliticaService {
         );
 
         if (coberturaRelevante) {
-            const val = parseFloat(coberturaRelevante.cobertura_de_vacunaci_n);
-            // Manejo de casos donde la cobertura es una cantidad total (caso atlÃ¡ntico 10379) en lugar de porcentaje
-            const esPorcentaje = val <= 100;
-            const textoCobertura = esPorcentaje ? `${val}%` : `${val} dosis`;
+            const rawVal = parseFloat(coberturaRelevante.cobertura_de_vacunaci_n);
+            // Si el valor es <= 1, lo tratamos como proporción decimal y multiplicamos por 100
+            const val = rawVal <= 1 ? rawVal * 100 : rawVal;
+            const esPorcentaje = rawVal <= 1;
+            const textoCobertura = esPorcentaje ? `${val.toFixed(2)}%` : `${val} dosis`;
             
             if (esPorcentaje && val < 80) {
                 indicadores.push(`🚨 Cobertura de vacunación baja en ${departamento} (${textoCobertura}).`);

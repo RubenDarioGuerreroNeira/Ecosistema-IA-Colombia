@@ -13,6 +13,6 @@ import { DataModule } from '../data.module';
     MentalHealthStatsService,
     SexualHealthStatsService,
   ],
-  exports: [StatsService],
+  exports: [StatsService, HealthStatsService],
 })
 export class StatsModule {}
