@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant AppModule
+    participant DataModule
+    participant Prediction
+    participant Alerts
+    
+    AppModule->>DataModule: Carga inicial
+    DataModule->>Prediction: Inicializa modelo
+    DataModule->>Alerts: Configura umbrales
+    Prediction->>Alerts: Notifica riesgos

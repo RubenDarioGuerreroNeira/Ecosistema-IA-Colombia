@@ -1,0 +1,1 @@
+mkdir -p src/{shared/data,shared/tensorflow,bot/alerts,bot/prediction}
