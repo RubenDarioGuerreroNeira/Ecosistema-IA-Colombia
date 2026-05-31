@@ -11,11 +11,13 @@ import { NationalHealthService } from './national-health.service';
 import { AirQualityService } from './air-quality.service';
 import { DatasetBuilderService } from './dataset-builder.service';
 import { VaccinationService } from './vaccination.service';
+import { PredictionService } from './prediction.service';
 
 @Module({
   providers: [
     AirQualityService,
     DatasetBuilderService,
+    PredictionService,
     VaccinationService,
     SaludPublicaService,
     HealthDataService,
@@ -30,6 +32,7 @@ import { VaccinationService } from './vaccination.service';
   exports: [
     AirQualityService,
     DatasetBuilderService,
+    PredictionService,
     VaccinationService,
     SaludPublicaService,
     HealthDataService,
