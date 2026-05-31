@@ -57,7 +57,7 @@ graph TD
 Aquí tienes ejemplos de cómo interactuar con el bot:
 
 ### 🔬 Análisis Epidemiológico (SIVIGILA)
-1. "¿Qué eventos de salud pública hay en Antioquia?"
+1. "¿Qué eventos de salud pública hay en Antioquia? (Análisis epidemiológico nacional enriquecido con datos ambientales locales)"
 2. "¿Cuántos casos de Dengue se han reportado en Cali?"
 3. "¿Cuáles son los eventos de salud más frecuentes en Colombia?"
 4. "¿Qué enfermedades afectan más a la zona rural de Boyacá?"
