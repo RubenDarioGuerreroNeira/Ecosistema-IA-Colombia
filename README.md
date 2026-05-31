@@ -28,8 +28,27 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
     - Rankings de incidencia.
     - Comparativas directas y demográficas.
     - Filtrado de eventos.
-- **🤖 Análisis Automático de Riesgos**: Integración inteligente de indicadores de salud pública (distribución rural/urbana, grupos etarios) junto con datos de **cobertura de vacunación** para brindar alertas tempranas y recomendaciones proactivas.
+- **🤖 Análisis Automático de Riesgos**: Integración inteligente de indicadores de salud pública (distribución rural/urbana, grupos etarios) junto con datos de **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)** para brindar alertas tempranas y recomendaciones proactivas.
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
+
+### 🏗️ Arquitectura del Sistema
+
+```mermaid
+graph TD
+    User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
+    Bot --> Greeting[handleGreeting]
+    Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
+    Bot --> AirData[AirQualityService - API Calidad Aire]
+    
+    HealthData --> Analysis[SaludAnaliticaService]
+    AirData --> Analysis
+    
+    Analysis --> Responder[Bot Reply]
+    
+    style HealthData fill:#f9f,stroke:#333,stroke-width:2px
+    style AirData fill:#ccf,stroke:#333,stroke-width:2px
+    style Analysis fill:#ff9,stroke:#333,stroke-width:2px
+```
 
 ---
 

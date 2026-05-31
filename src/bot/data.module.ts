@@ -7,9 +7,12 @@ import { AntioquiaHealthService } from './antioquia-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
 import { CaliHealthService } from './cali-health.service';
+import { NationalHealthService } from './national-health.service';
+import { AirQualityService } from './air-quality.service';
 
 @Module({
   providers: [
+    AirQualityService,
     SaludPublicaService,
     HealthDataService,
     SexualHealthService,
@@ -18,8 +21,10 @@ import { CaliHealthService } from './cali-health.service';
     BoyacaHealthService,
     YopalHealthService,
     CaliHealthService,
+    NationalHealthService,
   ],
   exports: [
+    AirQualityService,
     SaludPublicaService,
     HealthDataService,
     SexualHealthService,
@@ -28,6 +33,7 @@ import { CaliHealthService } from './cali-health.service';
     BoyacaHealthService,
     YopalHealthService,
     CaliHealthService,
+    NationalHealthService,
   ],
 })
 export class DataModule {}

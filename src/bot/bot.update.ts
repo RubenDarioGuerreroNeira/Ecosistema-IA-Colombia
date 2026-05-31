@@ -11,6 +11,7 @@ import { SaludAnaliticaService } from './salud-analitica.service';
 import { HealthStatsService } from './stats/health-stats.service';
 import { HealthDataService } from './health-data.service';
 import { SexualHealthService, Intencion } from './sexual-health.service';
+import { AirQualityService } from './air-quality.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 
 @Update()
@@ -27,6 +28,7 @@ export class BotUpdate {
     private readonly healthStatsService: HealthStatsService,
     private readonly healthDataService: HealthDataService,
     private readonly sexualHealthService: SexualHealthService,
+    private readonly airQualityService: AirQualityService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -306,7 +308,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
   private async handleGreeting(ctx: Context, text: string): Promise<boolean> {
     const userId = ctx.from?.id;
     const isGreeting =
-      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello)/i.test(
+      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start)/i.test(
         text.trim(),
       );
     console.log(`DEBUG: handleGreeting - userId=${userId}, text='${text}', isGreeting=${isGreeting}`);
@@ -317,6 +319,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       return true;
     } else if (isGreeting) {
       console.log(`DEBUG: handleGreeting - Greeting existing user`);
+      // ... resto del mensaje
       const firstName = ctx.from?.first_name || 'usuario';
       await ctx.reply(
         `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales.
@@ -329,7 +332,15 @@ Puedo ayudarte con:
 - ❤️ **Salud Sexual:** Guías, derechos y rutas.
 - 📈 **Predicción Epidemiológica:** Proyección de tendencias.
 
-¿Qué te gustaría preguntar hoy?`,
+---
+💡 **¿Cómo puedes preguntarme?**
+*   "¿Qué eventos de salud pública hay en Antioquia?"
+*   "Analizar riesgo de dengue en Cali"
+*   "Predecir casos tuberculosis"
+*   "¿Cuáles son los eventos más comunes?"
+*   "Comparar hombres y mujeres en malaria"
+
+¿Sobre qué tema te gustaría consultar hoy?`,
       );
       return true;
     }
@@ -376,7 +387,7 @@ Puedo ayudarte con:
         return true;
       }
 
-      const resultado = this.saludPublicaService.procesarPregunta(eventName);
+      const resultado = await this.saludPublicaService.procesarPregunta(eventName);
       if (!resultado.evento) {
         await this.sendLongMessage(
           ctx,
@@ -408,7 +419,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     detectedRegion?: string,
   ): Promise<boolean> {
     try {
-      const resultado = this.saludPublicaService.procesarPregunta(text);
+      const resultado = await this.saludPublicaService.procesarPregunta(text);
       console.log(
         `DEBUG: handleSaludPublica - resultado.encontrado=${resultado.encontrado}, hasEvento=${!!resultado.evento}, hasContenido=${!!resultado.contenido}`,
       );
@@ -417,7 +428,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         let respuestaFinal = '';
 
         if (resultado.evento) {
-          const { contenido } = this.saludPublicaService._formatearRespuesta(
+          const { contenido } = await this.saludPublicaService._formatearRespuesta(
             { evento: resultado.evento },
             'detalle',
           );
@@ -434,6 +445,20 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
               regionParaAnalisis,
             );
           respuestaFinal += `\n\n${analisis}`;
+
+          // ENRIQUECIMIENTO: Datos de calidad del aire (Procesando arreglo de variables)
+          try {
+            const aireData = await this.airQualityService.getAirQualityByMunicipio(regionParaAnalisis);
+            if (aireData && aireData.length > 0) {
+              // Agrupamos las variables encontradas
+              const variables = aireData.slice(0, 3).map(item => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
+              
+              respuestaFinal += `\n\n🍃 **Indicadores ambientales en ${regionParaAnalisis}:**
+${variables}`;
+            }
+          } catch (e) {
+            console.error('Error enriqueciendo con calidad del aire', e);
+          }
         } else if (resultado.contenido) {
           respuestaFinal = resultado.contenido;
         }
