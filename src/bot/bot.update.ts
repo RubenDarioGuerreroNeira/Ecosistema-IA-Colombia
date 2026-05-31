@@ -39,30 +39,28 @@ export class BotUpdate {
   private async sendPersonalizedGreeting(ctx: Context) {
     const firstName = ctx.from?.first_name || 'usuario';
     const greeting = this.getTimeGreeting();
-    const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud respaldado por datos oficiales de salud pública de Colombia.
+    const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud pública con **cobertura nacional**.
 
-Estoy aquí para darte una experiencia clara, cercana y segura en cada consulta. Puedes contar conmigo para encontrar servicios, interpretar cifras y acompañarte en tus decisiones de bienestar.
+Ahora cuento con acceso a datos en tiempo real de SIVIGILA, lo que me permite ofrecerte análisis epidemiológicos locales para cualquier departamento o municipio de Colombia.
 
 ✨ **Puedo ayudarte con:**
-- Buscar hospitales, clínicas, centros de salud y prestadores por ciudad o región.
-- Localizar servicios médicos y unidades de atención con información actualizada.
-- Revisar estadísticas reales y tendencias de salud pública.
-- Comparar enfermedades, grupos de edad, género y zonas geográficas.
-- Explorar salud mental, riesgos y factores que afectan a tu comunidad.
-- Entender datos complejos con explicaciones fáciles y respetuosas.
-- **Acceder a guías de salud sexual y reproductiva**, incluyendo rutas de atención, derechos y prevención.
-- **Análisis automático de riesgos en salud**, incluyendo indicadores de vacunación para una respuesta más completa.
-- **Predicción de tendencias epidemiológicas**, proyectando comportamientos futuros basados en datos históricos.
+- 🌍 **Monitoreo Nacional:** Datos reales de incidencia en todo el país.
+- ⚖️ **Comparativas Regionales:** Analiza diferencias entre ciudades (ej. "Compara dengue en Cali vs Palmira").
+- 🛡️ **Acción Preventiva:** Alertas automáticas basadas en vacunación y brotes reales de tu región.
+- 🔬 **Análisis de Riesgo:** Indicadores locales y perfiles de riesgo sin depender de referencias externas.
+- 🏢 **Búsqueda de Servicios:** Hospitales, clínicas y prestadores de salud en cualquier región.
+- 🧠 **Salud Mental:** Perfiles de riesgo y comparativas de trastornos.
+- 🛡️ **Protocolos de Emergencia:** Guías y rutas de atención.
+- ❤️ **Salud Sexual:** Guías, derechos y rutas de atención.
+- 📈 **Predicción Epidemiológica:** Proyección de tendencias basadas en datos históricos.
 
 🔎 **Ejemplos de preguntas que puedes hacerme:**
+- *"Compara dengue en Cali vs Palmira"*
+- *"Analizar riesgo de tuberculosis en Risaralda"*
 - *"¿Dónde queda el Hospital Primitivo Iglesias?"*
-- *"¿Qué son los Derechos Reproductivos?"*
-- *"¿Cuántos casos de dengue hay?"*
-- *"predecir casos tuberculosis"* (¡Prueba nuestra nueva función predictiva!)
-- *"¿Qué servicios de salud sexual hay en [ciudad]?"*
+- *"predecir casos tuberculosis"*
 
-💬 Estoy listo para escucharte y apoyarte paso a paso. 
-**¿Qué quisieras explorar hoy?**`;
+💬 Estoy listo para apoyarte con datos precisos. **¿Qué te gustaría explorar hoy?**`;
 
     await ctx.reply(welcomeMessage, { parse_mode: 'Markdown' });
 
@@ -71,36 +69,27 @@ Estoy aquí para darte una experiencia clara, cercana y segura en cada consulta.
     }
   }
 
-  @Start()
-  async start(@Ctx() ctx: Context) {
-    await this.sendPersonalizedGreeting(ctx);
-  }
-
   @Help()
   async help(@Ctx() ctx: Context) {
     await ctx.reply(
-      `🤖 **Menú de Ayuda - Salud IA**
+      `🤖 **Menú de Ayuda - Salud IA (Versión Nacional)**
 
-Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí para apoyarte con:
+Puedes consultarme sobre cualquier región de Colombia:
+
+📊 **Análisis Regional y Comparativo:**
+- "¿Cómo está el dengue en Risaralda?"
+- "Compara tuberculosis en Cali vs Tuluá"
+- "Análisis de riesgo de zika en Valle del Cauca"
 
 🏢 **Búsqueda de Servicios:**
 - "Hospitales en [Municipio]"
 - "Centros de salud en [Región]"
-- "Prestadores de salud en [Ciudad]"
 
-📝 **Salud Mental y Riesgo:**
-- Perfiles de riesgo por diagnóstico.
-- Comparativas de trastornos (ej. "ansiedad vs depresión").
-- Ideas para entender qué situaciones afectan más a diferentes grupos.
+🔬 **Estadísticas de Salud Pública:**
+- Consultas directas de casos (SIVIGILA).
+- Análisis de género, edad y zona para eventos específicos.
 
-🔬 **Análisis de Salud Pública (SIVIGILA):**
-- **Consultas directas:** "¿Cuántos casos de [enfermedad] hay?"
-- **Análisis de género:** "Compara hombres con mujeres en [enfermedad]" o "¿qué evento afecta más a mujeres?"
-- **Rankings:** "Top 10 eventos", "Ranking completo", "Eventos raros".
-- **Filtros avanzados:** "Eventos infecciosos", "Eventos entre 20 y 100 casos", "Violencia en zona rural".
-- **Categorías:** "Eventos infecciosos en niños".
-
-💬 *Tip: Soy muy flexible con el lenguaje. ¡Escribe tu consulta de forma natural y yo me encargo de buscar la mejor respuesta para ti!*`,
+💬 *Tip: Ahora tengo datos de todo el país. ¡Prueba comparando dos ciudades!*`,
       { parse_mode: 'Markdown' },
     );
   }
@@ -136,127 +125,18 @@ Estoy respaldado por datos oficiales de salud pública de Colombia y estoy aquí
   async onText(@Ctx() ctx: Context) {
     if (!ctx.message || !('text' in ctx.message)) return;
 
-    const userId = ctx.from?.id;
-    const messageText = (ctx.message as any).text;
+    const messageText = (ctx.message as { text: string }).text;
 
-    // Identificar si el mensaje es un saludo
-    const isGreeting =
-      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello)/i.test(
-        messageText.trim(),
-      );
+    // Detectar región para posibles análisis posteriores
+    const detectedRegion = this.detectRegion(messageText);
 
-    // If it's a new user (not in persistent storage), greet them first
-    if (userId && !(await this.userService.hasBeenGreeted(userId))) {
-      await this.sendPersonalizedGreeting(ctx);
-      return;
-    } else if (isGreeting) {
-      const firstName = ctx.from?.first_name || 'usuario';
-      await ctx.reply(
-        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales. Puedo ayudarte con servicios, estadísticas y salud mental. ¿Qué te gustaría preguntar hoy?`,
-      );
-      return;
-    }
+    // Flujo de prioridades
+    if (await this.handleGreeting(ctx, messageText)) return;
+    if (await this.handleYopalQuery(ctx, messageText)) return;
+    if (await this.handlePrediction(ctx, messageText)) return;
 
-    // Detectar si la consulta parece ser una pregunta de lenguaje natural o análisis.
-    const regions = [
-      'cali', 'boyacá', 'boyaca', 'antioquia', 'yopal', 'valle',
-      'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps', 'coosalud'
-    ];
-    const containsRegion = regions.some((r) =>
-      messageText.toLowerCase().includes(r),
-    );
-
-    // Ajustar la lógica: detectar si es pregunta analítica
-    const isAnalyticalQuery =
-      /^(qu[eé]|cu[aá]l|cu[aá]ntos|c[oó]mo|por qu[eé]|qui[eé]nes|hay|dime|cu[aá]les|enfermedad|salud|impacto|estadistica|incidencia|joven|niño|adulto|mayor)/i.test(
-        messageText.trim().toLowerCase(),
-      ) || messageText.split(/\s+/).length > 5;
-
-    const isSearchIntent =
-      /(en que ciudad esta|donde queda|donde esta|buscar|prestador|hospital|clinica|centro de salud)/i.test(
-        messageText.toLowerCase(),
-      );
-
-    console.log(
-      `DEBUG: messageText=${messageText}, containsRegion=${containsRegion}, isAnalyticalQuery=${isAnalyticalQuery}`,
-    );
-
-    // PRIORIDAD 1: YOPAL (Dataset especializado con bypass)
-    try {
-      const lcQuery = messageText.toLowerCase();
-      // Si menciona Yopal o alguna de sus entidades principales
-      if (lcQuery.includes('yopal') || 
-          ['capresoca', 'coomeva', 'horo', 'orinoquia'].some(e => lcQuery.includes(e))) {
-        const { content, found } =
-          await this.yopalHealthService.answerNaturalQuestion(messageText);
-
-        if (found) {
-          await this.sendLongMessage(ctx, content, {
-            parse_mode: 'Markdown',
-          });
-          return;
-        }
-      }
-    } catch (err) {
-      console.error('Yopal bypass failed', err);
-    }
-
-    // PRIORIDAD 2: TEST PREDICTIVO
-    if (messageText.toLowerCase().startsWith('predecir casos')) {
-        const eventName = messageText.toLowerCase().replace('predecir casos', '').trim();
-        
-        if (!eventName) {
-            await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir casos dengue'");
-            return;
-        }
-
-        const resultado = this.saludPublicaService.procesarPregunta(eventName);
-        if (!resultado.evento) {
-            await this.sendLongMessage(ctx, "No encontré ese evento para predecir.");
-            return;
-        }
-
-        const temporalData = await this.healthDataService.getTemporalSeries(resultado.evento.nombre_del_evento);
-        const cases = temporalData.map(d => d.cases);
-        const prediccion = this.healthStatsService.predictNextValue(cases);
-
-        await this.sendLongMessage(ctx, `📊 **Predicción para ${resultado.evento.nombre_del_evento}:**
-Basado en datos históricos de los últimos 6 meses: ${cases.join(', ')}
-El próximo valor proyectado es: **${prediccion}** casos.`);
-        return;
-    }
-
-    // PRIORIDAD 3: SALUD PÚBLICA (SIVIGILA)
-    try {
-      const resultado = this.saludPublicaService.procesarPregunta(messageText);
-      
-      if (resultado.encontrado) {
-        let respuestaFinal = '';
-        
-        // Si el resultado trae un evento, lo formateamos y añadimos el análisis
-        if (resultado.evento) {
-            const { contenido } = this.saludPublicaService._formatearRespuesta({ evento: resultado.evento }, 'detalle');
-            respuestaFinal = contenido;
-            
-            // Añadir el análisis de riesgo (asíncrono)
-            const analisis = await this.saludAnaliticaService.analizarRiesgoEvento(resultado.evento.nombre_del_evento);
-            respuestaFinal += `\n\n${analisis}`;
-        } else if (resultado.contenido) {
-            respuestaFinal = resultado.contenido;
-        }
-        
-        await this.sendLongMessage(ctx, respuestaFinal);
-        return;
-      }
-    } catch (err) {
-      console.error('Salud Publica routing failed', err);
-    }
-
-    // RAG: Gather context through the StatsService (data-driven summaries)
+    // 1. PRIORIDAD: ESTADÍSTICAS Y COMPARATIVAS (StatsService)
     const contextData = await this.statsService.getSummary(messageText);
-
-    // Automatización de Bypass: Si la respuesta proviene de un servicio de datos y tiene un formato definido,
-    // la entregamos directamente al usuario, evitando alucinaciones de la IA.
     const bypassMarkers = [
       '--- ANÁLISIS',
       '--- RANKING',
@@ -264,6 +144,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`);
       '--- ANÁLISIS GLOBAL',
       '--- SALUD MENTAL',
       '--- PERFIL DE RIESGO',
+      '--- COMPARATIVA SIVIGILA',
       'En el grupo de',
       'La enfermedad de salud mental que más afecta',
     ];
@@ -276,16 +157,22 @@ El próximo valor proyectado es: **${prediccion}** casos.`);
       return;
     }
 
-    const chartUrl: string | undefined = undefined;
+    // 2. PRIORIDAD: ANÁLISIS DE RIESGO E INCIDENCIA DETALLADA
+    if (await this.handleRiskAnalysis(ctx, messageText, detectedRegion)) return;
+    if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
-    if (chartUrl) {
-      await ctx.replyWithPhoto(
-        { url: chartUrl as string },
-        { caption: '📊 Análisis visual de datos reales' },
-      );
-    }
+    // 3. PRIORIDAD: MANEJO GENERAL (IA con contexto)
+    await this.handleGeneralQuery(ctx, messageText, contextData);
+  }
 
-    let augmentedPrompt = messageText;
+  private async handleGeneralQuery(
+    ctx: Context,
+    text: string,
+    preFetchedContext?: string,
+  ) {
+    const contextData =
+      preFetchedContext || (await this.statsService.getSummary(text));
+
     const respuestaProfesionalNoInformacion = `Lo siento, no tengo información sobre ese tema en mi base de datos actual. 
     
     Mi especialidad es la salud pública en Colombia. Puedo ayudarte con:
@@ -297,7 +184,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`);
 
     ¿Te gustaría consultar alguna de estas áreas?`;
 
-    if (contextData) {
+    let augmentedPrompt = text;
+    if (contextData && !contextData.includes('[INFO]')) {
       augmentedPrompt = `
 ### CONTEXTO DE DATOS REALES (COLOMBIA) ###
 ${contextData}
@@ -307,10 +195,10 @@ INSTRUCCIÓN: Responde a la consulta del usuario utilizando EXCLUSIVAMENTE los d
 Si el contexto no contiene información relevante para responder la consulta, responde EXACTAMENTE con este mensaje: "${respuestaProfesionalNoInformacion}"
 Si el contexto contiene estadísticas, limítate a analizarlas y presentarlas. NO generes información que no esté presente en el contexto.
 
-Consulta: ${messageText}
+Consulta: ${text}
       `;
     } else {
-        augmentedPrompt = `Consulta: ${messageText}
+      augmentedPrompt = `Consulta: ${text}
 
 INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consulta no está relacionada con tus capacidades (servicios de salud, estadísticas de salud pública, salud mental o sexual), responde EXACTAMENTE con este mensaje: "${respuestaProfesionalNoInformacion}"`;
     }
@@ -324,5 +212,243 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         '⚠️ Lo siento, mi servicio de inteligencia artificial no está disponible en este momento. Por favor, intenta de nuevo en unos minutos.',
       );
     }
+  }
+
+  private async handleRiskAnalysis(
+    ctx: Context,
+    text: string,
+    detectedRegion?: string,
+  ): Promise<boolean> {
+    const norm = text.toLowerCase();
+    // Solo activamos si el usuario pide explícitamente analizar riesgo, NO en comparativas
+    if (
+      (!norm.includes('riesgo') && !norm.includes('analizar')) ||
+      norm.includes(' vs ')
+    )
+      return false;
+
+    // Intentar extraer el evento (ej: tuberculosis, dengue)
+    const keywords = [
+      'tuberculosis',
+      'dengue',
+      'zika',
+      'malaria',
+      'sarampion',
+      'rubeola',
+      'fiebre amarilla',
+      'hepatitis',
+      'polio',
+      'tos ferina',
+    ];
+    const event = keywords.find((k) => norm.includes(k));
+
+    if (event) {
+      try {
+        const region = detectedRegion || 'Antioquia';
+        const analysis = await this.saludAnaliticaService.analizarRiesgoEvento(
+          event,
+          region,
+        );
+        await this.sendLongMessage(ctx, analysis);
+        return true;
+      } catch (error) {
+        console.error('Error in handleRiskAnalysis:', error);
+      }
+    }
+    return false;
+  }
+
+  private detectRegion(text: string): string | undefined {
+    const departments = [
+      'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá',
+      'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare',
+      'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo',
+      'Quindío', 'Risaralda', 'San Andrés', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca',
+      'Vaupés', 'Vichada'
+    ];
+
+    const capitals = [
+      'Leticia', 'Medellín', 'Arauca', 'Barranquilla', 'Cartagena', 'Tunja', 'Manizales',
+      'Florencia', 'Yopal', 'Popayán', 'Valledupar', 'Quibdó', 'Montería', 'Bogotá',
+      'Inírida', 'San José del Guaviare', 'Neiva', 'Riohacha', 'Santa Marta', 'Villavicencio',
+      'Pasto', 'Cúcuta', 'Mocoa', 'Armenia', 'Pereira', 'Bucaramanga', 'Sincelejo',
+      'Ibagué', 'Cali', 'Mitú', 'Puerto Carreño'
+    ];
+
+    const majorValle = [
+      'Buga', 'Tuluá', 'Palmira', 'Jamundí', 'Cartago', 'Buenaventura', 'Yumbo', 'Candelaria',
+      'Florida', 'El Cerrito', 'Sevilla', 'Zarzal', 'Caicedonia', 'Guacarí', 'Roldanillo'
+    ];
+
+    const others = [
+      'valle', 'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps', 'coosalud', 'horo', 'orinoquia'
+    ];
+
+    const regions = [...departments, ...capitals, ...majorValle, ...others];
+    
+    const cleanText = text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents for better matching
+      .replace(/\s+/g, '')
+      .replace(/k/g, 'c');
+
+    return regions.find((r) => {
+      const cleanRegion = r.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '')
+        .replace(/k/g, 'c');
+      return cleanText.includes(cleanRegion);
+    });
+  }
+
+  private async handleGreeting(ctx: Context, text: string): Promise<boolean> {
+    const userId = ctx.from?.id;
+    const isGreeting =
+      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello)/i.test(
+        text.trim(),
+      );
+    console.log(`DEBUG: handleGreeting - userId=${userId}, text='${text}', isGreeting=${isGreeting}`);
+
+    if (userId && !(await this.userService.hasBeenGreeted(userId))) {
+      console.log(`DEBUG: handleGreeting - Greeting new user`);
+      await this.sendPersonalizedGreeting(ctx);
+      return true;
+    } else if (isGreeting) {
+      console.log(`DEBUG: handleGreeting - Greeting existing user`);
+      const firstName = ctx.from?.first_name || 'usuario';
+      await ctx.reply(
+        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales.
+
+Puedo ayudarte con:
+- 🏢 **Búsqueda de Servicios:** Hospitales, clínicas y prestadores.
+- 🔬 **Análisis de Riesgo e Incidencia:** Estadísticas oficiales (SIVIGILA).
+- 🧠 **Salud Mental:** Perfiles de riesgo y trastornos.
+- 🛡️ **Protocolos de Emergencia:** Guías de atención.
+- ❤️ **Salud Sexual:** Guías, derechos y rutas.
+- 📈 **Predicción Epidemiológica:** Proyección de tendencias.
+
+¿Qué te gustaría preguntar hoy?`,
+      );
+      return true;
+    }
+    console.log(`DEBUG: handleGreeting - No greeting detected`);
+    return false;
+  }
+
+  private async handleYopalQuery(ctx: Context, text: string): Promise<boolean> {
+    try {
+      const lcQuery = text.toLowerCase();
+      const cleanQuery = lcQuery.replace(/\s+/g, '').replace(/k/g, 'c');
+
+      if (
+        lcQuery.includes('yopal') ||
+        ['capresoca', 'coomeva', 'horo', 'orinoquia'].some((e) =>
+          cleanQuery.includes(e.replace(/k/g, 'c')),
+        )
+      ) {
+        const { content, found } =
+          await this.yopalHealthService.answerNaturalQuestion(text);
+
+        if (found) {
+          await this.sendLongMessage(ctx, content, {
+            parse_mode: 'Markdown',
+          });
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error('Yopal bypass failed', err);
+    }
+    return false;
+  }
+
+  private async handlePrediction(ctx: Context, text: string): Promise<boolean> {
+    if (text.toLowerCase().startsWith('predecir casos')) {
+      const eventName = text.toLowerCase().replace('predecir casos', '').trim();
+
+      if (!eventName) {
+        await this.sendLongMessage(
+          ctx,
+          "Por favor, especifica un evento. Ejemplo: 'predecir casos dengue'",
+        );
+        return true;
+      }
+
+      const resultado = this.saludPublicaService.procesarPregunta(eventName);
+      if (!resultado.evento) {
+        await this.sendLongMessage(
+          ctx,
+          'No encontré ese evento para predecir.',
+        );
+        return true;
+      }
+
+      const temporalData = await this.healthDataService.getTemporalSeries(
+        resultado.evento.nombre_del_evento,
+      );
+      const cases = temporalData.map((d) => d.cases);
+      const prediccion = this.healthStatsService.predictNextValue(cases);
+
+      await this.sendLongMessage(
+        ctx,
+        `📊 **Predicción para ${resultado.evento.nombre_del_evento}:**
+Basado en datos históricos de los últimos 6 meses: ${cases.join(', ')}
+El próximo valor proyectado es: **${prediccion}** casos.`,
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private async handleSaludPublica(
+    ctx: Context,
+    text: string,
+    detectedRegion?: string,
+  ): Promise<boolean> {
+    try {
+      const resultado = this.saludPublicaService.procesarPregunta(text);
+      console.log(
+        `DEBUG: handleSaludPublica - resultado.encontrado=${resultado.encontrado}, hasEvento=${!!resultado.evento}, hasContenido=${!!resultado.contenido}`,
+      );
+
+      if (resultado.encontrado) {
+        let respuestaFinal = '';
+
+        if (resultado.evento) {
+          const { contenido } = this.saludPublicaService._formatearRespuesta(
+            { evento: resultado.evento },
+            'detalle',
+          );
+          respuestaFinal = contenido;
+
+          const regionParaAnalisis = detectedRegion || 'Antioquia';
+          console.log(
+            `DEBUG: handleSaludPublica - Llamando analizarRiesgoEvento para ${resultado.evento.nombre_del_evento} en ${regionParaAnalisis}`,
+          );
+
+          const analisis =
+            await this.saludAnaliticaService.analizarRiesgoEvento(
+              resultado.evento.nombre_del_evento,
+              regionParaAnalisis,
+            );
+          respuestaFinal += `\n\n${analisis}`;
+        } else if (resultado.contenido) {
+          respuestaFinal = resultado.contenido;
+        }
+
+        if (!respuestaFinal) {
+          console.warn('DEBUG: handleSaludPublica - respuestaFinal vacía');
+          return false;
+        }
+
+        await this.sendLongMessage(ctx, respuestaFinal);
+        return true;
+      }
+    } catch (err) {
+      console.error('DEBUG: Error en handleSaludPublica:', err);
+    }
+    return false;
   }
 }
