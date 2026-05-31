@@ -9,6 +9,7 @@ import { SaludPublicaService } from './salud-publica.service';
 import { SaludAnaliticaService } from './salud-analitica.service';
 import { IngestaDatosService } from './ingesta-datos.service';
 import { VaccinationService } from './vaccination.service';
+import { NationalHealthService } from './national-health.service';
 
 @Module({
   imports: [StatsModule, DataModule],
@@ -16,12 +17,14 @@ import { VaccinationService } from './vaccination.service';
     BotUpdate,
     GenkitService,
     UserService,
-    BoyacaHealthService,
-    SaludPublicaService,
     SaludAnaliticaService,
     IngestaDatosService,
     VaccinationService,
   ],
-  exports: [SaludPublicaService, SaludAnaliticaService, IngestaDatosService, VaccinationService],
+  exports: [
+    SaludAnaliticaService,
+    IngestaDatosService,
+    VaccinationService,
+  ],
 })
 export class BotModule {}

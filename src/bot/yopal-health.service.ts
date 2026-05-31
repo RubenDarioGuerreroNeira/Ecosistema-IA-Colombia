@@ -110,13 +110,40 @@ export class YopalHealthService implements OnModuleInit {
     const categories: string[] = [];
 
     const mapping = {
-      EPS: ['CAPRESOCA', 'COOMEVA', 'MEDIMAS', 'SANITAS', 'NUEVA EPS', 'COOSALUD'],
+      EPS: [
+        'CAPRESOCA',
+        'COOMEVA',
+        'MEDIMAS',
+        'SANITAS',
+        'NUEVA EPS',
+        'COOSALUD',
+      ],
       'HOSPITAL/CLINICA': ['HOSPITAL', 'CLINICA', 'CENTRO MEDICO', 'CAIMED'],
-      ODONTOLOGIA: ['ODONTO', 'DENTAL', 'DENTISALUD', 'ORTHOPHOS', 'PANOREX', 'CEDENT'],
+      ODONTOLOGIA: [
+        'ODONTO',
+        'DENTAL',
+        'DENTISALUD',
+        'ORTHOPHOS',
+        'PANOREX',
+        'CEDENT',
+      ],
       LABORATORIO: ['LABORATORIO', 'FAMELAB'],
-      'RADIOLOGIA/DIAGNOSTICO': ['RADIOLOG', 'RX', 'ESCANOGRAFIA', 'TOMOGRAFO', 'MAMOGRAFIA', 'RESONANCIA'],
+      'RADIOLOGIA/DIAGNOSTICO': [
+        'RADIOLOG',
+        'RX',
+        'ESCANOGRAFIA',
+        'TOMOGRAFO',
+        'MAMOGRAFIA',
+        'RESONANCIA',
+      ],
       'OPTICA/OFTALMOLOGIA': ['OPTICA', 'OFTALMO', 'OPTISALUD'],
-      ESPECIALIDAD_MEDICA: ['CARDIO', 'ONCO', 'HEMATO', 'ORL', 'CIRUGIA PLASTICA'],
+      ESPECIALIDAD_MEDICA: [
+        'CARDIO',
+        'ONCO',
+        'HEMATO',
+        'ORL',
+        'CIRUGIA PLASTICA',
+      ],
       REHABILITARION: ['REHABILITAR', 'KAIROS', 'FISIOTERAPIA'],
       'TRANSPORTE/AMBULANCIA': ['AMBULANCIA', 'TEVA', 'AEREA Y TERRESTRE'],
       'FARMACIA/OXIGENO': ['BIHOSPHARMA', 'OXIGENOS'],
@@ -290,7 +317,10 @@ export class YopalHealthService implements OnModuleInit {
     // Distribución por tipo de vía
     const roadTypeStats: Record<string, number> = {};
     // Cobertura geográfica (Bounding Box)
-    let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+    let minLat = 90,
+      maxLat = -90,
+      minLon = 180,
+      maxLon = -180;
     let coordsCount = 0;
     let multiPhoneCount = 0;
 
@@ -298,9 +328,25 @@ export class YopalHealthService implements OnModuleInit {
       // Analizar dirección
       const dir = (p.direccion || '').toUpperCase();
       const roadType = dir.split(' ')[0]; // Tomar la primera palabra (CALLE, CARRERA, etc.)
-      if (['CALLE', 'CRA', 'CARRERA', 'TRANSVERSAL', 'DIAGONAL', 'AVENIDA', 'AV'].includes(roadType)) {
-        const normalizedRoad = roadType === 'CRA' ? 'CARRERA' : (roadType === 'AV' ? 'AVENIDA' : roadType);
-        roadTypeStats[normalizedRoad] = (roadTypeStats[normalizedRoad] || 0) + 1;
+      if (
+        [
+          'CALLE',
+          'CRA',
+          'CARRERA',
+          'TRANSVERSAL',
+          'DIAGONAL',
+          'AVENIDA',
+          'AV',
+        ].includes(roadType)
+      ) {
+        const normalizedRoad =
+          roadType === 'CRA'
+            ? 'CARRERA'
+            : roadType === 'AV'
+              ? 'AVENIDA'
+              : roadType;
+        roadTypeStats[normalizedRoad] =
+          (roadTypeStats[normalizedRoad] || 0) + 1;
       }
 
       // Analizar coordenadas para bounding box
@@ -323,15 +369,21 @@ export class YopalHealthService implements OnModuleInit {
       totalProviders: total,
       byCategory: categoryStats,
       byRoadType: roadTypeStats,
-      geographicCoverage: coordsCount > 0 ? {
-        minLat, maxLat, minLon, maxLon,
-        providersWithCoords: coordsCount,
-        percentage: ((coordsCount / total) * 100).toFixed(2) + '%'
-      } : null,
+      geographicCoverage:
+        coordsCount > 0
+          ? {
+              minLat,
+              maxLat,
+              minLon,
+              maxLon,
+              providersWithCoords: coordsCount,
+              percentage: ((coordsCount / total) * 100).toFixed(2) + '%',
+            }
+          : null,
       connectivity: {
         multiPhoneProviders: multiPhoneCount,
-        singlePhoneOrNone: total - multiPhoneCount
-      }
+        singlePhoneOrNone: total - multiPhoneCount,
+      },
     };
   }
 
@@ -356,7 +408,9 @@ export class YopalHealthService implements OnModuleInit {
         if (p.latitud === 'N/A' || p.longitud === 'N/A') {
           warnings.push('Coordenadas no disponibles (N/A)');
         } else {
-          errors.push(`Coordenadas malformadas: Lat(${p.latitud}) Lon(${p.longitud})`);
+          errors.push(
+            `Coordenadas malformadas: Lat(${p.latitud}) Lon(${p.longitud})`,
+          );
         }
       }
 
@@ -416,6 +470,14 @@ export class YopalHealthService implements OnModuleInit {
   }
 
   /**
+   * Escapa caracteres especiales para el modo Markdown de Telegram.
+   * El guion bajo (_) es el principal causante de errores de parseo en correos.
+   */
+  private escapeMarkdown(text: string | undefined): string {
+    return (text || '').replace(/_/g, '\\_');
+  }
+
+  /**
    * Procesa una pregunta en lenguaje natural sobre Yopal y devuelve una respuesta formateada.
    */
   async answerNaturalQuestion(question: string): Promise<{
@@ -426,11 +488,22 @@ export class YopalHealthService implements OnModuleInit {
     if (!q) return { content: '', found: false };
 
     // 1. Detección de Intención (Mejorada con plurales y variaciones)
-    const isUrgency = /(urgencia|emergencia|24 horas|24h|grave|herida|accidente)/i.test(q);
-    const isProximity = /(cerca|cercano|proximidad|donde queda|donde queda n|donde esta|ubicacion|direccion)/i.test(q);
-    const isCategory = /(eps|hospital|clinica|odontolog|laboratorio|optica|farmacia|ambulancia|medico|medica)/i.test(q);
-    const isManager = /(gerente|director|quien manda|quien es el jefe|quien dirige|persona a cargo)/i.test(q);
-    const isStats = /(cuantos|cuantas|estadistica|resumen|total|cantidad)/i.test(q);
+    const isUrgency =
+      /(urgencia|emergencia|24 horas|24h|grave|herida|accidente)/i.test(q);
+    const isProximity =
+      /(cerca|cercano|proximidad|donde queda|donde queda n|donde esta|ubicacion|direccion)/i.test(
+        q,
+      );
+    const isCategory =
+      /(eps|hospital|clinica|odontolog|laboratorio|optica|farmacia|ambulancia|medico|medica)/i.test(
+        q,
+      );
+    const isManager =
+      /(gerente|director|quien manda|quien es el jefe|quien dirige|persona a cargo)/i.test(
+        q,
+      );
+    const isStats =
+      /(cuantos|cuantas|estadistica|resumen|total|cantidad)/i.test(q);
 
     // 2. Ejecutar lógica según intención
     let response = '';
@@ -441,7 +514,35 @@ export class YopalHealthService implements OnModuleInit {
         response = `🚨 *URGENCIAS EN YOPAL (24H / VITALES)* 🚨\n\nHe encontrado estos centros de atención inmediata:\n\n`;
         providers.forEach((p) => {
           const contacts = this.getProviderContacts(p);
-          response += `🏥 *${p.entidad_2}*\n📍 ${p.direccion}\n📞 Tel: ${contacts.primaryPhone || 'N/A'}\n${p.is24Hours ? '⏱️ ATENCIÓN 24 HORAS\n' : ''}\n`;
+          response += `🏥 *${this.escapeMarkdown(p.entidad_2 || 'N/A')}*\n📍 ${this.escapeMarkdown(
+            p.direccion,
+          )}\n📞 Tel: ${contacts.primaryPhone || 'N/A'}\n${
+            p.is24Hours ? '⏱️ ATENCIÓN 24 HORAS\n' : ''
+          }\n`;
+        });
+        return { content: response, found: true };
+      }
+    }
+
+    if (isProximity) {
+      // Si es una pregunta de ubicación, intentamos extraer la entidad eliminando palabras clave
+      const entityQuery = q
+        .replace(
+          /(cerca|cercano|proximidad|donde queda|donde queda n|donde esta|ubicacion|direccion)/gi,
+          '',
+        )
+        .trim();
+
+      const providers = this.findByIdentifier(entityQuery || q);
+      if (providers.length > 0) {
+        response = `📍 *UBICACIÓN EN YOPAL*\n\n`;
+        providers.slice(0, 3).forEach((p) => {
+          const contacts = this.getProviderContacts(p);
+          response += `🏢 *${this.escapeMarkdown(
+            p.entidad_2,
+          )}*\n📍 ${this.escapeMarkdown(p.direccion)}\n📞 Tel: ${
+            contacts.primaryPhone || 'N/A'
+          }\n\n`;
         });
         return { content: response, found: true };
       }
@@ -449,17 +550,28 @@ export class YopalHealthService implements OnModuleInit {
 
     if (isCategory) {
       const cats = [
-        'EPS', 'HOSPITAL/CLINICA', 'ODONTOLOGIA', 'LABORATORIO', 
-        'RADIOLOGIA/DIAGNOSTICO', 'OPTICA/OFTALMOLOGIA', 'TRANSPORTE/AMBULANCIA'
+        'EPS',
+        'HOSPITAL/CLINICA',
+        'ODONTOLOGIA',
+        'LABORATORIO',
+        'RADIOLOGIA/DIAGNOSTICO',
+        'OPTICA/OFTALMOLOGIA',
+        'TRANSPORTE/AMBULANCIA',
       ];
-      const targetCat = cats.find(c => q.includes(c.toLowerCase().split('/')[0]));
+      const targetCat = cats.find((c) =>
+        q.includes(c.toLowerCase().split('/')[0]),
+      );
       if (targetCat) {
         const providers = this.getProvidersByCategory(targetCat);
         if (providers.length > 0) {
           response = `🏥 *${targetCat} EN YOPAL*\n\nAquí tienes algunos resultados:\n\n`;
-          providers.slice(0, 5).forEach(p => {
+          providers.slice(0, 5).forEach((p) => {
             const contacts = this.getProviderContacts(p);
-            response += `🔹 *${p.entidad_2}*\n📍 ${p.direccion}\n📞 ${contacts.primaryPhone || 'N/A'}\n\n`;
+            response += `🔹 *${this.escapeMarkdown(
+              p.entidad_2,
+            )}*\n📍 ${this.escapeMarkdown(p.direccion)}\n📞 ${
+              contacts.primaryPhone || 'N/A'
+            }\n\n`;
           });
           return { content: response, found: true };
         }
@@ -471,8 +583,12 @@ export class YopalHealthService implements OnModuleInit {
       const results = this.findByIdentifier(q); // findByIdentifier ya busca en gerentes
       if (results.length > 0) {
         response = `👤 *CONTACTOS DIRECTIVOS YOPAL*\n\n`;
-        results.slice(0, 3).forEach(p => {
-          response += `🏢 *${p.entidad_2}*\n👤 Gerente: ${p.gerente}\n📧 ${p.correo_electronico || 'N/A'}\n\n`;
+        results.slice(0, 3).forEach((p) => {
+          response += `🏢 *${this.escapeMarkdown(
+            p.entidad_2 || 'N/A',
+          )}*\n👤 Gerente: ${this.escapeMarkdown(
+            p.gerente,
+          )}\n📧 ${this.escapeMarkdown(p.correo_electronico || 'N/A')}\n\n`;
         });
         return { content: response, found: true };
       }
@@ -493,9 +609,13 @@ export class YopalHealthService implements OnModuleInit {
     const genericMatches = this.findByIdentifier(q);
     if (genericMatches.length > 0) {
       response = `🔍 *RESULTADOS PARA YOPAL*\n\n`;
-      genericMatches.slice(0, 3).forEach(p => {
+      genericMatches.slice(0, 3).forEach((p) => {
         const contacts = this.getProviderContacts(p);
-        response += `🏢 *${p.entidad_2}*\n📍 ${p.direccion}\n📞 ${contacts.primaryPhone || 'N/A'}\n\n`;
+        response += `🏢 *${this.escapeMarkdown(
+          p.entidad_2 || 'N/A',
+        )}*\n📍 ${this.escapeMarkdown(p.direccion)}\n📞 ${
+          contacts.primaryPhone || 'N/A'
+        }\n\n`;
       });
       return { content: response, found: true };
     }
@@ -516,7 +636,7 @@ export class YopalHealthService implements OnModuleInit {
       const parser = new xml2js.Parser({ explicitArray: false });
       const result = await parser.parseStringPromise(xmlData);
       const rawRows = result.response?.rows?.row;
-      
+
       this.providers = Array.isArray(rawRows)
         ? rawRows
         : rawRows
@@ -545,11 +665,15 @@ export class YopalHealthService implements OnModuleInit {
 
       // Búsqueda bidireccional: el campo contiene la query O la query contiene el campo
       const municipioMatch =
-        municipio.includes(q) || q.includes(municipio) ||
-        depto.includes(q) || q.includes(depto);
+        municipio.includes(q) ||
+        q.includes(municipio) ||
+        depto.includes(q) ||
+        q.includes(depto);
       const nombreMatch =
-        nombre.includes(q) || q.includes(nombre) ||
-        gerente.includes(q) || q.includes(gerente);
+        nombre.includes(q) ||
+        q.includes(nombre) ||
+        gerente.includes(q) ||
+        q.includes(gerente);
       return municipioMatch || nombreMatch;
     });
   }
@@ -595,7 +719,9 @@ export class YopalHealthService implements OnModuleInit {
     }
 
     const jaro =
-      (matches / len1 + matches / len2 + (matches - transpositions / 2) / matches) /
+      (matches / len1 +
+        matches / len2 +
+        (matches - transpositions / 2) / matches) /
       3;
 
     // Ajuste de Winkler (prefijo común)
@@ -636,11 +762,40 @@ export class YopalHealthService implements OnModuleInit {
     if (!q) return [];
 
     const stopWords = new Set([
-      'que', 'cual', 'como', 'donde', 'queda', 'buscar', 'busco',
-      'hay', 'tiene', 'esta', 'los', 'las', 'del', 'por', 'para',
-      'con', 'sin', 'una', 'uno', 'centros', 'centro', 'salud',
-      'yopal', 'casanare', 'prestadores', 'informacion', 'sobre',
-      'dónde', 'cuál', 'cómo', 'cuáles', 'son', 'hospital', 'hospitales',
+      'que',
+      'cual',
+      'como',
+      'donde',
+      'queda',
+      'buscar',
+      'busco',
+      'hay',
+      'tiene',
+      'esta',
+      'los',
+      'las',
+      'del',
+      'por',
+      'para',
+      'con',
+      'sin',
+      'una',
+      'uno',
+      'centros',
+      'centro',
+      'salud',
+      'yopal',
+      'casanare',
+      'prestadores',
+      'informacion',
+      'sobre',
+      'dónde',
+      'cuál',
+      'cómo',
+      'cuáles',
+      'son',
+      'hospital',
+      'hospitales',
     ]);
     const tokens = q
       .split(/\s+/)
@@ -656,13 +811,16 @@ export class YopalHealthService implements OnModuleInit {
       const correo = (p.correo_electronico || '').toLowerCase();
       const fields = [nombre, gerente, direccion, telefono, correo];
 
-      const exactMatch = fields.some((f) => f.includes(q) || q.includes(f));
+      // Búsqueda exacta e ignorando espacios (ej: "Capre soka" -> "capresoka")
+      const cleanQ = q.replace(/\s+/g, '').replace(/k/g, 'c'); // Normalización básica de k -> c
+      const exactMatch = fields.some((f) => {
+        const cleanF = f.replace(/\s+/g, '').replace(/k/g, 'c');
+        return f.includes(q) || q.includes(f) || cleanF.includes(cleanQ);
+      });
       if (exactMatch) return true;
 
       if (tokens.length > 0) {
-        return tokens.some((token) =>
-          fields.some((f) => f.includes(token)),
-        );
+        return tokens.some((token) => fields.some((f) => f.includes(token)));
       }
       return false;
     });
@@ -673,21 +831,21 @@ export class YopalHealthService implements OnModuleInit {
     // Esto ayuda en casos como "Comeva" -> "COOMEVA"
     if (tokens.length > 0) {
       const fuzzyMatches: { p: YopalHealthProvider; score: number }[] = [];
-      
-      this.providers.forEach(p => {
+
+      this.providers.forEach((p) => {
         const name = (p.entidad_2 || '').toLowerCase();
         // Calculamos el mejor score de Jaro-Winkler entre los tokens y el nombre
-        const bestTokenScore = Math.max(...tokens.map(t => this.jaroWinkler(t, name)));
-        
+        const bestTokenScore = Math.max(
+          ...tokens.map((t) => this.jaroWinkler(t, name)),
+        );
+
         if (bestTokenScore > 0.8) {
           fuzzyMatches.push({ p, score: bestTokenScore });
         }
       });
 
       if (fuzzyMatches.length > 0) {
-        return fuzzyMatches
-          .sort((a, b) => b.score - a.score)
-          .map(m => m.p);
+        return fuzzyMatches.sort((a, b) => b.score - a.score).map((m) => m.p);
       }
     }
 

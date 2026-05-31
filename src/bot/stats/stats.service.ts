@@ -8,6 +8,7 @@ import { AntioquiaHealthService } from '../antioquia-health.service';
 import { BoyacaHealthService } from '../boyaca-health.service';
 import { CaliHealthService } from '../cali-health.service';
 import { YopalHealthService } from '../yopal-health.service';
+import { NationalHealthService } from '../national-health.service';
 
 @Injectable()
 export class StatsService {
@@ -21,6 +22,7 @@ export class StatsService {
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
+    private readonly nationalHealthService: NationalHealthService,
   ) {}
 
   async getSummary(query: string): Promise<string> {
@@ -38,6 +40,20 @@ export class StatsService {
     ];
     if (generalKeywords.some((kw) => queryLower.includes(kw))) {
       return this.getGlobalCapabilities();
+    }
+
+    // New: Regional comparison detection (e.g., "compara dengue en Cali vs Palmira")
+    if (queryLower.includes(' vs ') && (queryLower.includes('compara') || queryLower.includes('diferencia'))) {
+      const parts = queryLower.split(' vs ');
+      // Simple regex to extract event and first municipality from the first part
+      // Example: "compara dengue en cali" -> event="dengue", mun1="cali"
+      const match = parts[0].match(/(?:compara|diferencia de)\s+(.+?)\s+en\s+(.+)$/i);
+      if (match) {
+        const event = match[1].trim();
+        const reg1 = match[2].trim();
+        const reg2 = parts[1].trim();
+        return await this.nationalHealthService.compareRegionalCases(event, reg1, reg2);
+      }
     }
 
     // 1. Detección de Ranking de Enfermedades (Top 5)

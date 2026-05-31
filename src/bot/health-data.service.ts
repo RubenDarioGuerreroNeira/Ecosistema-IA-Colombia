@@ -4,6 +4,7 @@ import * as path from 'path';
 import { XMLParser } from 'fast-xml-parser';
 
 export interface HealthEvent {
+  departamento: string;
   nombre_del_evento: string;
   urbano: number;
   rural: number;
@@ -56,6 +57,7 @@ export class HealthDataService {
 
   private mapRowToEvent(row: any): HealthEvent {
     return {
+      departamento: row.departamento || 'Antioquia', // O el valor que traiga el XML
       nombre_del_evento: row.nombre_del_evento,
       urbano: Number(row.urbano) || 0,
       rural: Number(row.rural) || 0,
@@ -81,21 +83,25 @@ export class HealthDataService {
   /**
    * Genera una serie temporal sintética para un evento basándose en su total.
    */
-  public async getTemporalSeries(eventName: string): Promise<{date: Date; cases: number}[]> {
-    const event = this.events.find(e => e.nombre_del_evento.toLowerCase().includes(eventName.toLowerCase()));
+  public async getTemporalSeries(
+    eventName: string,
+  ): Promise<{ date: Date; cases: number }[]> {
+    const event = this.events.find((e) =>
+      e.nombre_del_evento.toLowerCase().includes(eventName.toLowerCase()),
+    );
     if (!event) return [];
-    
+
     const months = 6;
     const mean = event.total_de_eventos / months;
     return Array.from({ length: months }, (_, i) => {
-        const date = new Date();
-        date.setMonth(date.getMonth() - (months - i));
-        // Añadir fluctuación aleatoria +/- 20%
-        const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
-        return {
-            date,
-            cases: Math.round(mean * fluctuation)
-        };
+      const date = new Date();
+      date.setMonth(date.getMonth() - (months - i));
+      // Añadir fluctuación aleatoria +/- 20%
+      const fluctuation = 1 + (Math.random() * 0.4 - 0.2);
+      return {
+        date,
+        cases: Math.round(mean * fluctuation),
+      };
     });
   }
 

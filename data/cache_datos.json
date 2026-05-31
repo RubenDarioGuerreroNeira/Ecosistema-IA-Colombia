@@ -1,0 +1,5627 @@
+{
+  "dataset_cali": {
+    "timestamp": 1780267600649,
+    "data": []
+  },
+  "dataset_antioquia": {
+    "timestamp": 1780267628365,
+    "data": [
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "DENGUE",
+        "casos_totales": 117,
+        "distribucion_zona": {
+          "urbano": 56,
+          "rural": 61
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "VARICELA INDIVIDUAL",
+        "casos_totales": 84,
+        "distribucion_zona": {
+          "urbano": 37,
+          "rural": 47
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "AGRESIONES POR ANIMALES POTENCIALMENTE TRANSMISORES DE RABIA",
+        "casos_totales": 71,
+        "distribucion_zona": {
+          "urbano": 35,
+          "rural": 34
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "VIGILANCIA EN SALUD PÚBLICA DE LAS VIOLENCIAS DE GÉNERO E INTRAFAMILIAR",
+        "casos_totales": 46,
+        "distribucion_zona": {
+          "urbano": 24,
+          "rural": 22
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ZIKA",
+        "casos_totales": 22,
+        "distribucion_zona": {
+          "urbano": 15,
+          "rural": 7
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "DESNUTRICION AGUDA EN MENORES DE 5 AÑOS",
+        "casos_totales": 15,
+        "distribucion_zona": {
+          "urbano": 9,
+          "rural": 6
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ANSIEDAD",
+        "casos_totales": 11,
+        "distribucion_zona": {
+          "urbano": 7,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "FLUOROSIS",
+        "casos_totales": 20,
+        "distribucion_zona": {
+          "urbano": 7,
+          "rural": 13
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ACCIDENTE DE TRABAJO",
+        "casos_totales": 10,
+        "distribucion_zona": {
+          "urbano": 6,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "INTOXICACIONES",
+        "casos_totales": 15,
+        "distribucion_zona": {
+          "urbano": 6,
+          "rural": 9
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "HEPATITIS B, C Y COINFECCIÓN HEPATITIS B Y DELTA",
+        "casos_totales": 7,
+        "distribucion_zona": {
+          "urbano": 4,
+          "rural": 60
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "PAROTIDITIS",
+        "casos_totales": 5,
+        "distribucion_zona": {
+          "urbano": 4,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORBILIDAD MATERNA EXTREMA",
+        "casos_totales": 7,
+        "distribucion_zona": {
+          "urbano": 4,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "LESIONES ESCAMOSAS INTRAEPITLIALES DE BAJO GRADO(NIC 1)",
+        "casos_totales": 9,
+        "distribucion_zona": {
+          "urbano": 4,
+          "rural": 5
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "DEPRESIÓN",
+        "casos_totales": 7,
+        "distribucion_zona": {
+          "urbano": 3,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "HEPATITIS A",
+        "casos_totales": 5,
+        "distribucion_zona": {
+          "urbano": 3,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "INTENTO DE SUICIDIO",
+        "casos_totales": 7,
+        "distribucion_zona": {
+          "urbano": 3,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "VIH/SIDA - MORTALIDAD POR SIDA",
+        "casos_totales": 6,
+        "distribucion_zona": {
+          "urbano": 3,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "LESIONES DE CAUSA EXTERNA",
+        "casos_totales": 4,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "CONSUMO DE SPA",
+        "casos_totales": 10,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 8
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "PSICOSIS",
+        "casos_totales": 4,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "CÁNCER DE LA MAMA Y CUELLO UTERINO",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "DEFECTOS CONGENITOS",
+        "casos_totales": 4,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ACCIDENTE OFIDICO",
+        "casos_totales": 13,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 11
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "INFECCIONES DE SITIO QUIRÚRGICO ASOCIADAS A PROCEDIMIENTO MÉDICO QUIRÚRGICO",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 2,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "TRASTORNO AFECTIVO BIPOLAR",
+        "casos_totales": 5,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "CHIKUNGUYA",
+        "casos_totales": 6,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 5
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "BAJO PESO AL NACER",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ESI-IRAG  (VIGILANCIA CENTINELA)",
+        "casos_totales": 6,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 5
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "HEPATITIS B",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "INFECCIÓN GONOCÓCCICA",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "HERPES GENITAL",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 0
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD MATERNA",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 0
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ACCIDENTE DE TRÁNSITO POR MOTO EN MENORES DE 18 AÑOS",
+        "casos_totales": 6,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 5
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "EVENTO ADVERSO SEGUIDO A LA VACUNACION.",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ATIPIAS DE CÉLULAS ESCAMOSAS DE SIGNIFICADO INDETERMINADO (ASCUS O ACSI)",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "LESIONES POR ARTEFACTOS EXPLOSIVOS",
+        "casos_totales": 5,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "LESIONES ESCAMOSAS INTRAEPITELIALES DE BAJO GRADO (LEIBG): NIC GRADO II",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 1,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "TUBERCULOSIS",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD POR EDA 0-4 AÑOS",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "TOS FERINA",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MALARIA",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD PERINATAL Y/O NEONATAL TARDÍA",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ENFERMEDAD TRANSMITIDA POR ALIMENTOS O AGUA (ETA)",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 4
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "SIFILIS GESTACIONAL",
+        "casos_totales": 2,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "SÍFILIS ADQUIRIDA",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD POR EDA 0-4 AÑOS",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "FIEBRE TIFOIDEA Y PARATIFOIDEA",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 2
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "ENFERMEDADES HUERFANAS - RARAS",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD PERINATAL Y/O NEONATAL TARDÃA",
+        "casos_totales": 3,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 3
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "MORTALIDAD POR IRA",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      },
+      {
+        "departamento": "ANTIOQUIA",
+        "evento": "CHAGAS",
+        "casos_totales": 1,
+        "distribucion_zona": {
+          "urbano": 0,
+          "rural": 1
+        },
+        "indicadores_ambientales": [
+          {
+            "variable": "DViento",
+            "promedio": "256.8",
+            "unidad": "deg"
+          },
+          {
+            "variable": "DViento",
+            "promedio": "257.4",
+            "unidad": "deg"
+          },
+          {
+            "variable": "PLiquida",
+            "promedio": "4",
+            "unidad": "mm"
+          }
+        ],
+        "vacunacion": [
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.9389"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.9511"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.8871"
+          },
+          {
+            "biologico": "BCG - Antituberculosa ReciÃ©n Nacido",
+            "cobertura": "0.7312"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 AÃ±o 3a. Dosis",
+            "cobertura": "0.6897"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 AÃ±o 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - SarampiÃ³n-RubÃ©ola-Paperas (TV) 1 AÃ±o Ãšnica Dosis",
+            "cobertura": "0.7438"
+          },
+          {
+            "biologico": "TV.R - SarampiÃ³n-RubÃ©ola-Paperas (TV) 5 AÃ±os Refuerzo",
+            "cobertura": "0.7584"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.8956"
+          },
+          {
+            "biologico": "PENTA3 - Pentavalente Menor a 1 Año 3a. Dosis",
+            "cobertura": "0.8535"
+          },
+          {
+            "biologico": "N2D - Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.841"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8022"
+          },
+          {
+            "biologico": "BCG - Antituberculosa Recién Nacido",
+            "cobertura": "0.9059"
+          },
+          {
+            "biologico": "PENTA3",
+            "cobertura": "0.8753"
+          },
+          {
+            "biologico": "N2D  Neumococo Mayor a 1 Año 2a. Dosis",
+            "cobertura": "0"
+          },
+          {
+            "biologico": "TV - Sarampión-Rubéola-Paperas (TV) 1 Año Única Dosis",
+            "cobertura": "0.9064"
+          },
+          {
+            "biologico": "TV.R - Sarampión-Rubéola-Paperas (TV) 5 Años Refuerzo",
+            "cobertura": "0.8388"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -17,3 +17,13 @@ interface:
 },
 
 https://www.datos.gov.co/Salud-y-Protecci-n-Social/Coberturas-administrativas-de-vacunaci-n-por-depar/6i25-2hdt/about_data
+
+
+----------------
+
+https://www.datos.gov.co/Salud-y-Protecci-n-Social/Cobertura-de-Vacunaci-n-PAI-en-el-Valle-del-Cauca/uw8e-gzpp/about_data
+
+----------------
+
+https://www.datos.gov.co/Ordenamiento-Territorial/DATOS-DE-VACUNACIO-N-EN-NIN-OS-Y-NIN-AS/5nx5-8miv/about_data
+

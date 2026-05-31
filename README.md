@@ -52,6 +52,42 @@ graph TD
 
 ---
 
+## 💡 Preguntas Frecuentes y Ejemplos de uso
+
+Aquí tienes ejemplos de cómo interactuar con el bot:
+
+### 🔬 Análisis Epidemiológico (SIVIGILA)
+1. "¿Qué eventos de salud pública hay en Antioquia?"
+2. "¿Cuántos casos de Dengue se han reportado en Cali?"
+3. "¿Cuáles son los eventos de salud más frecuentes en Colombia?"
+4. "¿Qué enfermedades afectan más a la zona rural de Boyacá?"
+5. "Compara los casos de malaria entre hombres y mujeres en Yopal."
+6. "¿Cuáles son los eventos con menos incidencia en el país?"
+7. "¿Cómo se distribuyen los casos de tuberculosis por ciclo de vida en Bogotá?"
+
+### 📊 Predicción y Riesgo
+8. "Predecir riesgo de dengue en Cali"
+9. "Predecir riesgo de tuberculosis en Antioquia"
+10. "Predecir casos de dengue en Bogotá"
+11. "Analizar riesgo de dengue en Cali"
+
+### 🍃 Factores Ambientales y Contexto
+12. "¿Cuál es la calidad del aire en Medellín?"
+13. "¿Qué indicadores ambientales hay actualmente en Valle del Cauca?"
+14. "¿Cómo es la calidad del aire en Santa Fé de Antioquia?"
+
+### 🧠 Salud Mental, Sexual y Emergencias
+15. "¿Cuáles son los perfiles de riesgo en salud mental?"
+16. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
+17. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
+18. "¿Qué servicios de salud hay en Yopal?"
+
+### 🤖 IA y Orientación General
+19. "¿Qué recomendaciones hay para prevenir el Zika?"
+20. "¿Cuáles son los derechos en salud sexual para jóvenes?"
+
+---
+
 ## 🛠️ Metodología y Documentación Técnica
 
 Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquitectura basada en servicios y priorizando la integridad de los datos sobre la verbosidad de la IA mediante un sistema de *bypass* de respuesta.
