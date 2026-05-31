@@ -9,10 +9,14 @@ import { YopalHealthService } from './yopal-health.service';
 import { CaliHealthService } from './cali-health.service';
 import { NationalHealthService } from './national-health.service';
 import { AirQualityService } from './air-quality.service';
+import { DatasetBuilderService } from './dataset-builder.service';
+import { VaccinationService } from './vaccination.service';
 
 @Module({
   providers: [
     AirQualityService,
+    DatasetBuilderService,
+    VaccinationService,
     SaludPublicaService,
     HealthDataService,
     SexualHealthService,
@@ -25,6 +29,8 @@ import { AirQualityService } from './air-quality.service';
   ],
   exports: [
     AirQualityService,
+    DatasetBuilderService,
+    VaccinationService,
     SaludPublicaService,
     HealthDataService,
     SexualHealthService,
