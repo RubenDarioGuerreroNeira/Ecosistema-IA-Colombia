@@ -12,6 +12,7 @@ import { HealthStatsService } from './stats/health-stats.service';
 import { HealthDataService } from './health-data.service';
 import { SexualHealthService, Intencion } from './sexual-health.service';
 import { AirQualityService } from './air-quality.service';
+import { PredictionService } from './prediction.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 
 @Update()
@@ -29,6 +30,7 @@ export class BotUpdate {
     private readonly healthDataService: HealthDataService,
     private readonly sexualHealthService: SexualHealthService,
     private readonly airQualityService: AirQualityService,
+    private readonly predictionService: PredictionService,
   ) {}
 
   private getTimeGreeting(): string {
@@ -322,7 +324,9 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       // ... resto del mensaje
       const firstName = ctx.from?.first_name || 'usuario';
       await ctx.reply(
-        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales.
+        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales. 
+
+Mi objetivo es aportar valor preventivo mediante el cruce de datos oficiales de salud, vacunación y medio ambiente.
 
 Puedo ayudarte con:
 - 🏢 **Búsqueda de Servicios:** Hospitales, clínicas y prestadores.
@@ -336,8 +340,8 @@ Puedo ayudarte con:
 💡 **¿Cómo puedes preguntarme?**
 *   "¿Qué eventos de salud pública hay en Antioquia?"
 *   "Analizar riesgo de dengue en Cali"
+*   "Predecir riesgo de tuberculosis en Antioquia"
 *   "Predecir casos tuberculosis"
-*   "¿Cuáles son los eventos más comunes?"
 *   "Comparar hombres y mujeres en malaria"
 
 ¿Sobre qué tema te gustaría consultar hoy?`,
@@ -376,8 +380,27 @@ Puedo ayudarte con:
   }
 
   private async handlePrediction(ctx: Context, text: string): Promise<boolean> {
-    if (text.toLowerCase().startsWith('predecir casos')) {
-      const eventName = text.toLowerCase().replace('predecir casos', '').trim();
+    const lowerText = text.toLowerCase();
+    
+    // 1. Predicción de Riesgo (Nueva Funcionalidad)
+    if (lowerText.startsWith('predecir riesgo de')) {
+      const parts = lowerText.replace('predecir riesgo de', '').split(' en ');
+      const eventName = parts[0].trim();
+      const departamento = parts[1] ? parts[1].trim() : 'Antioquia';
+
+      if (!eventName) {
+        await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'");
+        return true;
+      }
+
+      const prediction = await this.predictionService.predictRisk(departamento, eventName);
+      await this.sendLongMessage(ctx, prediction);
+      return true;
+    }
+
+    // 2. Predicción de Casos (Funcionalidad anterior)
+    if (lowerText.startsWith('predecir casos')) {
+      const eventName = lowerText.replace('predecir casos', '').trim();
 
       if (!eventName) {
         await this.sendLongMessage(
