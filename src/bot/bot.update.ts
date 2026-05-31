@@ -138,6 +138,7 @@ Puedes consultarme sobre cualquier región de Colombia:
     if (await this.handleGreeting(ctx, messageText)) return;
     if (await this.handleYopalQuery(ctx, messageText)) return;
     if (await this.handlePrediction(ctx, messageText)) return;
+    if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
 
     // 1. PRIORIDAD: ESTADÍSTICAS Y COMPARATIVAS (StatsService)
     const contextData = await this.statsService.getSummary(messageText);
@@ -436,6 +437,26 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     return false;
   }
 
+  private async handleAirQualityQuery(
+    ctx: Context,
+    text: string,
+    detectedRegion?: string,
+  ): Promise<boolean> {
+    const norm = text.toLowerCase();
+    if (!norm.includes('calidad del aire')) return false;
+    
+    const region = detectedRegion || 'Colombia';
+    const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
+    
+    if (aireData && aireData.length > 0) {
+      const variables = aireData.slice(0, 3).map(item => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
+      await this.sendLongMessage(ctx, `🍃 **Indicadores ambientales en ${region}:**\n${variables}`);
+      return true;
+    }
+    
+    return false;
+  }
+
   private async handleSaludPublica(
     ctx: Context,
     text: string,
@@ -477,10 +498,14 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
               const variables = aireData.slice(0, 3).map(item => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
               
               respuestaFinal += `\n\n🍃 **Indicadores ambientales en ${regionParaAnalisis}:**
-${variables}`;
+${variables}
+(Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas).`;
+            } else {
+              respuestaFinal += `\n\n(Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas. No se encontraron datos ambientales locales para ${regionParaAnalisis}).`;
             }
           } catch (e) {
             console.error('Error enriqueciendo con calidad del aire', e);
+            respuestaFinal += `\n\n(Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas).`;
           }
         } else if (resultado.contenido) {
           respuestaFinal = resultado.contenido;
