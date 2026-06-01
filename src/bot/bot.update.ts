@@ -396,6 +396,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       'coosalud',
       'horo',
       'orinoquia',
+      'atioquia', // Typo common
     ];
 
     const regions = [...departments, ...capitals, ...majorValle, ...others];
@@ -407,7 +408,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       .replace(/\s+/g, '')
       .replace(/k/g, 'c');
 
-    return regions.find((r) => {
+    const matchedRegion = regions.find((r) => {
       const cleanRegion = r
         .toLowerCase()
         .normalize('NFD')
@@ -416,6 +417,9 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         .replace(/k/g, 'c');
       return cleanText.includes(cleanRegion);
     });
+
+    if (matchedRegion === 'atioquia') return 'Antioquia';
+    return matchedRegion;
   }
 
   private async handleGreeting(ctx: Context, text: string): Promise<boolean> {
@@ -529,7 +533,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 
   private isProviderLocationQuery(text: string): boolean {
     const norm = text.toLowerCase();
-    return /(?:donde\s+(?:queda|esta|est[áa])|d[ií]nde\s+queda|d[ií]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|clinica|eps|centro|sede|prestador|servicio)|hospital\s+|cl[ií]nica\s+|sede\s+|servicio\s+)/.test(
+    return /(?:donde\s+(?:queda|esta|est[áa])|d[oó]nde\s+queda|d[oó]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|clinica|eps|centro|sede|prestador|servicio)|(?:hospital|cl[ií]nica|clinica|centro|sede|prestador|servicio)es?\b)/.test(
       norm,
     );
   }
@@ -670,9 +674,10 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Cali'))
           .join('\n\n');
+        const tip = '\n\n💡 *Tip:* Si buscas un hospital específico, intenta incluir su nombre o municipio para mayor precisión (ej: "Hospital Primitivo Iglesias Cali").';
         await this.sendLongMessage(
           ctx,
-          `🔎 *Resultados de ubicación (Cali):*\n\n${response}`,
+          `🔎 *Resultados de ubicación (Cali):*\n\n${response}${tip}`,
           { parse_mode: 'Markdown' },
         );
         return true;
@@ -686,9 +691,10 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Boyacá'))
           .join('\n\n');
+        const tip = '\n\n💡 *Tip:* Si buscas un hospital específico, intenta incluir su nombre o municipio para mayor precisión (ej: "San Rafael Tunja").';
         await this.sendLongMessage(
           ctx,
-          `🔎 *Resultados de ubicación (Boyacá):*\n\n${response}`,
+          `🔎 *Resultados de ubicación (Boyacá):*\n\n${response}${tip}`,
           { parse_mode: 'Markdown' },
         );
         return true;
@@ -705,9 +711,10 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Antioquia'))
           .join('\n\n');
+        const tip = '\n\n💡 *Tip:* Si buscas un hospital específico, intenta incluir su nombre o municipio para mayor precisión (ej: "Hospital San Juan de Dios Abejorral").';
         await this.sendLongMessage(
           ctx,
-          `🔎 *Resultados de ubicación (Antioquia):*\n\n${response}`,
+          `🔎 *Resultados de ubicación (Antioquia):*\n\n${response}${tip}`,
           { parse_mode: 'Markdown' },
         );
         return true;
@@ -728,9 +735,10 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       .map((item) => this.formatProviderResult(item.provider, item.source))
       .join('\n\n');
 
+    const generalTip = '\n\n💡 *Tip:* Para búsquedas más exactas, incluye el nombre del centro de salud y la ciudad (ej: "Hospital San Vicente Medellín").';
     await this.sendLongMessage(
       ctx,
-      `🔎 *Resultados de ubicación de servicios de salud:*\n\n${response}`,
+      `🔎 *Resultados de ubicación de servicios de salud:*\n\n${response}${generalTip}`,
       { parse_mode: 'Markdown' },
     );
     return true;
@@ -834,6 +842,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
   ): Promise<boolean> {
     try {
       const resultado = await this.saludPublicaService.procesarPregunta(text);
+      if (!resultado) return false;
+      
       console.log(
         `DEBUG: handleSaludPublica - resultado.encontrado=${resultado.encontrado}, hasEvento=${!!resultado.evento}, hasContenido=${!!resultado.contenido}`,
       );

@@ -38,6 +38,7 @@ const mockCaliHealthService = {
 
 const mockBoyacaHealthService = {
   findByIdentifier: jest.fn(),
+  searchProviders: jest.fn(),
 };
 
 const mockYopalHealthService = {
@@ -123,7 +124,7 @@ describe('BotUpdate', () => {
     const message = mockCtx.reply.mock.calls[0][0];
     expect(message).toContain('Salud IA');
     expect(message).toContain('datos oficiales');
-    expect(message).toContain('Buscar hospitales');
+    expect(message).toContain('Buscar servicios de salud');
     expect(mockCtx.reply.mock.calls[0][1]).toEqual({ parse_mode: 'Markdown' });
     expect(mockUserService.markAsGreeted).toHaveBeenCalledWith(123);
   });
@@ -142,9 +143,14 @@ describe('BotUpdate', () => {
         tel_fono: '5551234',
       },
     ]);
+    mockCaliHealthService.searchProviders.mockReturnValue([]);
     mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
+    mockBoyacaHealthService.searchProviders.mockReturnValue([]);
     mockYopalHealthService.findByIdentifier.mockReturnValue([]);
+    mockYopalHealthService.searchProviders.mockReturnValue([]);
     mockAntioquiaHealthService.searchProviders.mockReturnValue([]);
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({ encontrado: false });
+    mockStatsService.getSummary.mockResolvedValue(null);
 
     await botUpdate.onText(mockCtx);
 

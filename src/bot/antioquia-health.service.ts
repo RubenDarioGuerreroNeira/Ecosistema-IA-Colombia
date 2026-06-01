@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xml2js from 'xml2js';
+import { normalizeString, normalizeNit, STOPWORDS } from '../shared/health-utils';
 
 export interface AntioquiaHealthProvider {
   codigohabilitacion: string;
@@ -14,7 +15,7 @@ export interface AntioquiaHealthProvider {
   claseprestador: string;
   clasepersona: string;
   nit: string;
-  ese: string;
+  ese: 'SI' | 'NO' | string;
   email: string;
   privadapublica: string;
   numero_sede: string;
@@ -27,7 +28,7 @@ export interface AntioquiaHealthProvider {
   digito_verificacion_nit: string;
   codigo_naturaleza_juridica: string;
   codigo_clase_prestador: string;
-  nivel: string;
+  nivel: '1' | '2' | '3' | string;
   caracter: string;
   horario_lunes: string;
   horario_martes: string;
@@ -36,25 +37,12 @@ export interface AntioquiaHealthProvider {
   horario_viernes: string;
   horario_sabado: string;
   horario_domingo: string;
+  // Internal fields for optimization
+  _normalized?: string[];
 }
 
-/**
- * Normaliza una cadena de texto a minúsculas, eliminando tildes, diacríticos y espacios innecesarios.
- */
-function normalizeString(str: string): string {
-  return str
-    ? str
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim()
-    : '';
-}
-
-/** Palabras vacías del español que se ignoran al tokenizar consultas de búsqueda para evitar resultados irrelevantes */
-const STOPWORDS: ReadonlySet<string> = new Set([
-  'de', 'la', 'que', 'el', 'en', 'y', 'a', 'los', 'del', 'se', 'las', 'por', 'un', 'para', 'con', 'no', 'una', 'su', 'al', 'lo', 'como', 'más', 'pero', 'sus', 'le', 'ya', 'o', 'este', 'sí', 'porque', 'esta', 'entre', 'cuando', 'muy', 'sin', 'sobre', 'también', 'me', 'hasta', 'hay', 'donde', 'quien', 'desde', 'todo', 'nos', 'durante', 'todos', 'uno', 'les', 'ni', 'contra', 'otros', 'ese', 'eso', 'ante', 'ellos', 'e', 'esto', 'mí', 'antes', 'algunos', 'qué', 'unos', 'yo', 'otro', 'otras', 'otra', 'él', 'tanto', 'esa', 'estos', 'mucho', 'quienes', 'nada', 'muchos', 'cual', 'poco', 'ella', 'estar', 'estas', 'algunas', 'algo', 'nosotros', 'mi', 'mis', 'tú', 'te', 'ti', 'tu', 'vos', 'vosotros', 'vosotras', 'ellos', 'ellas', 'nosotras', 'nosotros', 'aquí', 'allí', 'allá', 'acá', 'ahora', 'entonces', 'hoy', 'ayer', 'mañana'
-]);
+const KNOWLEDGE_SUMMARY_TEMPLATE = (count: number) => 
+  `He encontrado ${count} centros de salud en Antioquia registrados en mi base de datos local. Si desea consultar alguno, me puedes especificar algunos de estos datos y te mostraré la info: municipio, nombre prestador ó nit.`;
 
 @Injectable()
 export class AntioquiaHealthService implements OnModuleInit {
@@ -62,6 +50,7 @@ export class AntioquiaHealthService implements OnModuleInit {
   private providers: AntioquiaHealthProvider[] = [];
   private providersByMunicipio = new Map<string, AntioquiaHealthProvider[]>();
   private providersByNit = new Map<string, AntioquiaHealthProvider[]>();
+  private municipioDisplayNames = new Map<string, string>();
 
   async onModuleInit() {
     await this.loadData();
@@ -75,26 +64,44 @@ export class AntioquiaHealthService implements OnModuleInit {
       const parser = new xml2js.Parser({ explicitArray: false });
       const result = await parser.parseStringPromise(xmlData);
       
-      const rawRows = result?.response?.rows?.row ?? [];
-      this.providers = Array.isArray(rawRows) ? rawRows : rawRows ? [rawRows] : [];
+      if (!result?.response?.rows) {
+        throw new Error('Estructura XML inesperada: falta response.rows');
+      }
+
+      const rawRows = result.response.rows.row ?? [];
+      this.providers = Array.isArray(rawRows) ? rawRows : [rawRows];
       this.logger.log(`Loaded ${this.providers.length} providers from local file.`);
 
-      // Build indexes by normalized municipio and nit
+      // Build indexes and pre-compute normalized fields
       this.providersByMunicipio.clear();
       this.providersByNit.clear();
+      this.municipioDisplayNames.clear();
+
       for (const provider of this.providers) {
+        // Pre-compute normalized fields for faster search
+        provider._normalized = [
+          provider.municipio,
+          provider.nombreprestador,
+          provider.nombre_sede,
+          provider.claseprestador,
+          provider.departamento
+        ]
+          .filter(Boolean)
+          .map(f => normalizeString(f));
+
         if (provider.municipio) {
           const normMunicipio = normalizeString(provider.municipio);
           if (normMunicipio) {
             if (!this.providersByMunicipio.has(normMunicipio)) {
               this.providersByMunicipio.set(normMunicipio, []);
+              this.municipioDisplayNames.set(normMunicipio, provider.municipio);
             }
             this.providersByMunicipio.get(normMunicipio)!.push(provider);
           }
         }
 
         if (provider.nit) {
-          const normNit = normalizeString(provider.nit);
+          const normNit = normalizeNit(provider.nit);
           if (normNit) {
             if (!this.providersByNit.has(normNit)) {
               this.providersByNit.set(normNit, []);
@@ -108,63 +115,79 @@ export class AntioquiaHealthService implements OnModuleInit {
       this.providers = [];
       this.providersByMunicipio.clear();
       this.providersByNit.clear();
+      this.municipioDisplayNames.clear();
     }
   }
 
   /** Returns unique list of municipios using the index for optimization */
   getMunicipios(): string[] {
     return Array.from(this.providersByMunicipio.keys())
-      .filter(m => m.length >= 3 && !STOPWORDS.has(m));
+      .filter(m => m.length >= 3 && !STOPWORDS.has(m))
+      .map(key => this.municipioDisplayNames.get(key) ?? key)
+      .sort();
   }
 
   /** Search providers by normalized query with an optional limit */
   searchProviders(query: string, limit = 100): AntioquiaHealthProvider[] {
-    const tokens = this.getSignificantTokens(query);
-    if (tokens.length === 0) return [];
+    const safeLimit = Math.min(Math.max(1, limit), 500);
+    const rawTokens = this.getSignificantTokens(query);
+    if (rawTokens.length === 0) return [];
+
+    // Improve token matching for health terms (stemming-like behavior for common plurals)
+    const tokens = rawTokens.map(t => {
+      if (t.endsWith('es') && t.length > 5) return t.substring(0, t.length - 2);
+      if (t.endsWith('s') && t.length > 4) return t.substring(0, t.length - 1);
+      return t;
+    });
 
     // Exact NIT match using index
     for (const token of tokens) {
-      if (this.providersByNit.has(token)) {
-        return this.providersByNit.get(token) || [];
+      const nitResults = this.providersByNit.get(normalizeNit(token));
+      if (nitResults && nitResults.length > 0) {
+        return nitResults.slice(0, safeLimit);
       }
     }
 
-    // Exact municipio match using index
-    if (tokens.length === 1 && this.providersByMunicipio.has(tokens[0])) {
-      return this.providersByMunicipio.get(tokens[0]) || [];
+    // Multi-token optimization: try to find by municipio first
+    for (const token of tokens) {
+      if (this.providersByMunicipio.has(token)) {
+        const municipioResults = this.providersByMunicipio.get(token)!;
+        if (tokens.length > 1) {
+          const otherTokens = tokens.filter(t => t !== token);
+          const filtered = municipioResults.filter(p => 
+            otherTokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
+          );
+          if (filtered.length > 0) return filtered.slice(0, safeLimit);
+        }
+        return municipioResults.slice(0, safeLimit);
+      }
     }
 
-    // Department token yields all providers (subject to limit)
-    if (tokens.includes('antioquia')) {
-      return this.providers.slice(0, limit);
-    }
+    // Full-scan with pre-computed normalized fields for performance
+    // Use 'every' to ensure ALL search terms must match something in the provider record
+    const results = this.providers.filter(p => 
+      tokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
+    );
 
-    const results = this.providers.filter(p => {
-      const fields = [p.municipio, p.nombreprestador, p.nombre_sede, p.claseprestador, p.departamento]
-        .filter(Boolean)
-        .map(f => normalizeString(f));
-      // Prioritize tokens being part of fields for better precision
-      return tokens.some(tok => fields.some(fld => fld.includes(tok)));
-    });
-
-    return results.slice(0, limit);
+    return results.slice(0, safeLimit);
   }
 
   /** 
    * Search specifically by NIT 
    */
   getByNit(nit: string): AntioquiaHealthProvider[] {
-    return this.providersByNit.get(normalizeString(nit)) ?? [];
+    return this.providersByNit.get(normalizeNit(nit)) ?? [];
   }
 
   /** Extract significant tokens from query. Exposed as protected for testing. */
-  protected getSignificantTokens(query: string): string[] {
+  protected getSignificantTokens(query: string, maxTokens = 10): string[] {
     return normalizeString(query)
       .split(/\s+/)
-      .filter(t => t.length >= 3 && !STOPWORDS.has(t));
+      .filter(t => t.length >= 3 && !STOPWORDS.has(t))
+      .slice(0, maxTokens);
   }
 
   getKnowledgeSummary(): string {
-    return `He encontrado ${this.providers.length} centros de salud en Antioquia registrados en mi base de datos local. Si desea consultar alguno, me puedes especificar algunos de estos datos y te mostraré la info: municipio, nombre prestador ó nit.`;
+    return KNOWLEDGE_SUMMARY_TEMPLATE(this.providers.length);
   }
 }
