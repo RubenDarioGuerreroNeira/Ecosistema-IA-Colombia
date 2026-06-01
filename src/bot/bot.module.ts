@@ -10,6 +10,7 @@ import { SaludAnaliticaService } from './salud-analitica.service';
 import { IngestaDatosService } from './ingesta-datos.service';
 import { VaccinationService } from './vaccination.service';
 import { NationalHealthService } from './national-health.service';
+import { ChartService } from './chart.service';
 
 @Module({
   imports: [StatsModule, DataModule],
@@ -20,11 +21,13 @@ import { NationalHealthService } from './national-health.service';
     SaludAnaliticaService,
     IngestaDatosService,
     VaccinationService,
+    ChartService,
   ],
   exports: [
     SaludAnaliticaService,
     IngestaDatosService,
     VaccinationService,
+    ChartService,
   ],
 })
 export class BotModule {}

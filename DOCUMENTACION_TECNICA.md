@@ -56,19 +56,34 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
 
 ## 3. Arquitectura de la Solución
 
+### 2.7 Visualización Gráfica Dinámica
+
+Para enriquecer la entrega de información, se integró un módulo de visualización gráfica basado en **QuickChart**.
+
+- **Metodología**: El bot procesa datos estructurados (XML/JSON), calcula estadísticas agregadas y genera una URL dinámica de configuración de `Chart.js`.
+- **Renderizado**: La URL es consumida por el bot y enviada como una imagen (`replyWithPhoto`), optimizando la experiencia en dispositivos móviles.
+- **Implementación**:
+  - `ChartService`: Encapsula la lógica de generación de gráficos (pie, bar, doughnut).
+  - `BotUpdate.handleChartQuery`: Orquesta la detección de intenciones gráficas y la comunicación con servicios de datos (Cali, Mental Health, Air Quality).
+- **Ventaja**: Eliminación de dependencias pesadas (ej. Power BI Embedded) y optimización de latencia en la entrega de reportes visuales instantáneos.
+
+---
+
+## 3. Arquitectura de la Solución
+
 ### 3.1 Flujo de Trabajo (Workflow)
 
-1.  **Usuario** $
-ightarrow$ Envía mensaje vía Telegram.
-2.  **NestJS (BotUpdate)** $
-ightarrow$ Recibe el mensaje, valida la sesión y gestiona el saludo personalizado.
-3.  **StatsService** $\rightarrow$ Realiza el análisis de datos XML si la consulta requiere estadísticas o contexto real.
-4.  **GenkitService** $\rightarrow$ Orquesta la petición, inyecta el contexto recuperado (RAG) y llama al modelo Gemini.
-5.  **Gemini 2.5 Flash** $\rightarrow$ Procesa la información y genera la respuesta basada en datos reales y conocimiento experto.
-6.  **BotUpdate (sendLongMessage)** $
-ightarrow$ Verifica la longitud del texto y lo fragmenta si es necesario.
-7.  **Usuario** $
-ightarrow$ Recibe la respuesta estructurada en su dispositivo.
+1.  **Usuario** $\rightarrow$ Envía mensaje vía Telegram.
+2.  **NestJS (BotUpdate)** $\rightarrow$ Recibe el mensaje, valida la sesión.
+3.  **Detección de Intención**:
+    - Si es **Consulta Analítica**: Se utiliza `StatsService`.
+    - Si es **Consulta Gráfica**: Se utiliza `ChartService`.
+4.  **Procesamiento**:
+    - **ChartService** $\rightarrow$ Genera URL de imagen dinámica.
+    - **SaludAnaliticaService** $\rightarrow$ Realiza RAG y análisis con Gemini.
+5.  **Responder** $\rightarrow$ Envío de respuesta textual (con contexto) o visual (foto).
+6.  **Usuario** $\rightarrow$ Recibe la respuesta estructurada en su dispositivo.
+
 
 ### 3.2 Componentes Técnicos
 

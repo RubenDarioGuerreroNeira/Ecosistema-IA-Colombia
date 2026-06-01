@@ -23,6 +23,7 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 - **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
 - **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
+- **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, donas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias de salud mental, calidad del aire y distribución de servicios sin salir de Telegram.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
 - **📈 Análisis Epidemiológico Avanzado**: 
     - Rankings de incidencia.
@@ -37,17 +38,20 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 graph TD
     User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
     Bot --> Greeting[handleGreeting]
+    Bot --> Charts[ChartService - QuickChart]
     Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
     Bot --> AirData[AirQualityService - API Calidad Aire]
     
+    Charts --> Responder[Bot Reply Photo]
     HealthData --> Analysis[SaludAnaliticaService]
     AirData --> Analysis
     
-    Analysis --> Responder[Bot Reply]
+    Analysis --> Responder[Bot Reply Text]
     
     style HealthData fill:#f9f,stroke:#333,stroke-width:2px
     style AirData fill:#ccf,stroke:#333,stroke-width:2px
     style Analysis fill:#ff9,stroke:#333,stroke-width:2px
+    style Charts fill:#9f9,stroke:#333,stroke-width:2px
 ```
 
 ---
@@ -80,11 +84,10 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 15. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
 16. "¿Qué servicios de salud hay en Yopal?"
 
-### 🤖 IA y Orientación General
-17. "¿Qué recomendaciones hay para prevenir el Zika?"
-18. "¿Cuáles son los derechos en salud sexual para jóvenes?"
-19. "¿Qué enfermedades afectan más a la zona rural de Boyacá?"
-20. "¿Cuáles son los eventos con menos incidencia en el país?"
+### 📊 Visualización Gráfica (¡NUEVO!)
+21. "Visualizar calidad del aire en Bogotá" (Gráfico de barras ambiental)
+22. "Muéstrame un gráfico de los servicios en Cali" (Distribución por categorías)
+23. "Gráfico de salud mental" (Top diagnósticos nacionales)
 
 ---
 

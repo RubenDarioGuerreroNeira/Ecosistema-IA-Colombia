@@ -557,7 +557,12 @@ ${d1.total > d2.total ? `📈 El primer diagnóstico (${d1.diagnostico_ingreso})
 - Cali
 - Yopal (Casanare)`;
 
-    return `Soy un Asistente de IA especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales cargados en mi sistema. Actualmente tengo información de centros de salud, hospitales y clínicas en las siguientes regiones:\n${regionsSummary}\n\n${health}${sexual}${mental}\n¿Sobre cuál de estos temas o regiones te gustaría profundizar hoy?`;
+    return `Soy un Asistente de IA especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales cargados en mi sistema. Actualmente tengo información de centros de salud, hospitales y clínicas en las siguientes regiones:\n${regionsSummary}\n\n${health}${sexual}${mental}\n\n--- NUEVAS CAPACIDADES ---
+📈 **Visualización Gráfica**: Genero gráficos dinámicos (barras, tortas) sobre servicios de salud, salud mental y calidad del aire.
+🍃 **Indicadores Ambientales**: Consultas de calidad del aire por municipio.
+🔮 **Análisis Predictivo**: Proyecciones de riesgo para eventos de salud pública.
+
+¿Sobre cuál de estos temas o regiones te gustaría profundizar hoy?`;
   }
 
 }

@@ -233,4 +233,22 @@ export class CaliHealthService implements OnModuleInit {
   getKnowledgeSummary(): string {
     return `--- RED DE SALUD DEL CENTRO (CALI) ---\n🏥 Poseo información sobre servicios de salud en Cali (por sede y servicio).\n📍 Capacidad: Puedo buscar servicios por sede, servicio o municipio.`;
   }
+
+  getStatsByCategory(): { labels: string[]; data: number[] } {
+    const stats: Record<string, number> = {};
+    this.providers.forEach((p) => {
+      const cat = p.grupo || 'Otros';
+      stats[cat] = (stats[cat] || 0) + 1;
+    });
+
+    // Ordenar y tomar los top 6 para que el gráfico sea legible
+    const sorted = Object.entries(stats)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 6);
+
+    return {
+      labels: sorted.map(([label]) => label),
+      data: sorted.map(([, count]) => count),
+    };
+  }
 }

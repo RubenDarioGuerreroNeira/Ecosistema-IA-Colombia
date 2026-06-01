@@ -15,6 +15,9 @@ import { SexualHealthService, Intencion } from './sexual-health.service';
 import { AirQualityService } from './air-quality.service';
 import { PredictionService } from './prediction.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
+import { ChartService } from './chart.service';
+import { normalizeString } from '../shared/health-utils';
+import { MentalHealthService } from './mental-health.service';
 
 @Update()
 export class BotUpdate {
@@ -33,7 +36,102 @@ export class BotUpdate {
     private readonly sexualHealthService: SexualHealthService,
     private readonly airQualityService: AirQualityService,
     private readonly predictionService: PredictionService,
+    private readonly chartService: ChartService,
+    private readonly mentalHealthService: MentalHealthService,
   ) {}
+
+  private async handleChartQuery(ctx: Context, text: string): Promise<boolean> {
+    const norm = normalizeString(text);
+    console.log(`DEBUG: handleChartQuery - norm="${norm}"`);
+
+    const isChartRequest =
+      norm.includes('grafic') ||
+      norm.includes('visual') ||
+      norm.includes('mostrar') ||
+      norm.includes('ver');
+    
+    if (!isChartRequest) return false;
+
+    // DETERMINAR REGIÓN PRIMERO (Usando límites de palabra para evitar que "cali" coincida con "calidad")
+    let region = '';
+    if (/\bcali\b/i.test(norm)) region = 'CALI';
+    else if (/\bbogota\b/i.test(norm)) region = 'BOGOTA';
+    else if (/\bmedellin\b/i.test(norm)) region = 'MEDELLIN';
+    else if (/\byopal\b/i.test(norm)) region = 'YOPAL';
+
+    // 1. CALIDAD DEL AIRE (Si menciona aire o ambiental, tiene prioridad la ciudad detectada)
+    if (norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) {
+        console.log(`DEBUG: handleChartQuery - Matched Air Quality Chart for region: ${region || 'COLOMBIA'}`);
+        const targetRegion = region || 'BOGOTA';
+        const aireData = await this.airQualityService.getAirQualityByMunicipio(targetRegion);
+        
+        if (aireData && aireData.length > 0) {
+            const variables = aireData.slice(0, 6);
+            const labels = variables.map(v => v.variable);
+            const data = variables.map(v => parseFloat(v.promedio));
+
+            const chartUrl = this.chartService.generateBarChart(
+                labels,
+                data,
+                `Calidad del Aire en ${targetRegion} (Promedios)`
+            );
+
+            await ctx.replyWithPhoto(chartUrl, {
+                caption: `🍃 Visualización de los indicadores ambientales más recientes para ${targetRegion}.`
+            });
+            return true;
+        }
+    }
+
+    // 2. CALI HEALTH (Solo si la región es Cali y no es sobre aire)
+    if (region === 'CALI' || norm.includes('servicios')) {
+      console.log(`DEBUG: handleChartQuery - Matched Cali Health Chart`);
+      const stats = this.caliHealthService.getStatsByCategory();
+      const chartUrl = this.chartService.generatePieChart(
+        stats.labels,
+        stats.data,
+        'Servicios de Salud en Cali (Top Categorías)',
+      );
+
+      await ctx.replyWithPhoto(chartUrl, {
+        caption:
+          '📊 Aquí tienes la distribución de los servicios de salud en Cali por categorías principales.',
+      });
+      return true;
+    }
+
+    // 3. SALUD MENTAL (Top Diagnósticos)
+    if (
+      norm.includes('mental') ||
+      norm.includes('psicologia') ||
+      norm.includes('psiquiatria') ||
+      norm.includes('depresion') ||
+      norm.includes('ansiedad')
+    ) {
+      console.log(`DEBUG: handleChartQuery - Matched Mental Health Chart`);
+      const top = await this.mentalHealthService.getTopDiagnoses(6);
+      const labels = top.map((d) =>
+        d.diagnostico_ingreso.length > 20
+          ? d.diagnostico_ingreso.substring(0, 17) + '...'
+          : d.diagnostico_ingreso,
+      );
+      const data = top.map((d) => d.total);
+
+      const chartUrl = this.chartService.generateBarChart(
+        labels,
+        data,
+        'Top Diagnósticos de Salud Mental (Colombia)',
+      );
+
+      await ctx.replyWithPhoto(chartUrl, {
+        caption:
+          '🧠 Estos son los diagnósticos de salud mental más frecuentes según los registros nacionales.',
+      });
+      return true;
+    }
+
+    return false;
+  }
 
   private getTimeGreeting(): string {
     const hour = new Date().getHours();
@@ -62,6 +160,7 @@ export class BotUpdate {
   - 🚨 **Protocolos y urgencias:** guías de emergencia y búsqueda de urgencias 24h.
   - 📍 **Búsquedas avanzadas (Yopal):** ubicación, contactos, gerentes, auditoría y análisis de prestadores.
   - 🗂️ **Reportes y series temporales:** generar series temporales sintéticas y resúmenes.
+  - 📈 **Visualización gráfica:** generar gráficos dinámicos de salud mental, calidad del aire y servicios de salud.
 
   🔎 **Ejemplos de preguntas que puedes hacerme:**
   - "Compara dengue en Cali vs Palmira"
@@ -69,7 +168,9 @@ export class BotUpdate {
   - "Predecir riesgo de dengue en Valle del Cauca"
   - "¿Dónde queda el Hospital Primitivo Iglesias?"
   - "¿Cuál es la cobertura de vacunación de BCG en Antioquia?"
-  - "Calidad del aire en Bogotá"
+  - "Visualizar calidad del aire en Bogotá"
+  - "Muéstrame un gráfico de los servicios en Cali"
+  - "Gráfico de salud mental"
   - "Preguntas sobre VIH y profilaxis"
   - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 
@@ -102,6 +203,11 @@ Puedes consultarme sobre cualquier región de Colombia:
 🏢 **Búsqueda de Servicios:**
 - "Hospitales en [Municipio]"
 - "Centros de salud en [Región]"
+
+📈 **Visualización Gráfica:**
+- "Visualizar calidad del aire en [Ciudad]"
+- "Muéstrame un gráfico de los servicios en Cali"
+- "Gráfico de salud mental"
 
 🔬 **Estadísticas de Salud Pública:**
 - Consultas directas de casos (SIVIGILA).
@@ -157,6 +263,7 @@ Puedes consultarme sobre cualquier región de Colombia:
     // Se ejecuta primero porque handleProviderSearch a veces intercepta estas consultas erróneamente
     if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
 
+    if (await this.handleChartQuery(ctx, messageText)) return;
     if (await this.handleGreeting(ctx, messageText)) return;
     if (await this.handleYopalQuery(ctx, messageText)) return;
     
