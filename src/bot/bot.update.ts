@@ -153,8 +153,13 @@ Puedes consultarme sobre cualquier región de Colombia:
     const detectedRegion = this.detectRegion(messageText);
 
     // Flujo de prioridades
+    // 1. PRIORIDAD ABSOLUTA: Consultas de Datos Estructurales (Conteos y Listas)
+    // Se ejecuta primero porque handleProviderSearch a veces intercepta estas consultas erróneamente
+    if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
+
     if (await this.handleGreeting(ctx, messageText)) return;
     if (await this.handleYopalQuery(ctx, messageText)) return;
+    
     if (await this.handleProviderSearch(ctx, messageText, detectedRegion))
       return;
     if (await this.handlePrediction(ctx, messageText)) return;
@@ -533,9 +538,100 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 
   private isProviderLocationQuery(text: string): boolean {
     const norm = text.toLowerCase();
-    return /(?:donde\s+(?:queda|esta|est[áa])|d[oó]nde\s+queda|d[oó]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|clinica|eps|centro|sede|prestador|servicio)|(?:hospital|cl[ií]nica|clinica|centro|sede|prestador|servicio)es?\b)/.test(
+    return /(?:donde\s+(?:queda|esta|est[áa])|d[oó]nde\s+queda|d[oó]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|clinica|eps|centro|sede|prestador|servicio)|(?:hospital|cl[ií]nica|clinica|centro|sede|prestador|servicio)es?\b|c[oó]digo\s+(?:de\s+)?(?:habilitaci[oó]n|prestador))/.test(
       norm,
     );
+  }
+
+  private async handleStructuralDataQuery(
+    ctx: Context,
+    text: string,
+    detectedRegion?: string,
+  ): Promise<boolean> {
+    const norm = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const region = detectedRegion?.toLowerCase() || '';
+
+    console.log(`DEBUG: handleStructuralDataQuery - norm="${norm}", region="${region}"`);
+
+    // 0. Bloqueo de Consultas Masivas (Prioridad sobre todo lo demás)
+    const isBroadSearch = norm.includes('todos') || norm.includes('todo') || norm.includes('complet');
+    const involvesProviders = norm.includes('prestador') || norm.includes('hospital') || norm.includes('centro');
+    
+    if (isBroadSearch && involvesProviders) {
+      await ctx.reply('⚠️ Esta información es muy amplia. Por favor, especifica el **nombre**, el **NIT** o el **municipio** del centro de salud para poder ayudarte con una búsqueda precisa (ej: "Hospital en Tunja").');
+      return true;
+    }
+
+    // 1. Detección de Conteo de Hospitales/Prestadores
+    if (/cuantos?\s+(?:hospitales|centros|prestadores)/.test(norm)) {
+      console.log(`DEBUG: handleStructuralDataQuery - Matched Count Query`);
+      if (region.includes('boyac')) {
+        const count = this.boyacaHealthService.getHospitalCount();
+        await ctx.reply(`📊 En **Boyacá** he encontrado **${count}** hospitales y centros de salud registrados.`);
+        return true;
+      }
+      if (region.includes('antioquia')) {
+        const count = this.antioquiaHealthService.searchProviders('hospital', 1000).length;
+        await ctx.reply(`📊 En **Antioquia** he encontrado aproximadamente **${count}** hospitales y centros de salud registrados.`);
+        return true;
+      }
+    }
+
+    // 2. Detección de Lista de Municipios o Prestadores Generales
+    const isListQuery = (norm.includes('lista') || norm.includes('muestreme') || norm.includes('cuales') || norm.includes('ver')) && 
+                       (norm.includes('municipios') || norm.includes('pueblos') || norm.includes('ciudades') || norm.includes('prestadores'));
+
+    if (isListQuery) {
+      console.log(`DEBUG: handleStructuralDataQuery - Matched List Query`);
+      
+      // Caso específico: Lista de Municipios
+      if (norm.includes('municipio') || norm.includes('pueblo') || norm.includes('ciudad')) {
+        let municipios: string[] = [];
+        let regionName = '';
+
+        if (region.includes('antioquia')) {
+          municipios = this.antioquiaHealthService.getMunicipios();
+          regionName = 'Antioquia';
+        } else if (region.includes('boyac')) {
+          municipios = this.boyacaHealthService.getMunicipios();
+          regionName = 'Boyacá';
+        }
+
+        if (municipios.length > 0) {
+          const list = municipios.slice(0, 50).join(', ');
+          const total = municipios.length;
+          await this.sendLongMessage(
+            ctx,
+            `📍 **Municipios disponibles en ${regionName} (${total}):**\n\n${list}${total > 50 ? '... y más.' : ''}\n\n💡 *Tip: Puedes buscar prestadores escribiendo el nombre de cualquiera de estos municipios.*`,
+            { parse_mode: 'Markdown' }
+          );
+          return true;
+        }
+      }
+
+      // Caso específico: Lista/Resumen de Prestadores en una región
+      if (norm.includes('prestador')) {
+        const isBroadQuery = norm.includes('todos') || norm.includes('todo') || norm.includes('complet');
+        
+        if (isBroadQuery) {
+          await ctx.reply('⚠️ Esta información es muy amplia. Por favor, especifica el **nombre**, el **NIT** o el **municipio** del centro de salud para poder ayudarte con una búsqueda precisa (ej: "hospital en Tunja").');
+          return true;
+        }
+
+        if (region.includes('boyac')) {
+          const summary = this.boyacaHealthService.getKnowledgeSummary();
+          await ctx.reply(`🏢 **Boyacá:** ${summary}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*`);
+          return true;
+        }
+        if (region.includes('antioquia')) {
+          const summary = this.antioquiaHealthService.getKnowledgeSummary();
+          await ctx.reply(`🏢 **Antioquia:** ${summary}`);
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private async searchProvidersAcrossServices(
@@ -663,6 +759,13 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       `DEBUG: handleProviderSearch - text="${text}", detectedRegion="${detectedRegion}", isLocationQuery=${isLocationQuery}`,
     );
     if (!isLocationQuery) return false;
+
+    // BLOQUEO DE EMERGENCIA: Si por alguna razón llegó aquí pidiendo "todos"
+    const norm = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (norm.includes('todos') || norm.includes('todo') || norm.includes('complet')) {
+      await ctx.reply('⚠️ Esta información es muy amplia. Por favor, especifica el **nombre**, el **NIT** o el **municipio** del centro de salud para poder ayudarte con una búsqueda precisa (ej: "Hospital en Tunja").');
+      return true;
+    }
 
     const region = detectedRegion?.toLowerCase() || '';
 
