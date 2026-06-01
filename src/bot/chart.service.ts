@@ -50,9 +50,11 @@ export class ChartService {
           datalabels: {
             anchor: 'end',
             align: 'top',
-            color: '#444',
+            color: '#000',
+            offset: 4,
             font: {
               weight: 'bold',
+              size: 14,
             },
           },
         },

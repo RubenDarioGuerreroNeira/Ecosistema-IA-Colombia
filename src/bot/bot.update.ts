@@ -16,6 +16,7 @@ import { AirQualityService } from './air-quality.service';
 import { PredictionService } from './prediction.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 import { ChartService } from './chart.service';
+import { VaccinationService } from './vaccination.service';
 import { normalizeString } from '../shared/health-utils';
 import { MentalHealthService } from './mental-health.service';
 
@@ -40,6 +41,7 @@ export class BotUpdate {
     private readonly predictionService: PredictionService,
     private readonly chartService: ChartService,
     private readonly mentalHealthService: MentalHealthService,
+    private readonly vaccinationService: VaccinationService,
   ) {}
 
   private async handleChartQuery(ctx: Context, text: string): Promise<boolean> {
@@ -53,16 +55,13 @@ export class BotUpdate {
       norm.includes('visual') ||
       norm.includes('mostrar') ||
       norm.includes('ver') ||
-      pending?.intent === 'chart_air_quality';
+      pending?.intent === 'chart_air_quality' ||
+      pending?.intent === 'chart_vaccination';
 
     if (!isChartRequest) return false;
 
     // DETERMINAR REGIÓN PRIMERO (Usando límites de palabra para evitar que "cali" coincida con "calidad")
-    let region = '';
-    if (/\bcali\b/i.test(norm)) region = 'CALI';
-    else if (/\bbogota\b/i.test(norm)) region = 'BOGOTA';
-    else if (/\bmedellin\b/i.test(norm)) region = 'MEDELLIN';
-    else if (/\byopal\b/i.test(norm)) region = 'YOPAL';
+    const region = this.detectRegion(text)?.toUpperCase();
 
     // 1. CALIDAD DEL AIRE (Si menciona aire o ambiental, tiene prioridad la ciudad detectada)
     if (
@@ -80,7 +79,9 @@ export class BotUpdate {
           '☁️ ¿De qué **municipio o departamento** deseas visualizar la calidad del aire? (Ej: "Graficar aire en Cali")',
           { parse_mode: 'Markdown' },
         );
-        if (userId) this.userState.set(userId, { intent: 'chart_air_quality' });
+        if (userId !== undefined)
+          // Corregido: intent debe ser 'chart_air_quality'
+          this.userState.set(userId!, { intent: 'chart_air_quality' });
         return true;
       }
 
@@ -89,7 +90,7 @@ export class BotUpdate {
         await this.airQualityService.getAirQualityByMunicipio(targetRegion);
 
       if (aireData && aireData.length > 0) {
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         // Eliminar duplicados basándose en el nombre de la variable
         const uniqueVariables = Array.from(
           new Map(aireData.map((v: any) => [v.variable, v])).values(),
@@ -108,14 +109,6 @@ export class BotUpdate {
 
         await ctx.replyWithPhoto(chartUrl, {
           caption: `🍃 Visualización de los indicadores ambientales más recientes para ${targetRegion}.`,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: '📊 Servicios en Cali', callback_data: 'chart_cali' },
-                { text: '🧠 Salud Mental', callback_data: 'chart_mental' },
-              ],
-            ],
-          },
         });
         return true;
       }
@@ -134,17 +127,6 @@ export class BotUpdate {
       await ctx.replyWithPhoto(chartUrl, {
         caption:
           '📊 Aquí tienes la distribución de los servicios de salud en Cali por categorías principales.',
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: '🔄 Analizar Salud Mental',
-                callback_data: 'chart_mental',
-              },
-              { text: '🍃 Calidad del Aire', callback_data: 'chart_aire' },
-            ],
-          ],
-        },
       });
       return true;
     }
@@ -175,14 +157,6 @@ export class BotUpdate {
       await ctx.replyWithPhoto(chartUrl, {
         caption:
           '🧠 Estos son los diagnósticos de salud mental más frecuentes según los registros nacionales.',
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: '📊 Servicios en Cali', callback_data: 'chart_cali' },
-              { text: '🍃 Calidad del Aire', callback_data: 'chart_aire' },
-            ],
-          ],
-        },
       });
       return true;
     }
@@ -211,13 +185,133 @@ export class BotUpdate {
       await ctx.replyWithPhoto(chartUrl, {
         caption:
           '🔬 Estos son los eventos de salud pública con mayor incidencia reportada a nivel nacional según SIVIGILA.',
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '🧠 Salud Mental', callback_data: 'chart_mental' }],
-          ],
-        },
       });
       return true;
+    }
+
+    // 5. DISTRIBUCIÓN POR SEXO O ZONA (SIVIGILA)
+    const eventKeywords = [
+      'tuberculosis',
+      'dengue',
+      'zika',
+      'malaria',
+      'sarampion',
+      'rubeola',
+      'hepatitis',
+      'rabia',
+    ];
+    const detectedEvent = eventKeywords.find((k) => norm.includes(k));
+
+    if (detectedEvent) {
+      const stats =
+        await this.healthDataService.getStatsForEvent(detectedEvent);
+      if (stats) {
+        // Caso A: Por Sexo
+        if (norm.includes('sexo') || norm.includes('genero')) {
+          const chartUrl = this.chartService.generatePieChart(
+            ['Femenino', 'Masculino'],
+            [stats.femenino, stats.masculino],
+            `Distribución por Sexo: ${stats.nombre_del_evento}`,
+          );
+          await ctx.replyWithPhoto(chartUrl, {
+            caption: `👥 Proporción de hombres y mujeres afectados por **${stats.nombre_del_evento}** según el reporte nacional.`,
+            parse_mode: 'Markdown',
+          });
+          return true;
+        }
+
+        // Caso B: Por Zona (Urbano/Rural)
+        if (
+          norm.includes('zona') ||
+          norm.includes('urbano') ||
+          norm.includes('rural')
+        ) {
+          const chartUrl = this.chartService.generatePieChart(
+            ['Urbano', 'Rural'],
+            [stats.urbano, stats.rural],
+            `Distribución por Zona: ${stats.nombre_del_evento}`,
+          );
+          await ctx.replyWithPhoto(chartUrl, {
+            caption: `📍 Impacto de **${stats.nombre_del_evento}** en áreas urbanas frente a rurales.`,
+            parse_mode: 'Markdown',
+          });
+          return true;
+        }
+
+        // Caso C: Tendencia Temporal (Líneas)
+        if (
+          norm.includes('tendencia') ||
+          norm.includes('historico') ||
+          norm.includes('evolucion')
+        ) {
+          const series =
+            await this.healthDataService.getTemporalSeries(detectedEvent);
+          const labels = series.map((s) =>
+            s.date.toLocaleDateString('es-CO', { month: 'short' }),
+          );
+          const data = series.map((s) => s.cases);
+
+          const chartUrl = this.chartService.generateLineChart(
+            labels,
+            data,
+            `Tendencia de ${stats.nombre_del_evento} (6 meses)`,
+          );
+          await ctx.replyWithPhoto(chartUrl, {
+            caption: `📈 Evolución proyectada de casos de **${stats.nombre_del_evento}** basada en el acumulado anual histórico.`,
+            parse_mode: 'Markdown',
+          });
+          return true;
+        }
+      }
+    }
+
+    // 6. VACUNACIÓN (Coberturas por Departamento)
+    if (norm.includes('vacun') || pending?.intent === 'chart_vaccination') {
+      console.log(`DEBUG: handleChartQuery - Matched Vaccination Chart`);
+
+      if (!region) {
+        await ctx.reply(
+          '💉 ¿De qué **departamento** deseas visualizar la cobertura de vacunación? (Ej: "Graficar vacunas en Antioquia")',
+          { parse_mode: 'Markdown' },
+        );
+        if (userId !== undefined)
+          this.userState.set(userId!, { intent: 'chart_vaccination' });
+        return true;
+      }
+
+      const targetRegion = region;
+      const coberturas =
+        await this.vaccinationService.getCoverageByDepartment(targetRegion);
+
+      if (coberturas && coberturas.length > 0) {
+        if (userId !== undefined) this.userState.delete(userId!);
+        const dataMap = new Map<string, number>();
+        coberturas.forEach((c) => {
+          const rawVal = parseFloat(c.cobertura_de_vacunaci_n);
+          // Normalización: si es <= 1 se trata como proporción, si es > 1 como porcentaje directo
+          const val = rawVal <= 1 ? rawVal * 100 : rawVal;
+          if (!isNaN(val)) dataMap.set(c.biol_gico, val);
+        });
+
+        // Ordenar por cobertura de mayor a menor y tomar los top 8 para claridad
+        const sorted = Array.from(dataMap.entries())
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 8);
+
+        const labels = sorted.map(([l]) => l);
+        const data = sorted.map(([, d]) => d);
+
+        const chartUrl = this.chartService.generatePieChart(
+          labels,
+          data,
+          `Cobertura de Vacunación en ${targetRegion} (%)`,
+        );
+
+        await ctx.replyWithPhoto(chartUrl, {
+          caption: `💉 Visualización de las coberturas de vacunación reportadas en **${targetRegion}**.`,
+        });
+        return true;
+      }
     }
 
     return false;
@@ -260,6 +354,10 @@ export class BotUpdate {
   - 🛡️ "Analizar riesgo de dengue en Valle del Cauca"
   - 🏢 "¿Dónde queda el Hospital Primitivo Iglesias?"
   - 💉 "¿Cuál es la cobertura de vacunación de BCG en Antioquia?"
+  - 📈 "Ver tendencia de tuberculosis"
+  - 🥧 "Graficar vacunas en Antioquia"
+  - 👥 "Graficar sexo en casos de Dengue"
+  - 📍 "Ver zona de malaria"
   - 🚨 "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 
   💬 ¿Sobre qué tema te gustaría consultar hoy?`;
@@ -296,6 +394,10 @@ Puedes consultarme sobre cualquier región de Colombia:
 - "Visualizar calidad del aire en [Ciudad]"
 - "Muéstrame un gráfico de los servicios en Cali"
 - "Gráfico de salud mental"
+- "Ver tendencia de tuberculosis"
+- "Graficar vacunas en Antioquia"
+- "Graficar sexo en casos de Dengue"
+- "Ver zona de malaria"
 
 🔬 **Estadísticas de Salud Pública:**
 - Consultas directas de casos (SIVIGILA).
@@ -647,7 +749,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
   private async handleGreeting(ctx: Context, text: string): Promise<boolean> {
     const userId = ctx.from?.id;
     const isGreeting =
-      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start)/i.test(
+      /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start|que sabes hacer|que puedes hacer)/i.test(
         text.trim(),
       );
     console.log(
@@ -672,6 +774,10 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     - "Predecir riesgo de dengue en Valle del Cauca"
     - "Hospitales con urgencias 24 horas en Yopal"
     - "Cobertura de vacunación BCG en Antioquia"
+    - "Ver tendencia de tuberculosis"
+    - "Graficar vacunas en Antioquia"
+    - "Graficar sexo en casos de Dengue"
+    - "Ver zona de malaria"
 
     ¿Qué necesitas hoy?`,
       );
@@ -883,7 +989,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         }
 
         if (municipios.length > 0) {
-          if (userId) this.userState.delete(userId);
+          if (userId !== undefined) this.userState.delete(userId!);
           const list = municipios.slice(0, 50).join(', ');
           const total = municipios.length;
           await this.sendLongMessage(
@@ -898,7 +1004,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       // Caso específico: Lista/Resumen de Prestadores en una región
       if (norm.includes('prestador')) {
         if (region.includes('boyac')) {
-          if (userId) this.userState.delete(userId);
+          if (userId !== undefined) this.userState.delete(userId!);
           const summary = this.boyacaHealthService.getKnowledgeSummary();
           await ctx.reply(
             `🏢 **Boyacá:** ${summary}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*`,
@@ -906,7 +1012,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           return true;
         }
         if (region.includes('antioquia')) {
-          if (userId) this.userState.delete(userId);
+          if (userId !== undefined) this.userState.delete(userId!);
           const summary = this.antioquiaHealthService.getKnowledgeSummary();
           await ctx.reply(`🏢 **Antioquia:** ${summary}`);
           return true;
@@ -915,7 +1021,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     }
 
     if (handled) {
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       return true;
     }
 
@@ -1058,7 +1164,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       await ctx.reply(
         '⚠️ Esta información es muy amplia. Por favor, especifica el **nombre**, el **NIT** o el **municipio** del centro de salud para poder ayudarte con una búsqueda precisa (ej: "Hospital en Tunja").',
       );
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       return true;
     }
 
@@ -1082,7 +1188,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Cali'))
           .join('\n\n');
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         await this.sendLongMessage(
           ctx,
           `📊 He encontrado **${count}** hospitales, clínicas o prestadores de servicios de salud en **Cali**. Ingresa el NIT o el nombre de la institución para hacer una búsqueda precisa.\n\n${response}`,
@@ -1100,7 +1206,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Boyacá'))
           .join('\n\n');
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         await this.sendLongMessage(
           ctx,
           ` He encontrado **${count}** hospitales, clínicas o prestadores de servicios de salud en **Boyacá**. Ingresa el NIT o el nombre de la institución para hacer una búsqueda precisa.\n\n${response}`,
@@ -1121,7 +1227,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 3)
           .map((provider) => this.formatProviderResult(provider, 'Antioquia'))
           .join('\n\n');
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         await this.sendLongMessage(
           ctx,
           `📊 He encontrado **${count}** hospitales, clínicas o prestadores de servicios de salud en **Antioquia**. Ingresa el NIT o el nombre de la institución para hacer una búsqueda precisa.\n\n${response}`,
@@ -1139,7 +1245,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .slice(0, 5)
           .map((provider) => this.formatProviderResult(provider, 'Yopal'))
           .join('\n\n');
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         await this.sendLongMessage(
           ctx,
           `📊 He encontrado **${count}** hospitales, clínicas o prestadores de servicios de salud en **Yopal**. Ingresa el NIT o el nombre de la institución para hacer una búsqueda precisa.\n\n${response}`,
@@ -1159,7 +1265,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     }
 
     const totalFound = uniqueMatches.size;
-    if (userId) this.userState.delete(userId);
+    if (userId !== undefined) this.userState.delete(userId!);
     const response = Array.from(uniqueMatches.values())
       .slice(0, 5)
       .map((item) => this.formatProviderResult(item.provider, item.source))
@@ -1214,7 +1320,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         departamento,
         eventName,
       );
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       await this.sendLongMessage(ctx, prediction);
       return true;
     }
@@ -1250,7 +1356,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       const cases = temporalData.map((d) => d.cases);
       const prediccion = this.healthStatsService.predictNextValue(cases);
 
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       await this.sendLongMessage(
         ctx,
         `📊 **Predicción para ${resultado.evento.nombre_del_evento}:**
@@ -1288,7 +1394,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
       await this.airQualityService.getAirQualityByMunicipio(region);
 
     if (aireData && aireData.length > 0) {
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       // Eliminar duplicados basándose en el nombre de la variable
       const uniqueVariables = Array.from(
         new Map(aireData.map((v: any) => [v.variable, v])).values(),
@@ -1306,7 +1412,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
       );
       return true;
     } else {
-      if (userId) this.userState.delete(userId);
+      if (userId !== undefined) this.userState.delete(userId!);
       await ctx.reply(
         `⚠️ No encontré datos de calidad del aire para **${region}**. Asegúrate de que el nombre del municipio sea correcto.`,
       );
@@ -1332,7 +1438,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
           pending.data.event,
           detectedRegion,
         );
-        if (userId) this.userState.delete(userId);
+        if (userId !== undefined) this.userState.delete(userId!);
         return true;
       }
 
