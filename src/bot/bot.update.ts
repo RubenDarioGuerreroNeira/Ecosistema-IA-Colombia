@@ -6,6 +6,7 @@ import { StatsService } from './stats/stats.service';
 import { CaliHealthService } from './cali-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
+import { AntioquiaHealthService } from './antioquia-health.service';
 import { SaludPublicaService } from './salud-publica.service';
 import { SaludAnaliticaService } from './salud-analitica.service';
 import { HealthStatsService } from './stats/health-stats.service';
@@ -24,6 +25,7 @@ export class BotUpdate {
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
+    private readonly antioquiaHealthService: AntioquiaHealthService,
     private readonly saludPublicaService: SaludPublicaService,
     private readonly saludAnaliticaService: SaludAnaliticaService,
     private readonly healthStatsService: HealthStatsService,
@@ -45,32 +47,44 @@ export class BotUpdate {
     const greeting = this.getTimeGreeting();
     const welcomeMessage = `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud pública con **cobertura nacional**.
 
-Ahora cuento con acceso a datos en tiempo real de SIVIGILA, lo que me permite ofrecerte análisis epidemiológicos locales para cualquier departamento o municipio de Colombia.
+  Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales y fuentes ambientales para ofrecerte información, análisis y recomendaciones.
 
-✨ **Puedo ayudarte con:**
-- 🌍 **Monitoreo Nacional:** Datos reales de incidencia en todo el país.
-- ⚖️ **Comparativas Regionales:** Analiza diferencias entre ciudades (ej. "Compara dengue en Cali vs Palmira").
-- 🛡️ **Acción Preventiva:** Alertas automáticas basadas en vacunación y brotes reales de tu región.
-- 🔬 **Análisis de Riesgo:** Indicadores locales y perfiles de riesgo sin depender de referencias externas.
-- 🏢 **Búsqueda de Servicios:** Hospitales, clínicas y prestadores de salud en cualquier región.
-- 🧠 **Salud Mental:** Perfiles de riesgo y comparativas de trastornos.
-- 🛡️ **Protocolos de Emergencia:** Guías y rutas de atención.
-- ❤️ **Salud Sexual:** Guías, derechos y rutas de atención.
-- 📈 **Predicción Epidemiológica:** Proyección de tendencias basadas en datos históricos.
+  ✨ **Qué puedo hacer por ti:**
+  - 🔎 **Buscar servicios de salud:** hospitales, clínicas, EPS, laboratorios y prestadores por ciudad o dirección.
+  - 📊 **Estadísticas SIVIGILA:** consultar casos, distribuciones por sexo/edad, y resúmenes por evento.
+  - ⚖️ **Comparativas regionales:** comparar incidencia entre dos regiones (ej. Cali vs Palmira).
+  - 🛡️ **Análisis de riesgo:** evaluación que integra vacunación y factores ambientales.
+  - 💉 **Información de vacunación:** coberturas por departamento y su impacto en riesgo.
+  - 🔮 **Predicciones:** proyecciones simples de casos y riesgo por evento y departamento.
+  - 🍃 **Indicadores ambientales:** calidad del aire y variables ambientales por municipio.
+  - 🧠 **Salud mental:** perfiles de riesgo y tendencias relacionadas.
+  - ❤️ **Salud sexual:** preguntas frecuentes, prevención, derechos y rutas de atención.
+  - 🚨 **Protocolos y urgencias:** guías de emergencia y búsqueda de urgencias 24h.
+  - 📍 **Búsquedas avanzadas (Yopal):** ubicación, contactos, gerentes, auditoría y análisis de prestadores.
+  - 🗂️ **Reportes y series temporales:** generar series temporales sintéticas y resúmenes.
 
-🔎 **Ejemplos de preguntas que puedes hacerme:**
-- *"Compara dengue en Cali vs Palmira"*
-- *"Analizar riesgo de tuberculosis en Risaralda"*
-- *"¿Dónde queda el Hospital Primitivo Iglesias?"*
-- *"predecir casos tuberculosis"*
+  🔎 **Ejemplos de preguntas que puedes hacerme:**
+  - "Compara dengue en Cali vs Palmira"
+  - "Analizar riesgo de tuberculosis en Risaralda"
+  - "Predecir riesgo de dengue en Valle del Cauca"
+  - "¿Dónde queda el Hospital Primitivo Iglesias?"
+  - "¿Cuál es la cobertura de vacunación de BCG en Antioquia?"
+  - "Calidad del aire en Bogotá"
+  - "Preguntas sobre VIH y profilaxis"
+  - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 
-💬 Estoy listo para apoyarte con datos precisos. **¿Qué te gustaría explorar hoy?**`;
+  💬 ¿Sobre qué tema te gustaría consultar hoy?`;
 
     await ctx.reply(welcomeMessage, { parse_mode: 'Markdown' });
 
     if (ctx.from?.id) {
       await this.userService.markAsGreeted(ctx.from.id);
     }
+  }
+
+  @Start()
+  async start(@Ctx() ctx: Context) {
+    await this.sendPersonalizedGreeting(ctx);
   }
 
   @Help()
@@ -96,6 +110,10 @@ Puedes consultarme sobre cualquier región de Colombia:
 💬 *Tip: Ahora tengo datos de todo el país. ¡Prueba comparando dos ciudades!*`,
       { parse_mode: 'Markdown' },
     );
+  }
+
+  private escapeMarkdown(text: string): string {
+    return text.toString().replace(/[_*\[\]()~`>#+=|{}.!-]/g, '\\$&');
   }
 
   private async sendLongMessage(
@@ -137,8 +155,11 @@ Puedes consultarme sobre cualquier región de Colombia:
     // Flujo de prioridades
     if (await this.handleGreeting(ctx, messageText)) return;
     if (await this.handleYopalQuery(ctx, messageText)) return;
+    if (await this.handleProviderSearch(ctx, messageText, detectedRegion))
+      return;
     if (await this.handlePrediction(ctx, messageText)) return;
-    if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
+    if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion))
+      return;
 
     // 1. PRIORIDAD: ESTADÍSTICAS Y COMPARATIVAS (StatsService)
     const contextData = await this.statsService.getSummary(messageText);
@@ -163,11 +184,25 @@ Puedes consultarme sobre cualquier región de Colombia:
     }
 
     // 2. PRIORIDAD: ANÁLISIS DE RIESGO E INCIDENCIA DETALLADA
+    if (await this.handleSexualHealthQuery(ctx, messageText)) return;
     if (await this.handleRiskAnalysis(ctx, messageText, detectedRegion)) return;
     if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
     // 3. PRIORIDAD: MANEJO GENERAL (IA con contexto)
     await this.handleGeneralQuery(ctx, messageText, contextData);
+  }
+
+  private async handleSexualHealthQuery(
+    ctx: Context,
+    text: string,
+  ): Promise<boolean> {
+    const results = await this.sexualHealthService.searchByKeyword(text);
+    if (results && results.length > 0) {
+      const answer = results[0].respuesta;
+      await this.sendLongMessage(ctx, answer);
+      return true;
+    }
+    return false;
   }
 
   private async handleGeneralQuery(
@@ -265,32 +300,106 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 
   private detectRegion(text: string): string | undefined {
     const departments = [
-      'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá',
-      'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare',
-      'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo',
-      'Quindío', 'Risaralda', 'San Andrés', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca',
-      'Vaupés', 'Vichada'
+      'Amazonas',
+      'Antioquia',
+      'Arauca',
+      'Atlántico',
+      'Bolívar',
+      'Boyacá',
+      'Caldas',
+      'Caquetá',
+      'Casanare',
+      'Cauca',
+      'Cesar',
+      'Chocó',
+      'Córdoba',
+      'Cundinamarca',
+      'Guainía',
+      'Guaviare',
+      'Huila',
+      'La Guajira',
+      'Magdalena',
+      'Meta',
+      'Nariño',
+      'Norte de Santander',
+      'Putumayo',
+      'Quindío',
+      'Risaralda',
+      'San Andrés',
+      'Santander',
+      'Sucre',
+      'Tolima',
+      'Valle del Cauca',
+      'Vaupés',
+      'Vichada',
     ];
 
     const capitals = [
-      'Leticia', 'Medellín', 'Arauca', 'Barranquilla', 'Cartagena', 'Tunja', 'Manizales',
-      'Florencia', 'Yopal', 'Popayán', 'Valledupar', 'Quibdó', 'Montería', 'Bogotá',
-      'Inírida', 'San José del Guaviare', 'Neiva', 'Riohacha', 'Santa Marta', 'Villavicencio',
-      'Pasto', 'Cúcuta', 'Mocoa', 'Armenia', 'Pereira', 'Bucaramanga', 'Sincelejo',
-      'Ibagué', 'Cali', 'Mitú', 'Puerto Carreño'
+      'Leticia',
+      'Medellín',
+      'Arauca',
+      'Barranquilla',
+      'Cartagena',
+      'Tunja',
+      'Manizales',
+      'Florencia',
+      'Yopal',
+      'Popayán',
+      'Valledupar',
+      'Quibdó',
+      'Montería',
+      'Bogotá',
+      'Inírida',
+      'San José del Guaviare',
+      'Neiva',
+      'Riohacha',
+      'Santa Marta',
+      'Villavicencio',
+      'Pasto',
+      'Cúcuta',
+      'Mocoa',
+      'Armenia',
+      'Pereira',
+      'Bucaramanga',
+      'Sincelejo',
+      'Ibagué',
+      'Cali',
+      'Mitú',
+      'Puerto Carreño',
     ];
 
     const majorValle = [
-      'Buga', 'Tuluá', 'Palmira', 'Jamundí', 'Cartago', 'Buenaventura', 'Yumbo', 'Candelaria',
-      'Florida', 'El Cerrito', 'Sevilla', 'Zarzal', 'Caicedonia', 'Guacarí', 'Roldanillo'
+      'Buga',
+      'Tuluá',
+      'Palmira',
+      'Jamundí',
+      'Cartago',
+      'Buenaventura',
+      'Yumbo',
+      'Candelaria',
+      'Florida',
+      'El Cerrito',
+      'Sevilla',
+      'Zarzal',
+      'Caicedonia',
+      'Guacarí',
+      'Roldanillo',
     ];
 
     const others = [
-      'valle', 'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps', 'coosalud', 'horo', 'orinoquia'
+      'valle',
+      'capresoca',
+      'coomeva',
+      'medimas',
+      'sanitas',
+      'nueva eps',
+      'coosalud',
+      'horo',
+      'orinoquia',
     ];
 
     const regions = [...departments, ...capitals, ...majorValle, ...others];
-    
+
     const cleanText = text
       .toLowerCase()
       .normalize('NFD')
@@ -299,7 +408,8 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       .replace(/k/g, 'c');
 
     return regions.find((r) => {
-      const cleanRegion = r.toLowerCase()
+      const cleanRegion = r
+        .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, '')
@@ -314,7 +424,9 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start)/i.test(
         text.trim(),
       );
-    console.log(`DEBUG: handleGreeting - userId=${userId}, text='${text}', isGreeting=${isGreeting}`);
+    console.log(
+      `DEBUG: handleGreeting - userId=${userId}, text='${text}', isGreeting=${isGreeting}`,
+    );
 
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       console.log(`DEBUG: handleGreeting - Greeting new user`);
@@ -325,27 +437,17 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       // ... resto del mensaje
       const firstName = ctx.from?.first_name || 'usuario';
       await ctx.reply(
-        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales. 
+        `¡Hola, ${firstName}! 👋 Soy Salud IA, tu asistente de salud respaldado por datos oficiales.
 
-Mi objetivo es aportar valor preventivo mediante el cruce de datos oficiales de salud, vacunación y medio ambiente.
+    Puedo ayudarte con búsquedas de servicios, estadísticas SIVIGILA, análisis de riesgo (integrando vacunación y ambiente), predicciones, calidad del aire, salud mental y sexual, y protocolos de emergencia.
 
-Puedo ayudarte con:
-- 🏢 **Búsqueda de Servicios:** Hospitales, clínicas y prestadores.
-- 🔬 **Análisis de Riesgo e Incidencia:** Estadísticas oficiales (SIVIGILA).
-- 🧠 **Salud Mental:** Perfiles de riesgo y trastornos.
-- 🛡️ **Protocolos de Emergencia:** Guías de atención.
-- ❤️ **Salud Sexual:** Guías, derechos y rutas.
-- 📈 **Predicción Epidemiológica:** Proyección de tendencias.
+    Ejemplos rápidos:
+    - "Compara dengue en Cali vs Palmira"
+    - "Predecir riesgo de dengue en Valle del Cauca"
+    - "Hospitales con urgencias 24 horas en Yopal"
+    - "Cobertura de vacunación BCG en Antioquia"
 
----
-💡 **¿Cómo puedes preguntarme?**
-*   "¿Qué eventos de salud pública hay en Antioquia?"
-*   "Analizar riesgo de dengue en Cali"
-*   "Predecir riesgo de tuberculosis en Antioquia"
-*   "Predecir casos tuberculosis"
-*   "Comparar hombres y mujeres en malaria"
-
-¿Sobre qué tema te gustaría consultar hoy?`,
+    ¿Qué necesitas hoy?`,
       );
       return true;
     }
@@ -380,9 +482,263 @@ Puedo ayudarte con:
     return false;
   }
 
+  private formatProviderResult(provider: any, source: string): string {
+    const name =
+      provider.sede ||
+      provider.nombre_de_sede ||
+      provider.nombreprestador ||
+      provider.entidad_2 ||
+      provider.razon_social ||
+      'Centro de salud';
+    const address =
+      provider.direccion ||
+      provider.direcci_n ||
+      provider.direccion ||
+      provider.direcci_n ||
+      'Dirección no disponible';
+    const phone =
+      provider.telefono ||
+      provider.tel_fono ||
+      provider.telefono ||
+      'Teléfono no disponible';
+    const city =
+      provider.ciudad ||
+      provider.municipio ||
+      provider.departamento ||
+      provider.nombre_centro_poblado ||
+      '';
+    const extra =
+      provider.servicio ||
+      provider.grupo ||
+      provider.claseprestador ||
+      provider.caracter ||
+      '';
+
+    let result = `🏥 *${this.escapeMarkdown(name)}*\n`;
+    result += `📍 ${this.escapeMarkdown(address)}\n`;
+    if (city) {
+      result += `📌 ${this.escapeMarkdown(city)}\n`;
+    }
+    result += `📞 ${this.escapeMarkdown(phone)}`;
+    if (extra) {
+      result += `\nℹ️ ${this.escapeMarkdown(extra)}`;
+    }
+    result += `\n*Fuente:* ${this.escapeMarkdown(source)}`;
+    return result;
+  }
+
+  private isProviderLocationQuery(text: string): boolean {
+    const norm = text.toLowerCase();
+    return /(?:donde\s+(?:queda|esta|est[áa])|d[ií]nde\s+queda|d[ií]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|clinica|eps|centro|sede|prestador|servicio)|hospital\s+|cl[ií]nica\s+|sede\s+|servicio\s+)/.test(
+      norm,
+    );
+  }
+
+  private async searchProvidersAcrossServices(
+    query: string,
+  ): Promise<Array<{ source: string; provider: any }>> {
+    const results: Array<{ source: string; provider: any }> = [];
+
+    const caliMatches = this.caliHealthService.findByIdentifier(query);
+    const caliSearchMatches = this.caliHealthService.searchProviders(query);
+    const boyacaMatches = this.boyacaHealthService.findByIdentifier(query);
+    const boyacaSearchMatches = this.boyacaHealthService.searchProviders(query);
+    const antioquiaMatches = this.antioquiaHealthService.searchProviders(
+      query,
+      10,
+    );
+    const yopalMatches =
+      this.yopalHealthService.findByIdentifier?.(query) || [];
+    const yopalSearchMatches = this.yopalHealthService.searchProviders(query);
+
+    console.log(
+      `DEBUG: searchProvidersAcrossServices - query="${query}", ` +
+        `CaliId=${caliMatches.length}, CaliSearch=${caliSearchMatches.length}, ` +
+        `BoyacaId=${boyacaMatches.length}, BoyacaSearch=${boyacaSearchMatches.length}, ` +
+        `Antioquia=${antioquiaMatches.length}, YopalId=${yopalMatches.length}, YopalSearch=${yopalSearchMatches.length}`,
+    );
+
+    const pushUnique = (
+      service: string,
+      providers: any[],
+      keyFn: (provider: any) => string,
+    ) => {
+      for (const provider of providers) {
+        const key = `${service}|${keyFn(provider)}`;
+        if (
+          !results.some(
+            (item) =>
+              item.source === service &&
+              keyFn(item.provider) === keyFn(provider),
+          )
+        ) {
+          results.push({ source: service, provider });
+        }
+      }
+    };
+
+    if (caliMatches && caliMatches.length > 0) {
+      pushUnique(
+        'Cali',
+        caliMatches,
+        (provider) =>
+          provider.sede || provider.servicio || provider.direccion || '',
+      );
+    }
+    if (caliSearchMatches && caliSearchMatches.length > 0) {
+      pushUnique(
+        'Cali',
+        caliSearchMatches,
+        (provider) =>
+          provider.sede || provider.servicio || provider.direccion || '',
+      );
+    }
+
+    if (boyacaMatches && boyacaMatches.length > 0) {
+      pushUnique(
+        'Boyacá',
+        boyacaMatches,
+        (provider) =>
+          provider.nombre_de_sede ||
+          provider.razon_social ||
+          provider.direccion ||
+          '',
+      );
+    }
+    if (boyacaSearchMatches && boyacaSearchMatches.length > 0) {
+      pushUnique(
+        'Boyacá',
+        boyacaSearchMatches,
+        (provider) =>
+          provider.nombre_de_sede ||
+          provider.razon_social ||
+          provider.direccion ||
+          '',
+      );
+    }
+
+    if (antioquiaMatches && antioquiaMatches.length > 0) {
+      pushUnique(
+        'Antioquia',
+        antioquiaMatches,
+        (provider) =>
+          provider.nombreprestador ||
+          provider.nombre_sede ||
+          provider.nit ||
+          '',
+      );
+    }
+
+    if (yopalMatches && yopalMatches.length > 0) {
+      pushUnique(
+        'Yopal',
+        yopalMatches,
+        (provider) =>
+          provider.entidad_2 || provider.servicio || provider.direccion || '',
+      );
+    }
+    if (yopalSearchMatches && yopalSearchMatches.length > 0) {
+      pushUnique(
+        'Yopal',
+        yopalSearchMatches,
+        (provider) =>
+          provider.entidad_2 || provider.servicio || provider.direccion || '',
+      );
+    }
+
+    return results;
+  }
+
+  private async handleProviderSearch(
+    ctx: Context,
+    text: string,
+    detectedRegion?: string,
+  ): Promise<boolean> {
+    const isLocationQuery = this.isProviderLocationQuery(text);
+    console.log(
+      `DEBUG: handleProviderSearch - text="${text}", detectedRegion="${detectedRegion}", isLocationQuery=${isLocationQuery}`,
+    );
+    if (!isLocationQuery) return false;
+
+    const region = detectedRegion?.toLowerCase() || '';
+
+    // Prefer region-specific searches
+    if (region.includes('cali') || region.includes('valle')) {
+      const caliMatches = this.caliHealthService.findByIdentifier(text);
+      if (caliMatches.length > 0) {
+        const response = caliMatches
+          .slice(0, 3)
+          .map((provider) => this.formatProviderResult(provider, 'Cali'))
+          .join('\n\n');
+        await this.sendLongMessage(
+          ctx,
+          `🔎 *Resultados de ubicación (Cali):*\n\n${response}`,
+          { parse_mode: 'Markdown' },
+        );
+        return true;
+      }
+    }
+
+    if (region.includes('boyac')) {
+      const boyacaMatches = this.boyacaHealthService.findByIdentifier(text);
+      if (boyacaMatches.length > 0) {
+        const response = boyacaMatches
+          .slice(0, 3)
+          .map((provider) => this.formatProviderResult(provider, 'Boyacá'))
+          .join('\n\n');
+        await this.sendLongMessage(
+          ctx,
+          `🔎 *Resultados de ubicación (Boyacá):*\n\n${response}`,
+          { parse_mode: 'Markdown' },
+        );
+        return true;
+      }
+    }
+
+    if (region.includes('antioquia')) {
+      const antioquiaMatches = this.antioquiaHealthService.searchProviders(
+        text,
+        5,
+      );
+      if (antioquiaMatches.length > 0) {
+        const response = antioquiaMatches
+          .slice(0, 3)
+          .map((provider) => this.formatProviderResult(provider, 'Antioquia'))
+          .join('\n\n');
+        await this.sendLongMessage(
+          ctx,
+          `🔎 *Resultados de ubicación (Antioquia):*\n\n${response}`,
+          { parse_mode: 'Markdown' },
+        );
+        return true;
+      }
+    }
+
+    const allMatches = await this.searchProvidersAcrossServices(text);
+    if (allMatches.length === 0) return false;
+
+    const uniqueMatches = new Map<string, { source: string; provider: any }>();
+    for (const item of allMatches) {
+      const key = `${item.source}|${item.provider.sede || item.provider.nombre_de_sede || item.provider.nombreprestador || item.provider.entidad_2 || item.provider.razon_social || ''}`;
+      if (!uniqueMatches.has(key)) uniqueMatches.set(key, item);
+      if (uniqueMatches.size >= 5) break;
+    }
+
+    const response = Array.from(uniqueMatches.values())
+      .map((item) => this.formatProviderResult(item.provider, item.source))
+      .join('\n\n');
+
+    await this.sendLongMessage(
+      ctx,
+      `🔎 *Resultados de ubicación de servicios de salud:*\n\n${response}`,
+      { parse_mode: 'Markdown' },
+    );
+    return true;
+  }
+
   private async handlePrediction(ctx: Context, text: string): Promise<boolean> {
     const lowerText = text.toLowerCase();
-    
+
     // 1. Predicción de Riesgo (Nueva Funcionalidad)
     if (lowerText.startsWith('predecir riesgo de')) {
       const parts = lowerText.replace('predecir riesgo de', '').split(' en ');
@@ -390,11 +746,17 @@ Puedo ayudarte con:
       const departamento = parts[1] ? parts[1].trim() : 'Antioquia';
 
       if (!eventName) {
-        await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'");
+        await this.sendLongMessage(
+          ctx,
+          "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'",
+        );
         return true;
       }
 
-      const prediction = await this.predictionService.predictRisk(departamento, eventName);
+      const prediction = await this.predictionService.predictRisk(
+        departamento,
+        eventName,
+      );
       await this.sendLongMessage(ctx, prediction);
       return true;
     }
@@ -411,7 +773,8 @@ Puedo ayudarte con:
         return true;
       }
 
-      const resultado = await this.saludPublicaService.procesarPregunta(eventName);
+      const resultado =
+        await this.saludPublicaService.procesarPregunta(eventName);
       if (!resultado.evento) {
         await this.sendLongMessage(
           ctx,
@@ -444,16 +807,23 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
   ): Promise<boolean> {
     const norm = text.toLowerCase();
     if (!norm.includes('calidad del aire')) return false;
-    
+
     const region = detectedRegion || 'Colombia';
-    const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
-    
+    const aireData =
+      await this.airQualityService.getAirQualityByMunicipio(region);
+
     if (aireData && aireData.length > 0) {
-      const variables = aireData.slice(0, 3).map(item => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
-      await this.sendLongMessage(ctx, `🍃 **Indicadores ambientales en ${region}:**\n${variables}`);
+      const variables = aireData
+        .slice(0, 3)
+        .map((item) => `- ${item.variable}: ${item.promedio} ${item.unidades}`)
+        .join('\n');
+      await this.sendLongMessage(
+        ctx,
+        `🍃 **Indicadores ambientales en ${region}:**\n${variables}`,
+      );
       return true;
     }
-    
+
     return false;
   }
 
@@ -472,10 +842,11 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         let respuestaFinal = '';
 
         if (resultado.evento) {
-          const { contenido } = await this.saludPublicaService._formatearRespuesta(
-            { evento: resultado.evento },
-            'detalle',
-          );
+          const { contenido } =
+            await this.saludPublicaService._formatearRespuesta(
+              { evento: resultado.evento },
+              'detalle',
+            );
           respuestaFinal = contenido;
 
           const regionParaAnalisis = detectedRegion || 'Antioquia';
@@ -492,11 +863,20 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
 
           // ENRIQUECIMIENTO: Datos de calidad del aire (Procesando arreglo de variables)
           try {
-            const aireData = await this.airQualityService.getAirQualityByMunicipio(regionParaAnalisis);
+            const aireData =
+              await this.airQualityService.getAirQualityByMunicipio(
+                regionParaAnalisis,
+              );
             if (aireData && aireData.length > 0) {
               // Agrupamos las variables encontradas
-              const variables = aireData.slice(0, 3).map(item => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
-              
+              const variables = aireData
+                .slice(0, 3)
+                .map(
+                  (item) =>
+                    `- ${item.variable}: ${item.promedio} ${item.unidades}`,
+                )
+                .join('\n');
+
               respuestaFinal += `\n\n🍃 **Indicadores ambientales en ${regionParaAnalisis}:**
 ${variables}
 (Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas).`;

@@ -178,15 +178,21 @@ describe('YopalHealthService', () => {
 
   it('should classify providers correctly by name', () => {
     expect(service.classifyProvider('CAPRESOCA EPS')).toContain('EPS');
-    expect(service.classifyProvider('HOSPITAL REGIONAL')).toContain('HOSPITAL/CLINICA');
-    expect(service.classifyProvider('CENTRO ODONTOLOGICO')).toContain('ODONTOLOGIA');
-    expect(service.classifyProvider('JUAN PEREZ')).toContain('CONSULTORIO_INDEPENDIENTE');
+    expect(service.classifyProvider('HOSPITAL REGIONAL')).toContain(
+      'HOSPITAL/CLINICA',
+    );
+    expect(service.classifyProvider('CENTRO ODONTOLOGICO')).toContain(
+      'ODONTOLOGIA',
+    );
+    expect(service.classifyProvider('JUAN PEREZ')).toContain(
+      'CONSULTORIO_INDEPENDIENTE',
+    );
   });
 
   it('should return providers by category', () => {
     const epsProviders = service.getProvidersByCategory('EPS');
     expect(epsProviders.length).toBeGreaterThanOrEqual(2); // CAPRESOCA y COOMEVA
-    expect(epsProviders.some(p => p.entidad_2 === 'CAPRESOCA')).toBe(true);
+    expect(epsProviders.some((p) => p.entidad_2 === 'CAPRESOCA')).toBe(true);
   });
 
   it('should return category statistics', () => {
@@ -199,7 +205,7 @@ describe('YopalHealthService', () => {
 
   it('should find nearby providers using Haversine', () => {
     // Ubicación de prueba cerca de Capresoca (5.349719, -72.40204)
-    const nearby = service.findNearby(5.35, -72.40, 1); // Radio 1km
+    const nearby = service.findNearby(5.35, -72.4, 1); // Radio 1km
     expect(nearby.length).toBeGreaterThanOrEqual(1);
     expect(nearby[0].entidad_2).toBe('CAPRESOCA');
     expect(nearby[0]).toHaveProperty('distance');
@@ -281,7 +287,7 @@ describe('YopalHealthService', () => {
     expect(stats.totalProviders).toBe(3);
     expect(stats.byCategory).toBeDefined();
     expect(stats.byRoadType).toHaveProperty('CALLE');
-    expect(stats.geographicCoverage.providersWithCoords).toBe(3);
+    expect(stats.geographicCoverage?.providersWithCoords).toBe(3);
     expect(stats.connectivity.multiPhoneProviders).toBe(0); // El mock actual no tiene múltiples teléfonos parseables bajo la nueva lógica
   });
 
@@ -318,7 +324,7 @@ describe('YopalHealthService', () => {
   });
 
   it('should identify independent practitioners', () => {
-    // En el mock, ninguno es independiente (entidad != gerente), 
+    // En el mock, ninguno es independiente (entidad != gerente),
     // pero verificamos que el método devuelva un array (vacío en este caso)
     const practitioners = service.getIndependentPractitioners();
     expect(Array.isArray(practitioners)).toBe(true);

@@ -56,35 +56,35 @@ graph TD
 
 Aquí tienes ejemplos de cómo interactuar con el bot:
 
-### 🔬 Análisis Epidemiológico (SIVIGILA)
-1. "¿Qué eventos de salud pública hay en Antioquia? (Análisis epidemiológico nacional enriquecido con datos ambientales locales)"
-2. "¿Cuántos casos de Dengue se han reportado en Cali?"
-3. "¿Cuáles son los eventos de salud más frecuentes en Colombia?"
-4. "¿Qué enfermedades afectan más a la zona rural de Boyacá?"
-5. "Compara los casos de malaria entre hombres y mujeres en Yopal."
-6. "¿Cuáles son los eventos con menos incidencia en el país?"
+### 🔬 Análisis Epidemiológico y Predicción
+1. "Predecir riesgo de tuberculosis en Antioquia"
+2. "¿Cómo es la calidad del aire en Antioquia?"
+3. "¿Cuáles son los eventos de salud pública más frecuentes en Colombia?"
+4. "¿Cuáles son los derechos en salud sexual para jóvenes?"
+5. "¿Cuántos casos de Dengue se han reportado en Cali?"
+6. "Compara los casos de malaria entre hombres y mujeres en Yopal."
+
+### 📊 Predicción de Casos
 7. "¿Cómo se distribuyen los casos de tuberculosis por ciclo de vida en Bogotá?"
+8. "Predecir casos de dengue en Bogotá"
+9. "Analizar riesgo de dengue en Cali"
 
-### 📊 Predicción y Riesgo
-8. "Predecir riesgo de dengue en Cali"
-9. "Predecir riesgo de tuberculosis en Antioquia"
-10. "Predecir casos de dengue en Bogotá"
-11. "Analizar riesgo de dengue en Cali"
-
-### 🍃 Factores Ambientales y Contexto
-12. "¿Cuál es la calidad del aire en Medellín?"
-13. "¿Qué indicadores ambientales hay actualmente en Valle del Cauca?"
-14. "¿Cómo es la calidad del aire en Santa Fé de Antioquia?"
+### 🍃 Factores Ambientales
+10. "¿Cuál es la calidad del aire en Medellín?"
+11. "¿Qué indicadores ambientales hay actualmente en Valle del Cauca?"
+12. "¿Cómo es la calidad del aire en Santa Fé de Antioquia?"
 
 ### 🧠 Salud Mental, Sexual y Emergencias
-15. "¿Cuáles son los perfiles de riesgo en salud mental?"
-16. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
-17. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
-18. "¿Qué servicios de salud hay en Yopal?"
+13. "¿Cuáles son los perfiles de riesgo en salud mental?"
+14. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
+15. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
+16. "¿Qué servicios de salud hay en Yopal?"
 
 ### 🤖 IA y Orientación General
-19. "¿Qué recomendaciones hay para prevenir el Zika?"
-20. "¿Cuáles son los derechos en salud sexual para jóvenes?"
+17. "¿Qué recomendaciones hay para prevenir el Zika?"
+18. "¿Cuáles son los derechos en salud sexual para jóvenes?"
+19. "¿Qué enfermedades afectan más a la zona rural de Boyacá?"
+20. "¿Cuáles son los eventos con menos incidencia en el país?"
 
 ---
 
