@@ -187,6 +187,39 @@ export class BotUpdate {
       return true;
     }
 
+    // 4. SALUD PÚBLICA (Top Eventos Nacionales)
+    if (
+      norm.includes('salud publica') ||
+      norm.includes('eventos') ||
+      norm.includes('enfermedades')
+    ) {
+      console.log(`DEBUG: handleChartQuery - Matched Public Health Chart`);
+      const top = await this.healthDataService.getTopEvents(6);
+      const labels = top.map((e) =>
+        e.nombre_del_evento.length > 20
+          ? e.nombre_del_evento.substring(0, 17) + '...'
+          : e.nombre_del_evento,
+      );
+      const data = top.map((e) => e.total_de_eventos);
+
+      const chartUrl = this.chartService.generateBarChart(
+        labels,
+        data,
+        'Top Eventos de Interés en Salud Pública (Colombia)',
+      );
+
+      await ctx.replyWithPhoto(chartUrl, {
+        caption:
+          '🔬 Estos son los eventos de salud pública con mayor incidencia reportada a nivel nacional según SIVIGILA.',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '🧠 Salud Mental', callback_data: 'chart_mental' }],
+          ],
+        },
+      });
+      return true;
+    }
+
     return false;
   }
 
@@ -220,16 +253,14 @@ export class BotUpdate {
   - 📈 **Visualización gráfica:** generar gráficos dinámicos de salud mental, calidad del aire y servicios de salud.
 
   🔎 **Ejemplos de preguntas que puedes hacerme:**
-  - "Compara dengue en Cali vs Palmira"
-  - "Analizar riesgo de tuberculosis en Risaralda"
-  - "Predecir riesgo de dengue en Valle del Cauca"
-  - "¿Dónde queda el Hospital Primitivo Iglesias?"
-  - "¿Cuál es la cobertura de vacunación de BCG en Antioquia?"
-  - "Visualizar calidad del aire en Bogotá"
-  - "Muéstrame un gráfico de los servicios en Cali"
-  - "Gráfico de salud mental"
-  - "Preguntas sobre VIH y profilaxis"
-  - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
+  - 🍃 "Graficar aire en Cali" o "Visualizar contaminación en Medellín"
+  - 🧠 "Graficar diagnósticos de salud mental" o "Ver gráfico de salud mental"
+  - 📊 "Muéstrame un gráfico de los servicios en Cali"
+  - 🔬 "Graficar eventos de salud pública" o "Ver gráfico de eventos SIVIGILA"
+  - 🛡️ "Analizar riesgo de dengue en Valle del Cauca"
+  - 🏢 "¿Dónde queda el Hospital Primitivo Iglesias?"
+  - 💉 "¿Cuál es la cobertura de vacunación de BCG en Antioquia?"
+  - 🚨 "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 
   💬 ¿Sobre qué tema te gustaría consultar hoy?`;
 

@@ -85,9 +85,18 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 16. "¿Qué servicios de salud hay en Yopal?"
 
 ### 📊 Visualización Gráfica (¡NUEVO!)
-21. "Visualizar calidad del aire en Bogotá" (Gráfico de barras ambiental)
-22. "Muéstrame un gráfico de los servicios en Cali" (Distribución por categorías)
-23. "Gráfico de salud mental" (Top diagnósticos nacionales)
+**Calidad del Aire**
+- "Graficar aire en Cali", "Muéstrame la calidad del aire en Bogotá", "Visualizar contaminación en Medellín"
+- "Ver indicadores ambientales de Yopal"
+- "Graficar datos ambientales" (El bot preguntará la ciudad si no se especifica)
+**Salud Mental**
+- "Graficar diagnósticos de salud mental", "Muéstrame un gráfico de depresión y ansiedad en Colombia"
+- "Visualizar estadísticas de psicología", "Ver gráfico de salud mental"
+**Servicios de Salud en Cali**
+- "Muéstrame un gráfico de los servicios en Cali", "Graficar servicios de salud en Cali", "Visualizar categorías de salud en Cali"
+**Salud Pública (SIVIGILA)**
+- "Graficar eventos de salud pública", "Muéstrame las enfermedades más frecuentes en el país"
+- "Ver gráfico de eventos SIVIGILA", "Visualizar reporte de salud pública"
 
 ---
 
