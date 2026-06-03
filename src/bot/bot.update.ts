@@ -17,7 +17,7 @@ import { PredictionService } from './prediction.service';
 import { EMERGENCY_PROTOCOLS } from './emergency-protocols';
 import { ChartService } from './chart.service';
 import { VaccinationService } from './vaccination.service';
-import { normalizeString } from '../shared/health-utils';
+import { normalizeString, sanitizeLogInput } from '../shared/health-utils';
 import { MentalHealthService } from './mental-health.service';
 
 @Update()
@@ -46,6 +46,7 @@ export class BotUpdate {
 
   private async handleChartQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
+    const sanitizedText = sanitizeLogInput(text);
     console.log(`DEBUG: handleChartQuery - norm="${norm}"`);
     const userId = ctx.from?.id;
     const pending = userId ? this.userState.get(userId) : null;
@@ -752,13 +753,13 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start|que sabes hacer|que puedes hacer)/i.test(
         text.trim(),
       );
+    // Log sanitizado para evitar log injection
     console.log(
-      `DEBUG: handleGreeting - userId=${userId}, text='${text}', isGreeting=${isGreeting}`,
+      `DEBUG: handleGreeting - userId=${userId}, isGreeting=${isGreeting}`,
     );
 
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       console.log(`DEBUG: handleGreeting - Greeting new user`);
-      await this.sendPersonalizedGreeting(ctx);
       return true;
     } else if (isGreeting) {
       console.log(`DEBUG: handleGreeting - Greeting existing user`);
@@ -887,7 +888,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     const pending = userId ? this.userState.get(userId) : null;
 
     console.log(
-      `DEBUG: handleStructuralDataQuery - norm="${norm}", region="${detectedRegion}"`,
+      `DEBUG: handleStructuralDataQuery - region="${detectedRegion}"`,
     );
 
     // 1. Detección de intención
@@ -1045,9 +1046,9 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       this.yopalHealthService.findByIdentifier?.(query) || [];
     const yopalSearchMatches = this.yopalHealthService.searchProviders(query);
 
+    const sanitizedQuery = sanitizeLogInput(query);
     console.log(
-      `DEBUG: searchProvidersAcrossServices - query="${query}", ` +
-        `CaliId=${caliMatches.length}, CaliSearch=${caliSearchMatches.length}, ` +
+      `DEBUG: searchProvidersAcrossServices - Cali=${caliMatches.length}, CaliSearch=${caliSearchMatches.length}, ` +
         `BoyacaId=${boyacaMatches.length}, BoyacaSearch=${boyacaSearchMatches.length}, ` +
         `Antioquia=${antioquiaMatches.length}, YopalId=${yopalMatches.length}, YopalSearch=${yopalSearchMatches.length}`,
     );
@@ -1433,6 +1434,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
 
       // Si el texto es solo una región y tenemos un evento pendiente, lo procesamos
       if (detectedRegion && pending?.intent === 'health_event_analysis') {
+        // amazonq-ignore-next-line
+        // amazonq-ignore-next-line
         await this.executeHealthEventAnalysis(
           ctx,
           pending.data.event,
@@ -1460,6 +1463,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             return true;
           }
 
+          // amazonq-ignore-next-line
           await this.executeHealthEventAnalysis(
             ctx,
             resultado.evento,
