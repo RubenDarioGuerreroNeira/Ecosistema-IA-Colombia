@@ -16,7 +16,7 @@ import { PredictionService } from './prediction.service';
 import { SexualHealthService } from './sexual-health.service';
 import { ChartService } from './chart.service';
 import { MentalHealthService } from './mental-health.service';
-import { MentalHealthQuestionsService } from './mental-health-questions.service';
+import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { VaccinationService } from './vaccination.service';
 
 const mockGenkitService = {
@@ -282,7 +282,7 @@ describe('BotUpdate', () => {
     expect(mockAntioquiaHealthService.searchProviders).toHaveBeenCalled();
     const [queryArg] =
       mockAntioquiaHealthService.searchProviders.mock.calls[
-        mockAntioquiaHealthService.searchProviders.mock.calls.length - 1
+      mockAntioquiaHealthService.searchProviders.mock.calls.length - 1
       ];
     expect(queryArg.toLowerCase()).toContain('primitivo');
     expect(queryArg.toLowerCase()).toContain('iglesias');

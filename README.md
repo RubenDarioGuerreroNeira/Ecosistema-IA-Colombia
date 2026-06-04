@@ -20,10 +20,11 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 ## 🚀 Características Principales
 
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
+- **🔬 Módulo de Salud Pública Avanzado**: Procesamiento de lenguaje natural para consultas complejas sobre SIVIGILA (resúmenes nacionales, comparativas, brechas de género y ciclos de vida).
 - **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
 - **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
-- **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, donas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias de salud mental, calidad del aire y distribución de servicios sin salir de Telegram.
+- **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, líneas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias y distribuciones demográficas.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
 - **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
@@ -115,9 +116,22 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 - "Graficar eventos de salud pública", "Muéstrame las enfermedades más frecuentes en el país"
 - "Ver gráfico de eventos SIVIGILA", "Visualizar reporte de salud pública"
 - "Ver tendencia de tuberculosis" (Gráfico de líneas)
-- "Graficar sexo en casos de Dengue" (Gráfico de torta/género)
+- "Graficar sexo en casos de dengue" (Gráfico de torta/género)
 - "Ver zona de malaria" (Distribución urbana/rural)
-  **Vacunación**
+
+**Consultas de Inteligencia Epidemiológica (NLP)**
+
+- "Dame un resumen de salud pública"
+- "¿Qué enfermedad es más rural o urbana?"
+- "Comparar dengue vs zika"
+- "¿Qué enfermedad afecta más a los adolescentes?"
+- "Proporción global por sexo"
+- "Eventos con mayor brecha de género"
+- "¿Qué eventos son más frecuentes en adultos jóvenes?"
+- "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
+
+**Vacunación**
+
 - "Graficar vacunas en Antioquia" (Coberturas departamentales)
 
 ---

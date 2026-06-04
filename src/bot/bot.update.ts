@@ -20,7 +20,8 @@ import { ChartService } from './chart.service';
 import { VaccinationService } from './vaccination.service';
 import { normalizeString, sanitizeLogInput } from '../shared/health-utils';
 import { MentalHealthService } from './mental-health.service';
-import { MentalHealthQuestionsService } from './mental-health-questions.service';
+import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
+import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 
 @Update()
 export class BotUpdate {
@@ -46,7 +47,40 @@ export class BotUpdate {
     private readonly mentalHealthService: MentalHealthService,
     private readonly mentalHealthQuestionsService: MentalHealthQuestionsService,
     private readonly vaccinationService: VaccinationService,
-  ) {}
+    private readonly saludPublicaQuestionsService: SaludPublicaQuestionsService,
+  ) { }
+
+
+
+  // Manejador de PReguntas Salud Pública (resumen, comparaciones, eventos por grupo etario, etc.)
+  private async handleSaludPublicaQuestions(ctx: Context, text: string): Promise<boolean> {
+    const norm = normalizeString(text);
+
+    const isPublicHealthQuery =
+      norm.includes('salud publica') ||
+      norm.includes('qué info tienes de salud publica') ||
+      norm.includes('que info tienes de salud publica') ||
+      norm.includes('salud pública') ||
+      norm.includes('resumen') ||
+      norm.includes('rural') ||
+      norm.includes('urbana') ||
+      norm.includes('adolescentes') ||
+      norm.includes('mayores') ||
+      norm.includes('proporcion') ||
+      norm.includes('brecha') ||
+      norm.includes('sexo') ||
+      norm.includes('genero') ||
+      norm.includes('adultos jovenes');
+
+    if (!isPublicHealthQuery) return false;
+
+    const resultado = await this.saludPublicaQuestionsService.processPublicHealthQuery(text);
+    if (!resultado) return false;
+
+    await this.sendLongMessage(ctx, resultado);
+    return true;
+  }
+
 
   private async handleChartQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
@@ -178,6 +212,13 @@ export class BotUpdate {
     if (
       norm.includes('salud publica') ||
       norm.includes('eventos') ||
+      norm.includes('cuantos') ||
+      norm.includes('casos de enfermedades') ||
+      norm.includes('públicas') ||
+      norm.includes('publicas') ||
+      norm.includes('publica') ||
+      norm.includes('infecciosas') ||
+      norm.includes('enfermedades en zona rural') ||
       norm.includes('enfermedades')
     ) {
       console.log(`DEBUG: handleChartQuery - Matched Public Health Chart`);
@@ -398,6 +439,13 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 • Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
 • Eventos de Violencia: Violencia de género e intrafamiliar, agresiones por animales (rabia)
 • Otros: Desnutrición aguda, intento de suicidio, defectos congénitos, intoxicaciones, accidentes ofídicos
+• Dame un resumen de salud pública
+• ¿Qué enfermedad es más rural?
+• Comparar dengue vs zika
+• ¿Qué enfermedad afecta más a los adolescentes?
+• Proporción global por sexo
+• Eventos con mayor brecha de género
+• ¿Qué eventos son más frecuentes en adultos jóvenes?
 
 📍 **Búsqueda Geográfica y Logística:**
 - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
@@ -523,6 +571,200 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // NUEVO: Manejo de consultas avanzadas de salud pública
+  // ---------------------------------------------------------------------------
+  private async handleAdvancedPublicHealthQueries(
+    ctx: Context,
+    text: string,
+  ): Promise<boolean> {
+    const norm = normalizeString(text);
+
+    // 1. Resumen general
+    if (
+      norm.includes('resumen') ||
+      (norm.includes('estadisticas') && norm.includes('generales')) ||
+      (norm.includes('panorama') && norm.includes('general'))
+    ) {
+      const resumen = await this.saludPublicaService.obtenerResumenGeneral();
+      const topEventos = resumen.topEventos
+        .map((e, i) => `${i + 1}. ${e.nombre_del_evento}: ${e.total_de_eventos} casos`)
+        .join('\n');
+      const porCategoria = resumen.casosCategoria
+        .map(c => `- ${c.categoria}: ${c.casos} casos`)
+        .join('\n');
+      const respuesta = `📊 **Resumen de Salud Pública (Colombia)**
+      
+📈 **Total de eventos registrados:** ${resumen.totalEventos}
+👥 **Total de casos acumulados:** ${resumen.totalCasos}
+✅ **Eventos con cero casos:** ${resumen.eventosConCeroCasos}
+
+🏆 **Top 3 eventos con más casos:**
+${topEventos}
+
+📂 **Casos por categoría:**
+${porCategoria}`;
+      await ctx.reply(respuesta, { parse_mode: 'Markdown' });
+      return true;
+    }
+
+    // 2. Evento más rural o más urbano
+    if (norm.includes('mas rural') || norm.includes('mayor concentracion rural')) {
+      const evento = await this.saludPublicaService.eventoMasRural();
+      if (evento) {
+        const pct = ((evento.rural / evento.total_de_eventos) * 100).toFixed(1);
+        await ctx.reply(
+          `🌾 **Evento con mayor concentración rural:**\n\n` +
+          `**${evento.nombre_del_evento}**\n` +
+          `- Casos rurales: ${evento.rural}\n` +
+          `- Total casos: ${evento.total_de_eventos}\n` +
+          `- Porcentaje rural: ${pct}%`,
+          { parse_mode: 'Markdown' }
+        );
+      } else {
+        await ctx.reply('No se encontraron eventos para analizar.');
+      }
+      return true;
+    }
+
+    if (norm.includes('mas urbano') || norm.includes('mayor concentracion urbano')) {
+      const evento = await this.saludPublicaService.eventoMasUrbano();
+      if (evento) {
+        const pct = ((evento.urbano / evento.total_de_eventos) * 100).toFixed(1);
+        await ctx.reply(
+          `🏙️ **Evento con mayor concentración urbana:**\n\n` +
+          `**${evento.nombre_del_evento}**\n` +
+          `- Casos urbanos: ${evento.urbano}\n` +
+          `- Total casos: ${evento.total_de_eventos}\n` +
+          `- Porcentaje urbano: ${pct}%`,
+          { parse_mode: 'Markdown' }
+        );
+      } else {
+        await ctx.reply('No se encontraron eventos para analizar.');
+      }
+      return true;
+    }
+
+    // 3. Comparar dos eventos
+    if (norm.includes('comparar') && norm.includes(' vs ')) {
+      const parts = text.split(/\s+vs\s+/i);
+      if (parts.length === 2) {
+        const ev1 = parts[0].replace(/comparar\s*/i, '').trim();
+        const ev2 = parts[1].trim();
+        const comparacion = await this.saludPublicaService.compararEventos(ev1, ev2);
+        if (comparacion.eventoA && comparacion.eventoB) {
+          await ctx.reply(
+            `⚖️ **Comparación entre ${comparacion.eventoA.nombre_del_evento} y ${comparacion.eventoB.nombre_del_evento}**\n\n` +
+            `- ${comparacion.eventoA.nombre_del_evento}: ${comparacion.eventoA.total_de_eventos} casos\n` +
+            `- ${comparacion.eventoB.nombre_del_evento}: ${comparacion.eventoB.total_de_eventos} casos\n\n` +
+            `📊 ${comparacion.mensaje}`,
+            { parse_mode: 'Markdown' }
+          );
+        } else {
+          await ctx.reply(comparacion.mensaje);
+        }
+        return true;
+      }
+    }
+
+    // 4. Evento principal por grupo etario
+    const grupos = {
+      'adolescentes': 'adolescencia',
+      'adolescente': 'adolescencia',
+      'jovenes': 'juventud',
+      'joven': 'juventud',
+      'adultos jovenes': 'adulto_j_ven',
+      'adulto joven': 'adulto_j_ven',
+      'adultos mayores': 'adulto_mayor',
+      'adulto mayor': 'adulto_mayor',
+      'niños': 'infancia',
+      'niño': 'infancia',
+      'primera infancia': 'primera_infancia'
+    };
+    for (const [key, campo] of Object.entries(grupos)) {
+      if (norm.includes(key) && (norm.includes('afecta') || norm.includes('principal') || norm.includes('mas comun'))) {
+        const evento = await this.saludPublicaService.eventoPrincipalPorGrupoEtario(campo as any);
+        if (evento) {
+          const casos = evento[campo as keyof typeof evento] as number;
+          await ctx.reply(
+            `🧒 **Evento más frecuente en ${key}:**\n\n` +
+            `**${evento.nombre_del_evento}**\n` +
+            `- Casos en este grupo: ${casos}\n` +
+            `- Total de casos del evento: ${evento.total_de_eventos}`,
+            { parse_mode: 'Markdown' }
+          );
+        } else {
+          await ctx.reply(`No se encontraron eventos para el grupo ${key}.`);
+        }
+        return true;
+      }
+    }
+
+    // 5. Proporción global por sexo
+    if (norm.includes('proporcion') && norm.includes('sexo') && norm.includes('global')) {
+      const proporcion = await this.saludPublicaService.proporcionSexoGlobal();
+      await ctx.reply(
+        `👥 **Distribución global por sexo en salud pública**\n\n` +
+        `- Mujeres: ${proporcion.femenino} casos (${proporcion.pctFem.toFixed(1)}%)\n` +
+        `- Hombres: ${proporcion.masculino} casos (${proporcion.pctMasc.toFixed(1)}%)\n` +
+        `- Total: ${proporcion.total} casos`,
+        { parse_mode: 'Markdown' }
+      );
+      return true;
+    }
+
+    // 6. Eventos con mayor brecha de género
+    if (norm.includes('brecha') && norm.includes('genero')) {
+      const eventos = await this.saludPublicaService.eventosMayorBrechaSexo(5);
+      if (eventos.length > 0) {
+        let resp = '⚖️ **Eventos con mayor diferencia entre hombres y mujeres:**\n\n';
+        for (const e of eventos) {
+          const diff = Math.abs(e.femenino - e.masculino);
+          resp += `- **${e.nombre_del_evento}**: ${diff} casos de diferencia (M:${e.masculino} / F:${e.femenino})\n`;
+        }
+        await ctx.reply(resp, { parse_mode: 'Markdown' });
+      } else {
+        await ctx.reply('No se encontraron eventos con brecha de género significativa.');
+      }
+      return true;
+    }
+
+    // 7. Eventos más frecuentes en adultos jóvenes
+    if (norm.includes('adultos jovenes') && (norm.includes('frecuente') || norm.includes('afecta'))) {
+      const eventos = await this.saludPublicaService.eventosMasAdultosJovenes(5);
+      if (eventos.length > 0) {
+        let resp = '🧑 **Eventos más frecuentes en adultos jóvenes (20-49 años):**\n\n';
+        for (const e of eventos) {
+          resp += `- **${e.nombre_del_evento}**: ${e.adulto_j_ven} casos\n`;
+        }
+        await ctx.reply(resp, { parse_mode: 'Markdown' });
+      } else {
+        await ctx.reply('No se encontraron eventos significativos para este grupo.');
+      }
+      return true;
+    }
+
+    // 8. Eventos más frecuentes en adultos mayores
+    if (norm.includes('adultos mayores') && (norm.includes('frecuente') || norm.includes('afecta'))) {
+      const eventos = await this.saludPublicaService.eventosMasAdultosMayores(5);
+      if (eventos.length > 0) {
+        let resp = '👴 **Eventos más frecuentes en adultos mayores (50+ años):**\n\n';
+        for (const e of eventos) {
+          resp += `- **${e.nombre_del_evento}**: ${e.adulto_mayor} casos\n`;
+        }
+        await ctx.reply(resp, { parse_mode: 'Markdown' });
+      } else {
+        await ctx.reply('No se encontraron eventos significativos para este grupo.');
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // onText (modificado para incluir el nuevo manejador)
+  // ---------------------------------------------------------------------------
   @On('text')
   async onText(@Ctx() ctx: Context) {
     if (!ctx.message || !('text' in ctx.message)) return;
@@ -532,33 +774,40 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     // Detectar región para posibles análisis posteriores
     const detectedRegion = this.detectRegion(messageText);
 
-    // PRIORIDAD 0: Continuidad de la conversación
-    // Si hay un proceso pendiente (como esperar el municipio para SPA), lo resolvemos primero.
-    if (
-      await this.handleConversationContinuity(ctx, messageText, detectedRegion)
-    )
-      return;
+    // Continuidad de conversación
+    if (await this.handleConversationContinuity(ctx, messageText, detectedRegion)) return;
 
-    // Flujo de prioridades
-    // 1. PRIORIDAD ABSOLUTA: Consultas de Datos Estructurales (Conteos y Listas)
-    // Se ejecuta primero porque handleProviderSearch a veces intercepta estas consultas erróneamente
-    if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion))
-      return;
+    // PRIORIDAD 1: Datos estructurales (conteos, listas)
+    if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
 
-    if (await this.handleChartQuery(ctx, messageText)) return;
-    if (await this.handleGreeting(ctx, messageText)) return;
-
-    // PRIORIDAD: SALUD MENTAL (antes de statsService para evitar bypass incorrecto)
+    // PRIORIDAD 2: Salud mental (incluye perfil de riesgo, diagnósticos)
     if (await this.handleMentalHealthQuery(ctx, messageText)) return;
 
-    if (await this.handleProviderSearch(ctx, messageText, detectedRegion))
-      return;
-    if (await this.handleYopalQuery(ctx, messageText)) return;
-    if (await this.handlePrediction(ctx, messageText)) return;
-    if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion))
-      return;
+    // PRIORIDAD 2.5: Consultas de salud pública vía servicio especializado
+    if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
 
-    // ESTADÍSTICAS Y COMPARATIVAS (StatsService)
+    // PRIORIDAD 3: Consultas avanzadas de salud pública (resumen, comparaciones, etc.)
+    if (await this.handleAdvancedPublicHealthQueries(ctx, messageText)) return;
+
+    // PRIORIDAD 4: Gráficos
+    if (await this.handleChartQuery(ctx, messageText)) return;
+
+    // PRIORIDAD 5: Saludos
+    if (await this.handleGreeting(ctx, messageText)) return;
+
+    // PRIORIDAD 6: Búsqueda de prestadores
+    if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
+
+    // PRIORIDAD 7: Yopal específico
+    if (await this.handleYopalQuery(ctx, messageText)) return;
+
+    // PRIORIDAD 8: Predicciones
+    if (await this.handlePrediction(ctx, messageText)) return;
+
+    // PRIORIDAD 9: Calidad del aire
+    if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
+
+    // PRIORIDAD 10: Estadísticas generales (StatsService)
     const contextData = await this.statsService.getSummary(messageText);
     const bypassMarkers = [
       '--- ANÁLISIS',
@@ -568,24 +817,22 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
       '--- SALUD MENTAL',
       '--- PERFIL DE RIESGO',
       '--- COMPARATIVA SIVIGILA',
-      'En el grupo de',
-      'La enfermedad de salud mental que más afecta',
     ];
-
-    if (
-      contextData &&
-      bypassMarkers.some((marker) => contextData.includes(marker))
-    ) {
+    if (contextData && bypassMarkers.some(marker => contextData.includes(marker))) {
       await this.sendLongMessage(ctx, contextData);
       return;
     }
 
-    // ANÁLISIS DE RIESGO E INCIDENCIA DETALLADA
+    // PRIORIDAD 11: Salud sexual
     if (await this.handleSexualHealthQuery(ctx, messageText)) return;
+
+    // PRIORIDAD 12: Análisis de riesgo específico
     if (await this.handleRiskAnalysis(ctx, messageText, detectedRegion)) return;
+
+    // PRIORIDAD 13: Salud pública (eventos por nombre)
     if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
-    // MANEJO GENERAL (IA con contexto)
+    // PRIORIDAD 14: IA general
     await this.handleGeneralQuery(ctx, messageText, contextData);
   }
 
@@ -726,9 +973,9 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
       await ctx.reply(
         '❓ No detecté de qué patología deseas conocer el perfil de riesgo.\n\n' +
-          'Por favor, especifica la enfermedad. Aquí tienes las áreas que manejo:\n\n' +
-          list +
-          '\n\n**Ejemplo:** "¿Cuál es el perfil de riesgo de depresión?" o "Riesgo de dengue"',
+        'Por favor, especifica la enfermedad. Aquí tienes las áreas que manejo:\n\n' +
+        list +
+        '\n\n**Ejemplo:** "¿Cuál es el perfil de riesgo de depresión?" o "Riesgo de dengue"',
         { parse_mode: 'Markdown' },
       );
       return true;
@@ -899,9 +1146,9 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
       if (stats) {
         await ctx.reply(
           `🧠 **${stats.diagnostico_ingreso}**\n\n` +
-            `📊 **Total:** ${stats.total} casos\n` +
-            `🆔 **Código:** ${stats.codigo_dx_ingreso}\n` +
-            `📅 **Año:** ${stats.a_o_diagn_stico}`,
+          `📊 **Total:** ${stats.total} casos\n` +
+          `🆔 **Código:** ${stats.codigo_dx_ingreso}\n` +
+          `📅 **Año:** ${stats.a_o_diagn_stico}`,
           { parse_mode: 'Markdown' },
         );
         return true;
@@ -1580,8 +1827,8 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     const sanitizedQuery = sanitizeLogInput(query);
     console.log(
       `DEBUG: searchProvidersAcrossServices - Cali=${caliMatches.length}, CaliSearch=${caliSearchMatches.length}, ` +
-        `BoyacaId=${boyacaMatches.length}, BoyacaSearch=${boyacaSearchMatches.length}, ` +
-        `Antioquia=${antioquiaMatches.length}, YopalId=${yopalMatches.length}, YopalSearch=${yopalSearchMatches.length}`,
+      `BoyacaId=${boyacaMatches.length}, BoyacaSearch=${boyacaSearchMatches.length}, ` +
+      `Antioquia=${antioquiaMatches.length}, YopalId=${yopalMatches.length}, YopalSearch=${yopalSearchMatches.length}`,
     );
 
     const pushUnique = (
@@ -1996,6 +2243,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     }
     return false;
   }
+
   private async handleAirQualityQuery(
     ctx: Context,
     text: string,
