@@ -59,11 +59,17 @@ export class SaludAnaliticaService {
         );
 
       if (nationalResult) {
-        const vacMsg = await this.analizarVacunacion(nombreEvento, departamento);
-        let finalMsg = `${nationalResult}\n\n--- ANÁLISIS DE RIESGO ---\n${vacMsg}`;
+        const vacMsg = await this.analizarVacunacion(
+          nombreEvento,
+          departamento,
+        );
+        let finalMsg = nationalResult;
 
-        if (vacMsg.includes('🚨')) {
-          finalMsg += `\n\n🛡️ **ACCIÓN PREVENTIVA SUGERIDA:**\nDebido a la incidencia registrada y/o baja cobertura en ${departamento}, se recomienda reforzar los esquemas de vacunación y extremar medidas de autocuidado.`;
+        if (vacMsg) {
+          finalMsg += `\n\n--- ANÁLISIS DE RIESGO ---\n${vacMsg}`;
+          if (vacMsg.includes('🚨')) {
+            finalMsg += `\n\n🛡️ **ACCIÓN PREVENTIVA SUGERIDA:**\nDebido a la incidencia registrada y/o baja cobertura en ${departamento}, se recomienda reforzar los esquemas de vacunación y extremar medidas de autocuidado.`;
+          }
         }
         return finalMsg;
       }
@@ -98,8 +104,24 @@ export class SaludAnaliticaService {
 
     let alerta = `--- ANÁLISIS DE RIESGO: ${e.nombre_del_evento} ---\n`;
 
+    const normalizedEvento = nombreEvento
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    const entry = Object.entries(this.MAPEO_EVENTO_VACUNA).find(
+      ([key]) =>
+        key
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase() === normalizedEvento,
+    );
+    const isVaccinePreventable = !!entry;
+
     if (esReferencia) {
-      alerta += `📍 *Nota:* Los casos estadísticos corresponden a Antioquia (región de referencia), comparados con la vacunación local en ${departamento}.\n\n`;
+      const context = isVaccinePreventable
+        ? ', comparados con la vacunación local'
+        : '';
+      alerta += `📍 *Nota:* Los casos estadísticos corresponden a Antioquia (región de referencia)${context} en ${departamento}.\n\n`;
     }
 
     const indicadores: string[] = [];
@@ -110,8 +132,10 @@ export class SaludAnaliticaService {
     const cicloMsg = this.analizarCicloDeVida(e, total);
     if (cicloMsg) indicadores.push(cicloMsg);
 
-    const vacMsg = await this.analizarVacunacion(nombreEvento, departamento);
-    indicadores.push(vacMsg);
+    const vacMsg = isVaccinePreventable
+      ? await this.analizarVacunacion(nombreEvento, departamento)
+      : null;
+    if (vacMsg) indicadores.push(vacMsg);
 
     if (indicadores.length > 0) {
       alerta += indicadores.join('\n');
@@ -119,8 +143,10 @@ export class SaludAnaliticaService {
       alerta += '✅ Los indicadores actuales no muestran alertas críticas.';
     }
 
-    if (indicadores.some((i) => i.includes('🚨'))) {
+    if (isVaccinePreventable && indicadores.some((i) => i.includes('🚨'))) {
       alerta += `\n\n🛡️ **ACCIÓN PREVENTIVA SUGERIDA:**\nDebido a la incidencia registrada y/o baja cobertura en ${departamento}, se recomienda reforzar los esquemas de vacunación y extremar medidas de autocuidado.`;
+    } else if (indicadores.some((i) => i.includes('🚨'))) {
+      alerta += `\n\n🛡️ **RECOMENDACIÓN:**\nSe ha detectado una situación de riesgo para **${nombreEvento.toUpperCase()}** en ${departamento}. Se recomienda fortalecer los programas de prevención y seguimiento institucional.`;
     }
 
     return alerta;
@@ -148,14 +174,26 @@ export class SaludAnaliticaService {
   private async analizarVacunacion(
     nombreEvento: string,
     departamento: string,
-  ): Promise<string> {
+  ): Promise<string | null> {
     try {
+      const lowerEvento = nombreEvento
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+      const entry = Object.entries(this.MAPEO_EVENTO_VACUNA).find(
+        ([key]) =>
+          key
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase() === lowerEvento,
+      );
+
+      const terminoBusqueda = entry ? entry[1] : null;
+      if (!terminoBusqueda) return null;
+
       const coberturas =
         await this.vaccinationService.getCoverageByDepartment(departamento);
-
-      const terminoBusqueda =
-        this.MAPEO_EVENTO_VACUNA[nombreEvento.toLowerCase()] ||
-        nombreEvento.toLowerCase();
 
       const coberturaRelevante = coberturas.find((c) =>
         c.biol_gico.toLowerCase().includes(terminoBusqueda),
@@ -163,7 +201,7 @@ export class SaludAnaliticaService {
 
       if (coberturaRelevante) {
         const rawVal = parseFloat(coberturaRelevante.cobertura_de_vacunaci_n);
-        
+
         /**
          * NOTA: Se asume que valores <= 1 son proporciones (0.0–1.0) y > 1 son porcentajes directos.
          * Esta es una asunción basada en la variabilidad de la fuente de datos.
@@ -180,12 +218,13 @@ export class SaludAnaliticaService {
           return `✅ Cobertura de vacunación registrada en ${departamento} (${textoCobertura}).`;
         }
       } else {
-        return 'ℹ️ No hay datos de vacunación específicos para este evento.';
+        return null;
       }
     } catch (error) {
-      this.logger.warn(`Error al consultar vacunación para ${departamento}: ${error.message}`);
+      this.logger.warn(
+        `Error al consultar vacunación para ${departamento}: ${error.message}`,
+      );
       return 'ℹ️ No se pudieron consultar datos de vacunación actuales.';
     }
   }
 }
-

@@ -110,6 +110,15 @@ sequenceDiagram
         Chart-->>Bot: URL imagen
         Bot->>Telegram: replyWithPhoto(URL)
 
+    alt Búsqueda por proximidad (cerca de mí)
+        Bot->>Telegram: reply with keyboard (request_location)
+        Telegram->>User: show location button
+        User->>Telegram: sends location
+        Telegram->>Bot: On('location') webhook
+        Bot->>YopalService: YopalHealthService.findNearby(lat,lon,radius)
+        YopalService-->>Bot: nearby providers
+        Bot->>Telegram: reply with providers list
+
     alt Análisis de Riesgo
         Bot->>Genkit: Prompt con contexto RAG
         Genkit-->>Bot: Predicción riesgo

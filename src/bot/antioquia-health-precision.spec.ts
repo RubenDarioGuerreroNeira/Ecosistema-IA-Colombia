@@ -30,6 +30,16 @@ describe('AntioquiaHealthService Precision', () => {
       expect(matchesAbejorral).toBe(true);
     });
   });
+  it('should not fallback to all municipio results when provider name does not match', () => {
+    const municipioResults = service.searchProviders('medellin', 50);
+    expect(municipioResults.length).toBeGreaterThan(0);
+
+    const strictQueryResults = service.searchProviders(
+      'hospital inexistentezz medellin',
+      50,
+    );
+    expect(strictQueryResults).toEqual([]);
+  });
 
   it('should not return everything when "antioquia" is present', () => {
     const allCount = service['providers'].length;

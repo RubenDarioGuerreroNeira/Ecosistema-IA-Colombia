@@ -637,11 +637,34 @@ export class YopalHealthService implements OnModuleInit {
       const result = await parser.parseStringPromise(xmlData);
       const rawRows = result.response?.rows?.row;
 
-      this.providers = Array.isArray(rawRows)
-        ? rawRows
-        : rawRows
-          ? [rawRows]
-          : [];
+      const rows = Array.isArray(rawRows) ? rawRows : rawRows ? [rawRows] : [];
+
+      // Corregir errores de codificación comunes en datos abiertos de Socrata
+      this.providers = rows.map((p) => {
+        const cleaned: any = {};
+        Object.keys(p).forEach((key) => {
+          let val = p[key];
+          if (typeof val === 'string') {
+            val = val
+              .replace(/Ã‘/g, 'Ñ')
+              .replace(/Ã±/g, 'ñ')
+              .replace(/Ã“/g, 'Ó')
+              .replace(/Ã³/g, 'ó')
+              .replace(/Ã/g, 'Í')
+              .replace(/Ã­/g, 'í')
+              .replace(/Ã‰/g, 'É')
+              .replace(/Ã©/g, 'é')
+              .replace(/Ãš/g, 'Ú')
+              .replace(/Ãº/g, 'ú')
+              .replace(/Ã/g, 'Á')
+              .replace(/Ã¡/g, 'á')
+              .replace(/Â°/g, '°')
+              .replace(/NÂº/g, 'N°');
+          }
+          cleaned[key] = val;
+        });
+        return cleaned;
+      });
       this.logger.log(
         `Loaded ${this.providers.length} providers from Yopal XML.`,
       );

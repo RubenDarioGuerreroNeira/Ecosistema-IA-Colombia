@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SaludAnaliticaService } from './salud-analitica.service';
 import { SaludPublicaService } from './salud-publica.service';
 import { HealthEvent } from './types/health-event.interface';
+import { VaccinationService } from './vaccination.service';
+import { NationalHealthService } from './national-health.service';
 
 describe('SaludAnaliticaService', () => {
   let service: SaludAnaliticaService;
@@ -22,6 +24,15 @@ describe('SaludAnaliticaService', () => {
     masculino: 50,
   };
 
+  const mockVaccinationService = {
+    getCoverageByDepartment: jest.fn().mockResolvedValue([]),
+  };
+
+  const mockNationalHealthService = {
+    getFormattedAnalysis: jest.fn().mockResolvedValue(null),
+    getCasesByEvent: jest.fn().mockResolvedValue(0),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -31,6 +42,14 @@ describe('SaludAnaliticaService', () => {
           useValue: {
             buscarEventosAmbigua: jest.fn().mockReturnValue([mockEvent]),
           },
+        },
+        {
+          provide: VaccinationService,
+          useValue: mockVaccinationService,
+        },
+        {
+          provide: NationalHealthService,
+          useValue: mockNationalHealthService,
         },
       ],
     }).compile();
@@ -43,19 +62,19 @@ describe('SaludAnaliticaService', () => {
     expect(service).toBeDefined();
   });
 
-  it('debería retornar mensaje de error si no se encuentra el evento', () => {
-    jest.spyOn(saludPublicaService, 'buscarEventosAmbigua').mockReturnValue([]);
-    const result = service.analizarRiesgoEvento('DESCONOCIDO');
-    expect(result).toContain('⚠️ No tengo suficientes datos');
+  it('debería retornar mensaje de error si no se encuentra el evento', async () => {
+    (saludPublicaService.buscarEventosAmbigua as jest.Mock).mockResolvedValue([]);
+    const result = await service.analizarRiesgoEvento('DESCONOCIDO');
+    expect(result).toContain('⚠️ No tengo registros de casos');
   });
 
-  it('debería detectar alta incidencia RURAL', () => {
-    const result = service.analizarRiesgoEvento('DENGUE');
+  it('debería detectar alta incidencia RURAL', async () => {
+    const result = await service.analizarRiesgoEvento('DENGUE');
     expect(result).toContain('🚨 Alta concentración en zona RURAL');
   });
 
-  it('debería detectar alta incidencia INFANTIL', () => {
-    const result = service.analizarRiesgoEvento('DENGUE');
+  it('debería detectar alta incidencia INFANTIL', async () => {
+    const result = await service.analizarRiesgoEvento('DENGUE');
     expect(result).toContain('🚨 Alta incidencia en población INFANTIL');
   });
 });

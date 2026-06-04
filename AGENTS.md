@@ -38,6 +38,7 @@ The application follows a modular NestJS architecture:
     *   **`bot/`**: Encapsulates all Telegram bot-specific logic.
         *   **`bot.module.ts`**: The module for the bot's features.
         *   **`bot.update.ts`**: The primary handler for incoming Telegram messages, decorated with `@Update()`, `@Start()`, `@Help()`, and `@On('text')`. It dispatches user queries to specialized services.
+        *   **Geolocalización (cerca de mí):** `bot.update.ts` detecta consultas de proximidad, solicita la ubicación mediante teclado (`request_location`) y procesa mensajes `@On('location')` para buscar prestadores cercanos (ej: `YopalHealthService.findNearby`).
         *   **`*.service.ts`**: Numerous services handle specific health data domains (e.g., `cali-health.service.ts`, `boyaca-health.service.ts`, `salud-publica.service.ts`, `sexual-health.service.ts`, `vaccination.service.ts`, `mental-health.service.ts`). These services contain the business logic for processing and responding to specific types of health-related queries.
         *   **`genkit.service.ts`**: Responsible for integrating with AI/LLM capabilities (likely through OpenRouter).
         *   **`user.service.ts`**: Manages user-specific data, such as tracking whether a user has been greeted.

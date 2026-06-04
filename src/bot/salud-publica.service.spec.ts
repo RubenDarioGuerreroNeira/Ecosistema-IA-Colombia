@@ -10,8 +10,11 @@ describe('SaludPublicaService', () => {
     }).compile();
 
     service = module.get<SaludPublicaService>(SaludPublicaService);
-    // Esperar a que los datos se carguen, ya que loadData es asíncrono
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Esperar de forma activa y robusta a que los datos se carguen, ya que loadData es asíncrono
+    for (let i = 0; i < 20; i++) {
+      if (service.listarEventos().length > 0) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   });
 
   it('should be defined', () => {

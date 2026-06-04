@@ -3,6 +3,7 @@ import { SaludPublicaService } from './salud-publica.service';
 import { HealthDataService } from './health-data.service';
 import { SexualHealthService } from './sexual-health.service';
 import { MentalHealthService } from './mental-health.service';
+import { MentalHealthQuestionsService } from './mental-health-questions.service';
 import { AntioquiaHealthService } from './antioquia-health.service';
 import { BoyacaHealthService } from './boyaca-health.service';
 import { YopalHealthService } from './yopal-health.service';
@@ -23,6 +24,7 @@ import { PredictionService } from './prediction.service';
     HealthDataService,
     SexualHealthService,
     MentalHealthService,
+    MentalHealthQuestionsService,
     AntioquiaHealthService,
     BoyacaHealthService,
     YopalHealthService,
@@ -38,6 +40,7 @@ import { PredictionService } from './prediction.service';
     HealthDataService,
     SexualHealthService,
     MentalHealthService,
+    MentalHealthQuestionsService,
     AntioquiaHealthService,
     BoyacaHealthService,
     YopalHealthService,

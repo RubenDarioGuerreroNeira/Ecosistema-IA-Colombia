@@ -33,4 +33,19 @@ describe('MentalHealthService', () => {
     );
     expect(profile).toBeNull();
   });
+
+  it('should normalize accents and match diagnoses correctly', async () => {
+    const profile = await service.getRiskProfileByDiagnosis('depresión');
+    expect(profile).not.toBeNull();
+    expect(profile?.diagnostico.toLowerCase()).toContain('depres');
+  });
+
+  it('should match diagnoses even when the original name contains punctuation', async () => {
+    const profile = await service.getRiskProfileByDiagnosis(
+      'esquizofrenia no especificada',
+    );
+    expect(profile).not.toBeNull();
+    expect(profile?.diagnostico.toLowerCase()).toContain('esquizofrenia');
+    expect(profile?.diagnostico.toLowerCase()).toContain('no especificada');
+  });
 });

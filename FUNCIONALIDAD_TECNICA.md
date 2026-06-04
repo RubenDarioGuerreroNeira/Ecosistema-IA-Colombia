@@ -26,6 +26,26 @@ graph TD
     Analytics --> Data["XML Datos (SIVIGILA)"]
 ```
 
+## Geolocalización (Búsqueda por proximidad)
+
+Se implementó un flujo de proximidad que detecta consultas tipo "cerca de mí" y solicita la ubicación al usuario mediante un teclado con `request_location: true`. El estado de conversación utiliza la clave `provider_search_location` en `userState` para continuar el flujo cuando se recibe la ubicación.
+
+- Funciones clave:
+    - `isNearbyLocationQuery(text: string): boolean` — detecta frases de proximidad.
+    - `requestLocationForNearbyProviders(ctx, userId?)` — envía un teclado de Telegram que solicita ubicación.
+    - `@On('location') onLocation(ctx)` — maneja la ubicación recibida y llama a `YopalHealthService.findNearby(lat, lon, radiusKm)`.
+
+```mermaid
+graph TD
+    User((Usuario Telegram)) --> Bot[BotUpdate.onText]
+    Bot -->|Detecta 'cerca de mí'| Request[Request location (keyboard)]
+    Request --> User
+    User -->|Envía ubicación| Bot_OnLocation[Bot @On('location')]
+    Bot_OnLocation --> Yopal[YopalHealthService.findNearby]
+    Yopal --> Bot_OnLocation
+    Bot_OnLocation --> Reply[Bot reply con prestadores]
+```
+
 ## Métodos Clave
 
 1. **`procesarPregunta(texto)`**: Router de intenciones que clasifica la consulta y delega al análisis correspondiente o al fallback/ambigüedad.

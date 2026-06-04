@@ -132,6 +132,21 @@ export class AntioquiaHealthService implements OnModuleInit {
     const safeLimit = Math.min(Math.max(1, limit), 500);
     const rawTokens = this.getSignificantTokens(query);
     if (rawTokens.length === 0) return [];
+    const genericProviderTerms = new Set([
+      'hospital',
+      'clinica',
+      'centro',
+      'salud',
+      'prestador',
+      'servicio',
+      'sede',
+      'ips',
+      'eps',
+      'urgencia',
+      'urgencias',
+      'medico',
+      'medica',
+    ]);
 
     // Improve token matching for health terms (stemming-like behavior for common plurals)
     const tokens = rawTokens.map(t => {
@@ -158,6 +173,12 @@ export class AntioquiaHealthService implements OnModuleInit {
             otherTokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
           );
           if (filtered.length > 0) return filtered.slice(0, safeLimit);
+          // Strict matching: if the user provided specific name-like terms,
+          // never fallback to returning the full municipality list.
+          const hasSpecificTerms = otherTokens.some(
+            tok => !genericProviderTerms.has(tok),
+          );
+          if (hasSpecificTerms) return [];
         }
         return municipioResults.slice(0, safeLimit);
       }

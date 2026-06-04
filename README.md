@@ -25,6 +25,8 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, donas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias de salud mental, calidad del aire y distribución de servicios sin salir de Telegram.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
+- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
+- **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
 - **📈 Análisis Epidemiológico Avanzado**:
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
@@ -36,22 +38,31 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 
 ```mermaid
 graph TD
-    User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
-    Bot --> Greeting[handleGreeting]
-    Bot --> Charts[ChartService - QuickChart]
-    Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
-    Bot --> AirData[AirQualityService - API Calidad Aire]
+  User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
+  Bot --> Greeting[handleGreeting]
+  Bot --> Charts[ChartService - QuickChart]
+  Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
+  Bot --> AirData[AirQualityService - API Calidad Aire]
+  Bot --> LocationFlow[Geolocalización]
 
-    Charts --> Responder[Bot Reply Photo]
-    HealthData --> Analysis[SaludAnaliticaService]
-    AirData --> Analysis
+  %% Nearby flow
+  LocationFlow --> RequestLoc[Enviar teclado request_location]
+  RequestLoc --> User
+  User -->|Ubicación (location)| Bot
+  Bot --> YopalService[YopalHealthService.findNearby]
+  YopalService --> Bot
 
-    Analysis --> Responder[Bot Reply Text]
+  Charts --> Responder[Bot Reply Photo]
+  HealthData --> Analysis[SaludAnaliticaService]
+  AirData --> Analysis
 
-    style HealthData fill:#f9f,stroke:#333,stroke-width:2px
-    style AirData fill:#ccf,stroke:#333,stroke-width:2px
-    style Analysis fill:#ff9,stroke:#333,stroke-width:2px
-    style Charts fill:#9f9,stroke:#333,stroke-width:2px
+  Analysis --> Responder[Bot Reply Text]
+
+  style HealthData fill:#f9f,stroke:#333,stroke-width:2px
+  style AirData fill:#ccf,stroke:#333,stroke-width:2px
+  style Analysis fill:#ff9,stroke:#333,stroke-width:2px
+  style Charts fill:#9f9,stroke:#333,stroke-width:2px
+  style LocationFlow fill:#ffdca8,stroke:#333,stroke-width:1px
 ```
 
 ---

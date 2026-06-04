@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { XMLParser } from 'fast-xml-parser';
+import { normalizeString } from '../shared/health-utils';
 
 export interface MentalHealthEvent {
   diagnostico_ingreso: string;
@@ -87,22 +88,77 @@ export class MentalHealthService {
   }
 
   async getStatsForDiagnosis(query: string): Promise<MentalHealthEvent | null> {
-    const queryLower = query.toLowerCase().trim();
+    const normalizedQuery = normalizeString(query);
+
     // Priorizar coincidencia exacta
-    const exactMatch = this.events.find(
-      (e) =>
-        e.diagnostico_ingreso.toLowerCase() === queryLower ||
-        e.codigo_dx_ingreso.toLowerCase() === queryLower,
-    );
+    const exactMatch = this.events.find((e) => {
+      const normalizedDiag = normalizeString(e.diagnostico_ingreso);
+      const normalizedCode = normalizeString(e.codigo_dx_ingreso);
+      return (
+        normalizedDiag === normalizedQuery || normalizedCode === normalizedQuery
+      );
+    });
     if (exactMatch) return exactMatch;
 
-    // Si no hay exacta, buscar por inclusión pero asegurando que sea relevante
-    const event = this.events.find(
-      (e) =>
-        e.diagnostico_ingreso.toLowerCase().includes(queryLower) ||
-        e.codigo_dx_ingreso.toLowerCase().includes(queryLower),
+    const foundByText = await this.findDiagnosisInText(query);
+    if (foundByText) return foundByText;
+
+    // Si no hay exacta, buscar por inclusión en ambos sentidos.
+    // Esto permite que una pregunta completa contenga el nombre del diagnóstico.
+    const sortedEvents = [...this.events].sort(
+      (a, b) =>
+        normalizeString(b.diagnostico_ingreso).length -
+        normalizeString(a.diagnostico_ingreso).length,
     );
+
+    const event = sortedEvents.find((e) => {
+      const normalizedDiag = normalizeString(e.diagnostico_ingreso);
+      const normalizedCode = normalizeString(e.codigo_dx_ingreso);
+      return (
+        normalizedDiag.includes(normalizedQuery) ||
+        normalizedCode.includes(normalizedQuery) ||
+        normalizedQuery.includes(normalizedDiag) ||
+        normalizedQuery.includes(normalizedCode)
+      );
+    });
     return event || null;
+  }
+
+  async findDiagnosisInText(text: string): Promise<MentalHealthEvent | null> {
+    const normalizedQuery = normalizeString(text);
+    if (!normalizedQuery) return null;
+
+    type Candidate = { event: MentalHealthEvent; score: number };
+    const queryTokens = normalizedQuery.split(' ').filter(Boolean);
+
+    const candidates: Candidate[] = this.events
+      .map((event) => {
+        const normalizedDiag = normalizeString(event.diagnostico_ingreso);
+        const normalizedCode = normalizeString(event.codigo_dx_ingreso);
+        let score = 0;
+
+        if (!normalizedDiag) return { event, score: 0 };
+        if (normalizedQuery === normalizedDiag) score += 2000;
+        if (normalizedQuery.includes(normalizedDiag)) score += 1500;
+        if (normalizedDiag.includes(normalizedQuery)) score += 1400;
+        if (
+          normalizedQuery.includes(normalizedCode) ||
+          normalizedCode.includes(normalizedQuery)
+        )
+          score += 1200;
+
+        const diagTokens = normalizedDiag.split(' ').filter(Boolean);
+        const matchedTokens = diagTokens.filter((token) =>
+          queryTokens.includes(token),
+        );
+        score += matchedTokens.length * 10;
+
+        return { event, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    return candidates.length ? candidates[0].event : null;
   }
 
   async getAllDiagnoses(): Promise<string[]> {
@@ -113,12 +169,17 @@ export class MentalHealthService {
    * Busca todos los diagnósticos que coincidan con el término
    */
   async searchDiagnoses(query: string): Promise<MentalHealthEvent[]> {
-    const queryLower = query.toLowerCase();
-    return this.events.filter(
-      (e) =>
-        e.diagnostico_ingreso.toLowerCase().includes(queryLower) ||
-        e.codigo_dx_ingreso.toLowerCase().includes(queryLower),
-    );
+    const normalizedQuery = normalizeString(query);
+    return this.events.filter((e) => {
+      const normalizedDiag = normalizeString(e.diagnostico_ingreso);
+      const normalizedCode = normalizeString(e.codigo_dx_ingreso);
+      return (
+        normalizedDiag.includes(normalizedQuery) ||
+        normalizedCode.includes(normalizedQuery) ||
+        normalizedQuery.includes(normalizedDiag) ||
+        normalizedQuery.includes(normalizedCode)
+      );
+    });
   }
 
   /**

@@ -544,23 +544,38 @@ ${d1.total > d2.total ? `📈 El primer diagnóstico (${d1.diagnostico_ingreso})
    * Reúne la capacidad total de conocimiento basada en los archivos XML cargados.
    */
   private async getGlobalCapabilities(): Promise<string> {
-    const health = await this.healthStatsService.getHealthKnowledgeSummary();
-    const sexual =
-      await this.sexualHealthStatsService.getSexualHealthCoverage();
-    const mental =
-      await this.mentalHealthStatsService.getMentalHealthKnowledgeSummary();
-    
-    // Resumen de regiones cubiertas
     const regionsSummary = `
+📍 **Regiones con Cobertura Detallada:**
 - Antioquia (incluyendo Valle de Aburrá)
 - Boyacá (todos los municipios)
 - Cali
 - Yopal (Casanare)`;
 
-    return `Soy un Asistente de IA especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales cargados en mi sistema. Actualmente tengo información de centros de salud, hospitales y clínicas en las siguientes regiones:\n${regionsSummary}\n\n${health}${sexual}${mental}\n\n--- NUEVAS CAPACIDADES ---
-📈 **Visualización Gráfica**: Genero gráficos dinámicos (barras, tortas) sobre servicios de salud, salud mental y calidad del aire.
-🍃 **Indicadores Ambientales**: Consultas de calidad del aire por municipio.
-🔮 **Análisis Predictivo**: Proyecciones de riesgo para eventos de salud pública.
+    return `Soy **Salud IA**, tu asistente especializado en Salud Pública para Colombia. Mi conocimiento se basa en datos oficiales (SIVIGILA) y registros locales de infraestructura.
+
+${regionsSummary}
+
+✨ **¿Qué preguntas soy capaz de responder?**
+Estoy diseñado para responder a consultas de alta precisión basadas en datos reales:
+
+📍 **Búsqueda Geográfica:**
+- "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
+- "Lista de municipios de Boyacá con centros de salud."
+
+📊 **Estadísticas SIVIGILA:**
+- "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
+- "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
+
+🛡️ **Riesgo y Vacunación:**
+- "Analizar riesgo de sarampión en Antioquia"
+- "¿Cuál es la cobertura de vacunación de BCG en Santander?"
+
+🧠 **Salud Mental y Sexual:**
+- "¿Cuál es el diagnóstico de salud mental más común en niños?"
+- "¿Qué derechos tengo para la prevención del VIH?"
+
+🍃 **Indicadores Ambientales:**
+- "¿Cómo está la calidad del aire hoy en Cali?"
 
 ¿Sobre cuál de estos temas o regiones te gustaría profundizar hoy?`;
   }
