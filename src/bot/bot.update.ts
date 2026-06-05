@@ -22,6 +22,7 @@ import { normalizeString, sanitizeLogInput } from '../shared/health-utils';
 import { MentalHealthService } from './mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
+import { YopalQuestionsService } from './questions/yopal-questions.service';
 
 @Update()
 export class BotUpdate {
@@ -48,6 +49,7 @@ export class BotUpdate {
     private readonly mentalHealthQuestionsService: MentalHealthQuestionsService,
     private readonly vaccinationService: VaccinationService,
     private readonly saludPublicaQuestionsService: SaludPublicaQuestionsService,
+    private readonly yopalQuestionsService: YopalQuestionsService,
   ) { }
 
 
@@ -1523,32 +1525,165 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     return false;
   }
 
+  // private async handleYopalQuery(ctx: Context, text: string): Promise<boolean> {
+  //   const norm = normalizeString(text);
+  //   const cleanQuery = norm.replace(/\s+/g, '').replace(/k/g, 'c');
+
+  //   const isYopalQuery =
+  //     norm.includes('yopal') ||
+  //     ['qué información tienes de yopal', 'manejas datos de yopal', 'qué inf tienes de yopal', 'sabes alguna información de yopal', 'que sabes de yopal', 'laboratorios clínicos en yopal', 'opticas u oftalmólogos en yopal', 'ambulancias o transporte asistencial', 'centros de radiología e imágenes diagnósticas', 'servicios de urgencias en yopal', 'hospitales en yopal', 'clinicas en yopal', 'prestadores de salud en yopal', 'centros de salud en yopal', 'centros de atencion en yopal', 'que sabes de los centros de salud en yopal', 'servicios en yopal'].some((e) =>
+  //       cleanQuery.includes(e.replace(/k/g, 'c')),
+  //     );
+
+  //   if (!isYopalQuery) return false;
+
+  //   const resultado = await this.yopalQuestionsService.processYopalQuery(text);
+  //   if (!resultado) return false;
+
+  //   await this.sendLongMessage(ctx, resultado, { parse_mode: 'Markdown' });
+  //   return true;
+  // }
+
+
+  /**
+   * Maneja consultas relacionadas con Yopal (Casanare).
+   * Detecta si el usuario pregunta por servicios de salud en Yopal,
+   * y delega la respuesta en YopalQuestionsService.
+   */
   private async handleYopalQuery(ctx: Context, text: string): Promise<boolean> {
-    try {
-      const lcQuery = text.toLowerCase();
-      const cleanQuery = lcQuery.replace(/\s+/g, '').replace(/k/g, 'c');
+    const norm = normalizeString(text);
+    const cleanQuery = norm.replace(/\s+/g, '').replace(/k/g, 'c');
 
-      if (
-        lcQuery.includes('yopal') ||
-        ['capresoca', 'coomeva', 'horo', 'orinoquia'].some((e) =>
-          cleanQuery.includes(e.replace(/k/g, 'c')),
-        )
-      ) {
-        const { content, found } =
-          await this.yopalHealthService.answerNaturalQuestion(text);
+    // Lista ampliada de palabras/frases que indican consulta sobre Yopal
+    const yopalKeywords = [
+      'yopal',
+      'qué información tienes de yopal',
+      'manejas datos de yopal',
+      'qué inf tienes de yopal',
+      'sabes alguna información de yopal',
+      'que sabes de yopal',
+      'laboratorios clínicos en yopal',
+      'opticas u oftalmólogos en yopal',
+      'ambulancias o transporte asistencial',
+      'centros de radiología e imágenes diagnósticas',
+      'servicios de urgencias en yopal',
+      'hospitales en yopal',
+      'clinicas en yopal',
+      'prestadores de salud en yopal',
+      'centros de salud en yopal',
+      'centros de atencion en yopal',
+      'que sabes de los centros de salud en yopal',
+      'servicios en yopal',
+      // Palabras de cercanía (detectadas también en YopalQuestionsService)
+      'cerca de mi en yopal',
+      'hospital cerca yopal',
+      'clinica cerca yopal',
+      'centro medico cerca yopal',
+      // Nuevas palabras para correo, teléfono, dirección
+      'correo electronico de',
+      'correo electronico',
+      'email de',
+      'telefono de',
+      'direccion de',
+      // Nombres de prestadores conocidos en Yopal
+      'servinsalud',
+      'capresoca',
+      'coomeva en yopal',
+      'medimas en yopal',
+      'sanitas EN YOPAL',
+      'nueva eps en yopal',
+      'hororegional',
+      'urmedicas',
+      'centro de escanografia',
+      'visionamos salud',
+      'instituto de fracturas',
+      'optisalud',
+      'clinica casanare',
+      'cruz roja en yopal',
+      'clinica del oriente',
+      'esesalud',
+      'rehabilitar',
+      'asistir ips',
+      'ses salud',
+      'panorex',
+      'cedent',
+      'nora alvarez',
+      'avanti salud',
+      'medytec',
+      'gamma ips',
+      'ortophos',
+      'salud llanos',
+      'health care',
+      'fundacion promover',
+      'nueva ips optica',
+      'ser saludable',
+      'prosalud',
+      'puertabierta',
+      'famedic',
+      'famelab',
+      'centro odontologico',
+      'trinisalud',
+      'rx ayudas',
+      'dentisalud',
+      'simalink',
+      'domisalud',
+      'centro de reconocimiento',
+      'smio',
+      'mundo radiologico',
+      'cemediq',
+      'orl vital',
+      'gyomedical',
+      'colmedica',
+      'clinica vascular',
+      'hemato oncologia',
+      'enrique guerrero',
+      'medicenter',
+      'medical help',
+      'sanas ips',
+      'medical sky',
+      'angiografia',
+      'lacor',
+      'cardio andes',
+      'ips gmi',
+      'vital alliance',
+      'centro de especialidades pediatricas',
+      'servicios integrales',
+      'onco oriente',
+      'oxi care',
+      'erika munoz',
+      'fundesarrollo',
+      'kairos',
+      'jersalud',
+      'sies salud',
+      'oftalmo optica',
+      'centro de rehabilitacion',
+      'ips orinoco',
+      'crc del llano',
+      'suly yarid',
+      'manejo del dolor',
+      'ambulancias sar',
+      'bihospharma',
+      'ambulancias de colombia',
+      'caimed',
+      'coosalud',
+    ];
 
-        if (found) {
-          await this.sendLongMessage(ctx, content, {
-            parse_mode: 'Markdown',
-          });
-          return true;
-        }
-      }
-    } catch (err) {
-      console.error('Yopal bypass failed', err);
-    }
-    return false;
+    const isYopalQuery = yopalKeywords.some(keyword =>
+      cleanQuery.includes(keyword.replace(/k/g, 'c'))
+    );
+
+    if (!isYopalQuery) return false;
+
+    // Delegar la consulta a YopalQuestionsService (que ya maneja cercanía y respuestas generales)
+    const respuesta = await this.yopalQuestionsService.processYopalQuery(text);
+    if (!respuesta) return false;
+
+    await this.sendLongMessage(ctx, respuesta, { parse_mode: 'Markdown' });
+    return true;
   }
+
+
+
 
   private formatProviderResult(provider: any, source: string): string {
     const name = (

@@ -15,6 +15,7 @@ import { DatasetBuilderService } from './dataset-builder.service';
 import { VaccinationService } from './vaccination.service';
 import { PredictionService } from './prediction.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
+import { YopalQuestionsService } from './questions/yopal-questions.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SaludPublicaQuestionsService } from './questions/salud-publica-question
     CaliHealthService,
     NationalHealthService,
     SaludPublicaQuestionsService,
+    YopalQuestionsService,
   ],
   exports: [
     AirQualityService,
@@ -53,6 +55,7 @@ import { SaludPublicaQuestionsService } from './questions/salud-publica-question
     CaliHealthService,
     NationalHealthService,
     SaludPublicaQuestionsService,
+    YopalQuestionsService,
   ],
 })
 export class DataModule { }

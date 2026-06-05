@@ -38,32 +38,48 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 ### 🏗️ Arquitectura del Sistema
 
 ```mermaid
-graph TD
-  User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
-  Bot --> Greeting[handleGreeting]
-  Bot --> Charts[ChartService - QuickChart]
-  Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
-  Bot --> AirData[AirQualityService - API Calidad Aire]
-  Bot --> LocationFlow[Geolocalización]
+flowchart TB
+    subgraph UserInterface [Canal de Interacción]
+        User((Usuario Telegram)) <--> Telegram[Telegram Bot API]
+    end
 
-  %% Nearby flow
-  LocationFlow --> RequestLoc[Enviar teclado request_location]
-  RequestLoc --> User
-  User -->|Ubicación (location)| Bot
-  Bot --> YopalService[YopalHealthService.findNearby]
-  YopalService --> Bot
+    subgraph Core [Núcleo Orquestador - NestJS]
+        Bot[BotUpdate]
+        AI[Genkit AI - LLM Engine]
+        Bot <--> AI
+    end
 
-  Charts --> Responder[Bot Reply Photo]
-  HealthData --> Analysis[SaludAnaliticaService]
-  AirData --> Analysis
+    subgraph Logic [Motores de Inteligencia y Lógica]
+        NLP[Servicios de Preguntas - NLP]
+        Stats[Analítica y Predicción]
+        Charts[Generación de Gráficos]
+        Geo[Geolocalización y Búsqueda Local]
+    end
 
-  Analysis --> Responder[Bot Reply Text]
+    subgraph Data [Fuentes de Datos y Conocimiento]
+        SIVIGILA[(SIVIGILA - XML)]
+        Mental[(Salud Mental - CIE10)]
+        Sexual[(Salud Sexual - QA)]
+        Air[API Calidad del Aire]
+        PAI[(Vacunación - PAI)]
+        Local[(Prestadores Regionales)]
+    end
 
-  style HealthData fill:#f9f,stroke:#333,stroke-width:2px
-  style AirData fill:#ccf,stroke:#333,stroke-width:2px
-  style Analysis fill:#ff9,stroke:#333,stroke-width:2px
-  style Charts fill:#9f9,stroke:#333,stroke-width:2px
-  style LocationFlow fill:#ffdca8,stroke:#333,stroke-width:1px
+    Telegram <--> Bot
+    Bot --> NLP & Stats & Charts & Geo
+
+    NLP & Stats & Charts --> SIVIGILA
+    NLP --> Mental & Sexual
+    Stats --> PAI
+    Charts --> Air
+    Geo --> Local
+
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold;
+    classDef logic fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#33691e;
+    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#e65100,stroke-dasharray: 5 5;
+    class Bot,AI core;
+    class NLP,Stats,Charts,Geo logic;
+    class SIVIGILA,Mental,Sexual,Air,PAI,Local data;
 ```
 
 ---
