@@ -16,6 +16,7 @@ import { VaccinationService } from './vaccination.service';
 import { PredictionService } from './prediction.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
+import { GraphicsQuestionsService } from './questions/graphics-questions.service';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { YopalQuestionsService } from './questions/yopal-questions.service';
     NationalHealthService,
     SaludPublicaQuestionsService,
     YopalQuestionsService,
+    GraphicsQuestionsService,
   ],
   exports: [
     AirQualityService,
@@ -56,6 +58,7 @@ import { YopalQuestionsService } from './questions/yopal-questions.service';
     NationalHealthService,
     SaludPublicaQuestionsService,
     YopalQuestionsService,
+    GraphicsQuestionsService,
   ],
 })
 export class DataModule { }

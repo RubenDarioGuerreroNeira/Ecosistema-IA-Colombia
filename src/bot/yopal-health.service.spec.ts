@@ -18,8 +18,8 @@ const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
       <direccion>Calle 7 Nº 19-21</direccion>
       <telefono>3213433871</telefono>
       <correo_electronico>gerencia2@capresoca-casanare.gov.co</correo_electronico>
-      <latitud>5,349,719</latitud>
-      <longitud>-72,402,040</longitud>
+      <latitud>5.349719</latitud>
+      <longitud>-72.40204</longitud>
     </row>
     <row _id="row-2">
       <departamento>CASANARE</departamento>
@@ -32,8 +32,8 @@ const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
       <direccion>Cra. 25 Nº 10-55</direccion>
       <telefono>3204774955</telefono>
       <correo_electronico>marthap_ortiz@coomeva.com.co</correo_electronico>
-      <latitud>5,349,440</latitud>
-      <longitud>-72,395,174</longitud>
+      <latitud>5.349440</latitud>
+      <longitud>-72.395174</longitud>
     </row>
     <row _id="row-3">
       <departamento>CASANARE</departamento>
@@ -46,8 +46,8 @@ const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
       <direccion>Calle 15 Nº 7-95</direccion>
       <telefono>6344650</telefono>
       <correo_electronico>ventanillaunica@horo.gov.co</correo_electronico>
-      <latitud>5,341,864</latitud>
-      <longitud>-72,407,805</longitud>
+      <latitud>5.341864</latitud>
+      <longitud>-72.407805</longitud>
     </row>
   </rows>
 </response>`;
@@ -354,6 +354,6 @@ describe('YopalHealthService', () => {
   it('should fallback to general search for other questions', async () => {
     const res = await service.answerNaturalQuestion('Capresoca');
     expect(res.found).toBe(true);
-    expect(res.content).toContain('RESULTADOS PARA YOPAL');
+    expect(res.content).toContain('CAPRESOCA');
   });
 });

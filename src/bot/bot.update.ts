@@ -23,6 +23,8 @@ import { MentalHealthService } from './mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
+import { ChartQueryService } from './chart-query.service';
+import { GraphicsQuestionsService } from './questions/graphics-questions.service';
 
 @Update()
 export class BotUpdate {
@@ -50,6 +52,8 @@ export class BotUpdate {
     private readonly vaccinationService: VaccinationService,
     private readonly saludPublicaQuestionsService: SaludPublicaQuestionsService,
     private readonly yopalQuestionsService: YopalQuestionsService,
+    private readonly chartQueryService: ChartQueryService,
+    private readonly graphicsQuestionsService: GraphicsQuestionsService,
   ) { }
 
 
@@ -84,295 +88,45 @@ export class BotUpdate {
   }
 
 
+  // Manejador de consultas de gráficos
   private async handleChartQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
-    const sanitizedText = sanitizeLogInput(text);
-    console.log(`DEBUG: handleChartQuery - norm="${norm}"`);
-    const userId = ctx.from?.id;
-    const pending = userId ? this.userState.get(userId) : null;
 
-    const isChartRequest =
-      norm.includes('grafic') ||
-      norm.includes('visual') ||
-      norm.includes('mostrar') ||
-      norm.includes('ver') ||
-      pending?.intent === 'chart_air_quality' ||
-      pending?.intent === 'chart_vaccination';
+    const infoResultado = await this.graphicsQuestionsService.processGraphicsQuery(text);
+    if (infoResultado) {
+      await ctx.reply(infoResultado, { parse_mode: 'Markdown' });
+      return true;
+    }
 
-    if (!isChartRequest) return false;
-
-    // DETERMINAR REGIÓN PRIMERO (Usando límites de palabra para evitar que "cali" coincida con "calidad")
     const region = this.detectRegion(text)?.toUpperCase();
+    const result = await this.chartQueryService.processChartQuery(text, region);
 
-    // 1. CALIDAD DEL AIRE (Si menciona aire o ambiental, tiene prioridad la ciudad detectada)
-    if (
-      norm.includes('aire') ||
-      norm.includes('ambiental') ||
-      norm.includes('contaminacion') ||
-      pending?.intent === 'chart_air_quality'
-    ) {
-      console.log(
-        `DEBUG: handleChartQuery - Matched Air Quality Chart for region: ${region || 'COLOMBIA'}`,
-      );
+    if (!result.success) return false;
 
-      if (!region) {
-        await ctx.reply(
-          '☁️ ¿De qué **municipio o departamento** deseas visualizar la calidad del aire? (Ej: "Graficar aire en Cali")',
-          { parse_mode: 'Markdown' },
-        );
-        if (userId !== undefined)
-          // Corregido: intent debe ser 'chart_air_quality'
-          this.userState.set(userId!, { intent: 'chart_air_quality' });
-        return true;
+    if (result.needsLocation && result.message) {
+      await ctx.reply(result.message, { parse_mode: 'Markdown' });
+      if (ctx.from?.id && result.intent) {
+        this.userState.set(ctx.from.id, { intent: result.intent });
       }
-
-      const targetRegion = region;
-      const aireData =
-        await this.airQualityService.getAirQualityByMunicipio(targetRegion);
-
-      if (aireData && aireData.length > 0) {
-        if (userId !== undefined) this.userState.delete(userId!);
-        // Eliminar duplicados basándose en el nombre de la variable
-        const uniqueVariables = Array.from(
-          new Map(aireData.map((v: any) => [v.variable, v])).values(),
-        );
-
-        // Tomamos las variables más comunes
-        const variables = uniqueVariables.slice(0, 6);
-        const labels = variables.map((v: any) => v.variable);
-        const data = variables.map((v: any) => parseFloat(v.promedio));
-
-        const chartUrl = this.chartService.generateBarChart(
-          labels,
-          data,
-          `Calidad del Aire en ${targetRegion} (Promedios)`,
-        );
-
-        await ctx.replyWithPhoto(chartUrl, {
-          caption: `🍃 Visualización de los indicadores ambientales más recientes para ${targetRegion}.`,
-        });
-        return true;
-      }
-    }
-
-    // 2. CALI HEALTH (Solo si la región es Cali y no es sobre aire)
-    if (region === 'CALI' || norm.includes('servicios')) {
-      console.log(`DEBUG: handleChartQuery - Matched Cali Health Chart`);
-      const stats = this.caliHealthService.getStatsByCategory();
-      const chartUrl = this.chartService.generatePieChart(
-        stats.labels,
-        stats.data,
-        'Servicios de Salud en Cali (Top Categorías)',
-      );
-
-      await ctx.replyWithPhoto(chartUrl, {
-        caption:
-          '📊 Aquí tienes la distribución de los servicios de salud en Cali por categorías principales.',
-      });
       return true;
     }
 
-    // 3. SALUD MENTAL (Top Diagnósticos)
-    if (
-      norm.includes('mental') ||
-      norm.includes('psicologia') ||
-      norm.includes('psiquiatria') ||
-      norm.includes('depresion') ||
-      norm.includes('ansiedad') ||
-      norm.includes('trastorno') ||
-      norm.includes('esquizo') ||
-      norm.includes('bipol') ||
-      norm.includes('demencia') ||
-      norm.includes('delirio') ||
-      norm.includes('psicosis') ||
-      norm.includes('mania') ||
-      norm.includes('spa')
-    ) {
-      console.log(`DEBUG: handleChartQuery - Matched Mental Health Chart`);
-      const top = await this.mentalHealthService.getTopDiagnoses(6);
-      const labels = top.map((d) =>
-        d.diagnostico_ingreso.length > 20
-          ? d.diagnostico_ingreso.substring(0, 17) + '...'
-          : d.diagnostico_ingreso,
-      );
-      const data = top.map((d) => d.total);
-
-      const chartUrl = this.chartService.generateBarChart(
-        labels,
-        data,
-        'Top Diagnósticos de Salud Mental (Colombia)',
-      );
-
-      await ctx.replyWithPhoto(chartUrl, {
-        caption:
-          '🧠 Estos son los diagnósticos de salud mental más frecuentes según los registros nacionales.',
-      });
+    if (result.photo) {
+      await ctx.replyWithPhoto(result.photo, { caption: result.caption });
+      if (ctx.from?.id) this.userState.delete(ctx.from.id);
       return true;
     }
 
-    // 4. SALUD PÚBLICA (Top Eventos Nacionales)
-    if (
-      norm.includes('salud publica') ||
-      norm.includes('eventos') ||
-      norm.includes('cuantos') ||
-      norm.includes('casos de enfermedades') ||
-      norm.includes('públicas') ||
-      norm.includes('publicas') ||
-      norm.includes('publica') ||
-      norm.includes('infecciosas') ||
-      norm.includes('enfermedades en zona rural') ||
-      norm.includes('enfermedades')
-    ) {
-      console.log(`DEBUG: handleChartQuery - Matched Public Health Chart`);
-      const top = await this.healthDataService.getTopEvents(6);
-      const labels = top.map((e) =>
-        e.nombre_del_evento.length > 20
-          ? e.nombre_del_evento.substring(0, 17) + '...'
-          : e.nombre_del_evento,
-      );
-      const data = top.map((e) => e.total_de_eventos);
-
-      const chartUrl = this.chartService.generateBarChart(
-        labels,
-        data,
-        'Top Eventos de Interés en Salud Pública (Colombia)',
-      );
-
-      await ctx.replyWithPhoto(chartUrl, {
-        caption:
-          '🔬 Estos son los eventos de salud pública con mayor incidencia reportada a nivel nacional según SIVIGILA 2026.',
-      });
+    if (result.message) {
+      await ctx.reply(result.message);
       return true;
-    }
-
-    // 5. DISTRIBUCIÓN POR SEXO O ZONA (SIVIGILA)
-    const eventKeywords = [
-      'tuberculosis',
-      'dengue',
-      'zika',
-      'malaria',
-      'sarampion',
-      'rubeola',
-      'hepatitis',
-      'rabia',
-    ];
-    const detectedEvent = eventKeywords.find((k) => norm.includes(k));
-
-    if (detectedEvent) {
-      const stats =
-        await this.healthDataService.getStatsForEvent(detectedEvent);
-      if (stats) {
-        // Caso A: Por Sexo
-        if (norm.includes('sexo') || norm.includes('genero')) {
-          const chartUrl = this.chartService.generatePieChart(
-            ['Femenino', 'Masculino'],
-            [stats.femenino, stats.masculino],
-            `Distribución por Sexo: ${stats.nombre_del_evento}`,
-          );
-          await ctx.replyWithPhoto(chartUrl, {
-            caption: `👥 Proporción de hombres y mujeres afectados por **${stats.nombre_del_evento}** según el reporte nacional.`,
-            parse_mode: 'Markdown',
-          });
-          return true;
-        }
-
-        // Caso B: Por Zona (Urbano/Rural)
-        if (
-          norm.includes('zona') ||
-          norm.includes('urbano') ||
-          norm.includes('rural')
-        ) {
-          const chartUrl = this.chartService.generatePieChart(
-            ['Urbano', 'Rural'],
-            [stats.urbano, stats.rural],
-            `Distribución por Zona: ${stats.nombre_del_evento}`,
-          );
-          await ctx.replyWithPhoto(chartUrl, {
-            caption: `📍 Impacto de **${stats.nombre_del_evento}** en áreas urbanas frente a rurales.`,
-            parse_mode: 'Markdown',
-          });
-          return true;
-        }
-
-        // Caso C: Tendencia Temporal (Líneas)
-        if (
-          norm.includes('tendencia') ||
-          norm.includes('historico') ||
-          norm.includes('evolucion')
-        ) {
-          const series =
-            await this.healthDataService.getTemporalSeries(detectedEvent);
-          const labels = series.map((s) =>
-            s.date.toLocaleDateString('es-CO', { month: 'short' }),
-          );
-          const data = series.map((s) => s.cases);
-
-          const chartUrl = this.chartService.generateLineChart(
-            labels,
-            data,
-            `Tendencia de ${stats.nombre_del_evento} (6 meses)`,
-          );
-          await ctx.replyWithPhoto(chartUrl, {
-            caption: `📈 Evolución proyectada de casos de **${stats.nombre_del_evento}** basada en el acumulado anual histórico.`,
-            parse_mode: 'Markdown',
-          });
-          return true;
-        }
-      }
-    }
-
-    // 6. VACUNACIÓN (Coberturas por Departamento)
-    if (norm.includes('vacun') || pending?.intent === 'chart_vaccination') {
-      console.log(`DEBUG: handleChartQuery - Matched Vaccination Chart`);
-
-      if (!region) {
-        await ctx.reply(
-          '💉 ¿De qué **departamento** deseas visualizar la cobertura de vacunación? (Ej: "Graficar vacunas en Antioquia")',
-          { parse_mode: 'Markdown' },
-        );
-        if (userId !== undefined)
-          this.userState.set(userId!, { intent: 'chart_vaccination' });
-        return true;
-      }
-
-      const targetRegion = region;
-      const coberturas =
-        await this.vaccinationService.getCoverageByDepartment(targetRegion);
-
-      if (coberturas && coberturas.length > 0) {
-        if (userId !== undefined) this.userState.delete(userId!);
-        const dataMap = new Map<string, number>();
-        coberturas.forEach((c) => {
-          const rawVal = parseFloat(c.cobertura_de_vacunaci_n);
-          // Normalización: si es <= 1 se trata como proporción, si es > 1 como porcentaje directo
-          const val = rawVal <= 1 ? rawVal * 100 : rawVal;
-          if (!isNaN(val)) dataMap.set(c.biol_gico, val);
-        });
-
-        // Ordenar por cobertura de mayor a menor y tomar los top 8 para claridad
-        const sorted = Array.from(dataMap.entries())
-          .sort(([, a], [, b]) => b - a)
-          .slice(0, 8);
-
-        const labels = sorted.map(([l]) => l);
-        const data = sorted.map(([, d]) => d);
-
-        const chartUrl = this.chartService.generatePieChart(
-          labels,
-          data,
-          `Cobertura de Vacunación en ${targetRegion} (%)`,
-        );
-
-        await ctx.replyWithPhoto(chartUrl, {
-          caption: `💉 Visualización de las coberturas de vacunación reportadas en **${targetRegion}**.`,
-        });
-        return true;
-      }
     }
 
     return false;
   }
 
+
+  // Saludo
   private getTimeGreeting(): string {
     const hour = new Date().getHours();
     if (hour >= 0 && hour < 12) return 'Buenos días';
@@ -537,10 +291,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
       `DEBUG: onLocation - User ${userId} (${firstName}) sent location: Lat ${latitude}, Lon ${longitude}`,
     );
 
-    // Solo se procesará para Yopal por ahora, ya que tiene las coordenadas en el XML
-    // TODO: Considerar geocodificación para Antioquia y Boyacá si el proyecto lo escala.
-    const radiusKm = 5; // Radio de búsqueda por defecto en KM
-
+    const radiusKm = 5;
     const nearbyProviders = await this.yopalHealthService.findNearby(
       latitude,
       longitude,
@@ -847,7 +598,6 @@ ${porCategoria}`;
     const pending = userId ? this.userState.get(userId) : null;
     if (!pending || !region) return false;
 
-    // Solo reanudamos si es una respuesta corta (máximo 3 palabras, ej: "En Yopal")
     const isShortResponse = text.trim().split(/\s+/).length <= 3;
     if (!isShortResponse) return false;
 
@@ -883,7 +633,6 @@ ${porCategoria}`;
   ): Promise<boolean> {
     const norm = normalizeString(text);
 
-    // Detectar si es una consulta de salud mental por palabras clave
     const isMentalHealth =
       norm.includes('salud mental') ||
       norm.includes('psicologia') ||
@@ -902,12 +651,10 @@ ${porCategoria}`;
       norm.includes('spa') ||
       (norm.includes('diagnostico') && norm.includes('mental'));
 
-    // Detectar perfil de riesgo o factor de riesgo (puede venir solo sin otras palabras clave)
     const isRiskProfileQuery =
       (norm.includes('perfil') && norm.includes('riesgo')) ||
       (norm.includes('factor') && norm.includes('riesgo'));
 
-    // También detectar por menciones de ciclos de vida + diagnóstico/salud
     const isLifeCycleQuery =
       (norm.includes('ninos') ||
         norm.includes('nino') ||
@@ -927,12 +674,10 @@ ${porCategoria}`;
     if (!isMentalHealth && !isLifeCycleQuery && !isRiskProfileQuery)
       return false;
 
-    // Detectar cuando preguntan por perfil/factor de riesgo sin especificar diagnóstico
     const hasRiskKeyword =
       (norm.includes('perfil') && norm.includes('riesgo')) ||
       (norm.includes('factor') && norm.includes('riesgo'));
 
-    // Si pregunta por riesgo pero no menciona ninguna patología clave
     const isGenericRiskQuery =
       hasRiskKeyword &&
       !norm.includes('depres') &&
@@ -983,10 +728,8 @@ ${porCategoria}`;
       return true;
     }
 
-    const explicitDiagnosis =
-      await this.mentalHealthService.getStatsForDiagnosis(text);
+    const explicitDiagnosis = await this.mentalHealthService.getStatsForDiagnosis(text);
 
-    // 1. Consulta general sobre capacidades
     if (
       norm.includes('que informacion tienes') ||
       norm.includes('que puedes') ||
@@ -994,16 +737,12 @@ ${porCategoria}`;
       norm.includes('como funciona') ||
       norm.includes('que sabes')
     ) {
-      await ctx.reply(
-        this.mentalHealthQuestionsService.getAvailableQuestions(),
-        {
-          parse_mode: 'Markdown',
-        },
-      );
+      await ctx.reply(this.mentalHealthQuestionsService.getAvailableQuestions(), {
+        parse_mode: 'Markdown',
+      });
       return true;
     }
 
-    // 2. Top diagnósticos
     if (
       norm.includes('frecuente') ||
       norm.includes('top') ||
@@ -1020,7 +759,6 @@ ${porCategoria}`;
       return true;
     }
 
-    // 3. Distribución por edad/ciclo de vida
     if (norm.includes('distribucion') && norm.includes('edad')) {
       const dist = await this.mentalHealthService.getAgeDistribution();
       const lines = [
@@ -1040,9 +778,6 @@ ${porCategoria}`;
       return true;
     }
 
-    // 4. Diagnósticos por ciclo de vida
-    // IMPORTANTE: Verificar primero los ciclos más específicos antes que los generales
-    // para evitar que 'adulto' coincida con 'adolescente'
     const cycleKeywords = [
       { keys: ['adolescente', 'adolescentes'], cycle: 'adolescentes' },
       { keys: ['jovenes', 'joven'], cycle: 'jovenes' },
@@ -1073,30 +808,25 @@ ${porCategoria}`;
       }
     }
 
-    // 5. Perfil de riesgo para diagnóstico específico
     if (
       (norm.includes('perfil') || norm.includes('factor')) &&
       norm.includes('riesgo')
     ) {
-      // Extraer el nombre del diagnóstico del texto
       let diagName =
         explicitDiagnosis?.diagnostico_ingreso ||
         text
-          .replace(/[¿?]/g, '') // Eliminar signos de interrogación al inicio y final
+          .replace(/[¿?]/g, '')
           .replace(/(perfil|factor) de riesgo (de |del )?/i, '')
           .replace(/en salud mental/i, '')
-          .replace(/cu[áa]l\s+es\s+el/i, '') // Manejar tildes y espacios
-          .replace(/^\s*(el|la|los|las)\s+/i, '') // Eliminar artículos sobrantes al inicio
+          .replace(/cu[áa]l\s+es\s+el/i, '')
+          .replace(/^\s*(el|la|los|las)\s+/i, '')
           .trim();
 
-      // Limpieza adicional para evitar que "perfil de riesgo" quede en el nombre
       diagName = diagName.replace(/perfil de riesgo/gi, '').trim();
 
-      // Si no se especificó diagnóstico o quedó muy corto, mostrar enfermedades disponibles
-      if (!diagName || diagName.length < 3) return false; // Permitir que generic query lo atrape arriba
+      if (!diagName || diagName.length < 3) return false;
 
-      const profile =
-        await this.mentalHealthService.getRiskProfileByDiagnosis(diagName);
+      const profile = await this.mentalHealthService.getRiskProfileByDiagnosis(diagName);
       if (profile) {
         const lines = Object.entries(profile.distribucion).map(
           ([cycle, count]) => `- ${cycle}: ${count}`,
@@ -1114,17 +844,15 @@ ${porCategoria}`;
       }
     }
 
-    // 6. Comparativa entre diagnósticos
     if (norm.includes('compara') && norm.includes(' vs ')) {
       const parts = text.split(/\s+vs\s+/i);
       if (parts.length === 2) {
         const d1Name = parts[0].replace(/compara\s*/i, '').trim();
         const d2Name = parts[1].trim();
-        const comp =
-          await this.mentalHealthService.getComparisonBetweenDiagnoses(
-            d1Name,
-            d2Name,
-          );
+        const comp = await this.mentalHealthService.getComparisonBetweenDiagnoses(
+          d1Name,
+          d2Name,
+        );
         if (comp) {
           await ctx.reply(
             `⚖️ **Comparativa:**\n\n**${comp.d1.diagnostico_ingreso}:** ${comp.d1.total} casos\n**${comp.d2.diagnostico_ingreso}:** ${comp.d2.total} casos`,
@@ -1135,7 +863,6 @@ ${porCategoria}`;
       }
     }
 
-    // 7. Búsqueda de diagnóstico específico
     const cleanSearch = text
       .replace(/cuantos? casos hay de?/i, '')
       .replace(/casos de?/i, '')
@@ -1143,8 +870,7 @@ ${porCategoria}`;
       .trim();
 
     if (cleanSearch.length > 3) {
-      const stats =
-        await this.mentalHealthService.getStatsForDiagnosis(cleanSearch);
+      const stats = await this.mentalHealthService.getStatsForDiagnosis(cleanSearch);
       if (stats) {
         await ctx.reply(
           `🧠 **${stats.diagnostico_ingreso}**\n\n` +
@@ -1160,10 +886,7 @@ ${porCategoria}`;
     return false;
   }
 
-  private async handleSexualHealthQuery(
-    ctx: Context,
-    text: string,
-  ): Promise<boolean> {
+  private async handleSexualHealthQuery(ctx: Context, text: string): Promise<boolean> {
     const results = await this.sexualHealthService.searchByKeyword(text);
     if (results && results.length > 0) {
       const answer = results[0].respuesta;
@@ -1173,13 +896,8 @@ ${porCategoria}`;
     return false;
   }
 
-  private async handleGeneralQuery(
-    ctx: Context,
-    text: string,
-    preFetchedContext?: string,
-  ) {
-    const contextData =
-      preFetchedContext || (await this.statsService.getSummary(text));
+  private async handleGeneralQuery(ctx: Context, text: string, preFetchedContext?: string) {
+    const contextData = preFetchedContext || (await this.statsService.getSummary(text));
 
     const respuestaProfesionalNoInformacion = `Lo siento, no tengo información sobre ese tema en mi base de datos actual. 
     
@@ -1213,22 +931,17 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 
     try {
       const norm = normalizeString(text);
-      // Detección más robusta
       if (
         norm.includes('que informacion tienes') &&
         norm.includes('salud mental')
       ) {
-        await ctx.reply(
-          this.mentalHealthQuestionsService.getAvailableQuestions(),
-          {
-            parse_mode: 'Markdown',
-          },
-        );
+        await ctx.reply(this.mentalHealthQuestionsService.getAvailableQuestions(), {
+          parse_mode: 'Markdown',
+        });
         return;
       }
 
-      const response =
-        await this.genkitService.generateResponse(augmentedPrompt);
+      const response = await this.genkitService.generateResponse(augmentedPrompt);
       await this.sendLongMessage(ctx, response);
     } catch (error) {
       await ctx.reply(
@@ -1252,24 +965,13 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       pending?.intent === 'risk_analysis';
 
     if (!isRiskAnalysis) return false;
+    if (norm.includes('calidad del aire')) return false;
 
-    if (norm.includes('calidad del aire')) return false; // Handled by air quality
-
-    // Intentar extraer el evento (ej: tuberculosis, dengue)
     const keywords = [
-      'tuberculosis',
-      'dengue',
-      'zika',
-      'malaria',
-      'sarampion',
-      'rubeola',
-      'fiebre amarilla',
-      'hepatitis',
-      'polio',
-      'tos ferina',
+      'tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion',
+      'rubeola', 'fiebre amarilla', 'hepatitis', 'polio', 'tos ferina',
     ];
-    const event =
-      keywords.find((k) => norm.includes(k)) || pending?.data?.event;
+    const event = keywords.find((k) => norm.includes(k)) || pending?.data?.event;
 
     if (event) {
       try {
@@ -1287,10 +989,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         }
 
         const region = detectedRegion;
-        const analysis = await this.saludAnaliticaService.analizarRiesgoEvento(
-          event,
-          region,
-        );
+        const analysis = await this.saludAnaliticaService.analizarRiesgoEvento(event, region);
         if (userId) this.userState.delete(userId);
         await this.sendLongMessage(ctx, analysis);
         return true;
@@ -1303,103 +1002,30 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 
   private detectRegion(text: string): string | undefined {
     const departments = [
-      'Amazonas',
-      'Antioquia',
-      'Arauca',
-      'Atlántico',
-      'Bolívar',
-      'Boyacá',
-      'Caldas',
-      'Caquetá',
-      'Casanare',
-      'Cauca',
-      'Cesar',
-      'Chocó',
-      'Córdoba',
-      'Cundinamarca',
-      'Guainía',
-      'Guaviare',
-      'Huila',
-      'La Guajira',
-      'Magdalena',
-      'Meta',
-      'Nariño',
-      'Norte de Santander',
-      'Putumayo',
-      'Quindío',
-      'Risaralda',
-      'San Andrés',
-      'Santander',
-      'Sucre',
-      'Tolima',
-      'Valle del Cauca',
-      'Vaupés',
-      'Vichada',
+      'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas',
+      'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca',
+      'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
+      'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés',
+      'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada',
     ];
 
     const capitals = [
-      'Leticia',
-      'Medellín',
-      'Arauca',
-      'Barranquilla',
-      'Cartagena',
-      'Tunja',
-      'Manizales',
-      'Florencia',
-      'Yopal',
-      'Popayán',
-      'Valledupar',
-      'Quibdó',
-      'Montería',
-      'Bogotá',
-      'Inírida',
-      'San José del Guaviare',
-      'Neiva',
-      'Riohacha',
-      'Santa Marta',
-      'Villavicencio',
-      'Pasto',
-      'Cúcuta',
-      'Mocoa',
-      'Armenia',
-      'Pereira',
-      'Bucaramanga',
-      'Sincelejo',
-      'Ibagué',
-      'Cali',
-      'Mitú',
-      'Puerto Carreño',
+      'Leticia', 'Medellín', 'Arauca', 'Barranquilla', 'Cartagena', 'Tunja',
+      'Manizales', 'Florencia', 'Yopal', 'Popayán', 'Valledupar', 'Quibdó',
+      'Montería', 'Bogotá', 'Inírida', 'San José del Guaviare', 'Neiva', 'Riohacha',
+      'Santa Marta', 'Villavicencio', 'Pasto', 'Cúcuta', 'Mocoa', 'Armenia',
+      'Pereira', 'Bucaramanga', 'Sincelejo', 'Ibagué', 'Cali', 'Mitú', 'Puerto Carreño',
     ];
 
     const majorValle = [
-      'Buga',
-      'Tuluá',
-      'Palmira',
-      'Jamundí',
-      'Cartago',
-      'Buenaventura',
-      'Yumbo',
-      'Candelaria',
-      'Florida',
-      'El Cerrito',
-      'Sevilla',
-      'Zarzal',
-      'Caicedonia',
-      'Guacarí',
-      'Roldanillo',
+      'Buga', 'Tuluá', 'Palmira', 'Jamundí', 'Cartago', 'Buenaventura', 'Yumbo',
+      'Candelaria', 'Florida', 'El Cerrito', 'Sevilla', 'Zarzal', 'Caicedonia',
+      'Guacarí', 'Roldanillo',
     ];
 
     const others = [
-      'valle',
-      'capresoca',
-      'coomeva',
-      'medimas',
-      'sanitas',
-      'nueva eps',
-      'coosalud',
-      'horo',
-      'orinoquia',
-      'atioquia', // Typo common
+      'valle', 'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps',
+      'coosalud', 'horo', 'orinoquia', 'atioquia',
     ];
 
     const regions = [...departments, ...capitals, ...majorValle, ...others];
@@ -1407,8 +1033,8 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     const cleanText = text
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents for better matching
-      .replace(/\s+/g, ' ') // Normalizar espacios
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
       .replace(/k/g, 'c')
       .trim();
 
@@ -1418,7 +1044,6 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/k/g, 'c');
-      // Usamos límites de palabra (\b) para evitar que "cali" coincida con "calidad"
       const regex = new RegExp(`\\b${cleanRegion}\\b`, 'i');
       return regex.test(cleanText);
     });
@@ -1445,30 +1070,20 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
           .split('')
           .map((char) => {
             switch (char) {
-              case 'a':
-                return '[aá]';
-              case 'e':
-                return '[eé]';
-              case 'i':
-                return '[ií]';
-              case 'o':
-                return '[oó]';
-              case 'u':
-                return '[uúü]';
-              default:
-                return this.escapeRegexChar(char);
+              case 'a': return '[aá]';
+              case 'e': return '[eé]';
+              case 'i': return '[ií]';
+              case 'o': return '[oó]';
+              case 'u': return '[uúü]';
+              default: return this.escapeRegexChar(char);
             }
           })
           .join(''),
       );
-
     return words.join('\\s+');
   }
 
-  private removeDetectedRegionFromSearchTerm(
-    text: string,
-    detectedRegion: string,
-  ): string {
+  private removeDetectedRegionFromSearchTerm(text: string, detectedRegion: string): string {
     const regionPattern = this.buildAccentInsensitivePattern(detectedRegion);
     const regionRegex = new RegExp(`\\b(?:en\\s+)?${regionPattern}\\b`, 'i');
     return text.replace(regionRegex, '').replace(/\s+/g, ' ').trim();
@@ -1480,10 +1095,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
       /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start|que sabes hacer|que puedes hacer)/i.test(
         text.trim(),
       );
-    // Log sanitizado para evitar log injection
-    console.log(
-      `DEBUG: handleGreeting - userId=${userId}, isGreeting=${isGreeting}`,
-    );
+    console.log(`DEBUG: handleGreeting - userId=${userId}, isGreeting=${isGreeting}`);
 
     if (userId && !(await this.userService.hasBeenGreeted(userId))) {
       console.log(`DEBUG: handleGreeting - Greeting new user`);
@@ -1525,36 +1137,10 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     return false;
   }
 
-  // private async handleYopalQuery(ctx: Context, text: string): Promise<boolean> {
-  //   const norm = normalizeString(text);
-  //   const cleanQuery = norm.replace(/\s+/g, '').replace(/k/g, 'c');
-
-  //   const isYopalQuery =
-  //     norm.includes('yopal') ||
-  //     ['qué información tienes de yopal', 'manejas datos de yopal', 'qué inf tienes de yopal', 'sabes alguna información de yopal', 'que sabes de yopal', 'laboratorios clínicos en yopal', 'opticas u oftalmólogos en yopal', 'ambulancias o transporte asistencial', 'centros de radiología e imágenes diagnósticas', 'servicios de urgencias en yopal', 'hospitales en yopal', 'clinicas en yopal', 'prestadores de salud en yopal', 'centros de salud en yopal', 'centros de atencion en yopal', 'que sabes de los centros de salud en yopal', 'servicios en yopal'].some((e) =>
-  //       cleanQuery.includes(e.replace(/k/g, 'c')),
-  //     );
-
-  //   if (!isYopalQuery) return false;
-
-  //   const resultado = await this.yopalQuestionsService.processYopalQuery(text);
-  //   if (!resultado) return false;
-
-  //   await this.sendLongMessage(ctx, resultado, { parse_mode: 'Markdown' });
-  //   return true;
-  // }
-
-
-  /**
-   * Maneja consultas relacionadas con Yopal (Casanare).
-   * Detecta si el usuario pregunta por servicios de salud en Yopal,
-   * y delega la respuesta en YopalQuestionsService.
-   */
   private async handleYopalQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
     const cleanQuery = norm.replace(/\s+/g, '').replace(/k/g, 'c');
 
-    // Lista ampliada de palabras/frases que indican consulta sobre Yopal
     const yopalKeywords = [
       'yopal',
       'qué información tienes de yopal',
@@ -1574,98 +1160,34 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
       'centros de atencion en yopal',
       'que sabes de los centros de salud en yopal',
       'servicios en yopal',
-      // Palabras de cercanía (detectadas también en YopalQuestionsService)
       'cerca de mi en yopal',
       'hospital cerca yopal',
       'clinica cerca yopal',
       'centro medico cerca yopal',
-      // Nuevas palabras para correo, teléfono, dirección
       'correo electronico de',
       'correo electronico',
       'email de',
       'telefono de',
       'direccion de',
-      // Nombres de prestadores conocidos en Yopal
-      'servinsalud',
-      'capresoca',
-      'coomeva en yopal',
-      'medimas en yopal',
-      'sanitas EN YOPAL',
-      'nueva eps en yopal',
-      'hororegional',
-      'urmedicas',
-      'centro de escanografia',
-      'visionamos salud',
-      'instituto de fracturas',
-      'optisalud',
-      'clinica casanare',
-      'cruz roja en yopal',
-      'clinica del oriente',
-      'esesalud',
-      'rehabilitar',
-      'asistir ips',
-      'ses salud',
-      'panorex',
-      'cedent',
-      'nora alvarez',
-      'avanti salud',
-      'medytec',
-      'gamma ips',
-      'ortophos',
-      'salud llanos',
-      'health care',
-      'fundacion promover',
-      'nueva ips optica',
-      'ser saludable',
-      'prosalud',
-      'puertabierta',
-      'famedic',
-      'famelab',
-      'centro odontologico',
-      'trinisalud',
-      'rx ayudas',
-      'dentisalud',
-      'simalink',
-      'domisalud',
-      'centro de reconocimiento',
-      'smio',
-      'mundo radiologico',
-      'cemediq',
-      'orl vital',
-      'gyomedical',
-      'colmedica',
-      'clinica vascular',
-      'hemato oncologia',
-      'enrique guerrero',
-      'medicenter',
-      'medical help',
-      'sanas ips',
-      'medical sky',
-      'angiografia',
-      'lacor',
-      'cardio andes',
-      'ips gmi',
-      'vital alliance',
-      'centro de especialidades pediatricas',
-      'servicios integrales',
-      'onco oriente',
-      'oxi care',
-      'erika munoz',
-      'fundesarrollo',
-      'kairos',
-      'jersalud',
-      'sies salud',
-      'oftalmo optica',
-      'centro de rehabilitacion',
-      'ips orinoco',
-      'crc del llano',
-      'suly yarid',
-      'manejo del dolor',
-      'ambulancias sar',
-      'bihospharma',
-      'ambulancias de colombia',
-      'caimed',
-      'coosalud',
+      'servinsalud', 'capresoca', 'coomeva en yopal', 'medimas en yopal',
+      'sanitas EN YOPAL', 'nueva eps en yopal', 'hororegional', 'urmedicas',
+      'centro de escanografia', 'visionamos salud', 'instituto de fracturas',
+      'optisalud', 'clinica casanare', 'cruz roja en yopal', 'clinica del oriente',
+      'esesalud', 'rehabilitar', 'asistir ips', 'ses salud', 'panorex', 'cedent',
+      'nora alvarez', 'avanti salud', 'medytec', 'gamma ips', 'ortophos',
+      'salud llanos', 'health care', 'fundacion promover', 'nueva ips optica',
+      'ser saludable', 'prosalud', 'puertabierta', 'famedic', 'famelab',
+      'centro odontologico', 'trinisalud', 'rx ayudas', 'dentisalud', 'simalink',
+      'domisalud', 'centro de reconocimiento', 'smio', 'mundo radiologico',
+      'cemediq', 'orl vital', 'gyomedical', 'colmedica', 'clinica vascular',
+      'hemato oncologia', 'enrique guerrero', 'medicenter', 'medical help',
+      'sanas ips', 'medical sky', 'angiografia', 'lacor', 'cardio andes',
+      'ips gmi', 'vital alliance', 'centro de especialidades pediatricas',
+      'servicios integrales', 'onco oriente', 'oxi care', 'erika munoz',
+      'fundesarrollo', 'kairos', 'jersalud', 'sies salud', 'oftalmo optica',
+      'centro de rehabilitacion', 'ips orinoco', 'crc del llano', 'suly yarid',
+      'manejo del dolor', 'ambulancias sar', 'bihospharma', 'ambulancias de colombia',
+      'caimed', 'coosalud',
     ];
 
     const isYopalQuery = yopalKeywords.some(keyword =>
@@ -1674,16 +1196,12 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 
     if (!isYopalQuery) return false;
 
-    // Delegar la consulta a YopalQuestionsService (que ya maneja cercanía y respuestas generales)
     const respuesta = await this.yopalQuestionsService.processYopalQuery(text);
     if (!respuesta) return false;
 
     await this.sendLongMessage(ctx, respuesta, { parse_mode: 'Markdown' });
     return true;
   }
-
-
-
 
   private formatProviderResult(provider: any, source: string): string {
     const name = (
@@ -1754,34 +1272,20 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 
   private isProviderLocationQuery(text: string): boolean {
     const norm = text.toLowerCase();
-    return /(?:donde\s+(?:queda|esta|est[áa])|d[oó]nde\s+queda|d[oó]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|eps|centro|sede|prestador|servicio)|(?:hospital(?:es)?|cl[ií]nica[s]?|centro[s]?|sede[s]?|prestador(?:es)?|servicio[s]?|eps)\b|c[oó]digo\s+(?:de\s+)?(?:habilitaci[oó]n|prestador))/.test(
-      norm,
-    );
+    return /(?:donde\s+(?:queda|esta|est[áa])|d[oó]nde\s+queda|d[oó]nde\s+est[áa]|ubicaci[oó]n|direcci[oó]n|direccion|ubicado|ubicada|localizaci[oó]n|busca(?:r)?\s.*(?:hospital|cl[ií]nica|eps|centro|sede|prestador|servicio)|(?:hospital(?:es)?|cl[ií]nica[s]?|centro[s]?|sede[s]?|prestador(?:es)?|servicio[s]?|eps)\b|c[oó]digo\s+(?:de\s+)?(?:habilitaci[oó]n|prestador))/.test(norm);
   }
 
   private isNearbyLocationQuery(text: string): boolean {
     const norm = text.toLowerCase();
-    return /(?:\bcerca\b|\bcercano\b|\bcercana\b|\bmás cercano\b|\bmas cercano\b|\bm[áa]s cerca\b|\ba mi alrededor\b|\bpr[óo]ximo\b|\bpr[óo]xima\b|\bmi ubicaci[oó]n\b|\bcerca de m[ií]\b)/.test(
-      norm,
-    );
+    return /(?:\bcerca\b|\bcercano\b|\bcercana\b|\bmás cercano\b|\bmas cercano\b|\bm[áa]s cerca\b|\ba mi alrededor\b|\bpr[óo]ximo\b|\bpr[óo]xima\b|\bmi ubicaci[oó]n\b|\bcerca de m[ií]\b)/.test(norm);
   }
 
-  private async requestLocationForNearbyProviders(
-    ctx: Context,
-    userId?: number,
-  ) {
+  private async requestLocationForNearbyProviders(ctx: Context, userId?: number) {
     const replyText =
       '📍 por ahora te puedo ayudar a buscar prestadores de servicios de salud en Yopal, en un radio de 5Km cercanos, por favor comparte tu ubicación usando el botón de ubicación de Telegram.';
     await ctx.reply(replyText, {
       reply_markup: {
-        keyboard: [
-          [
-            {
-              text: 'Enviar ubicación',
-              request_location: true,
-            },
-          ],
-        ],
+        keyboard: [[{ text: 'Enviar ubicación', request_location: true }]],
         one_time_keyboard: true,
         resize_keyboard: true,
       },
@@ -1800,36 +1304,24 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     const userId = ctx.from?.id;
     const pending = userId ? this.userState.get(userId) : null;
 
-    console.log(
-      `DEBUG: handleStructuralDataQuery - region="${detectedRegion}"`,
-    );
+    console.log(`DEBUG: handleStructuralDataQuery - region="${detectedRegion}"`);
 
-    // 1. Detección de intención
-    const isCountQuery =
-      /cuantos?\s+(?:hospitales|centros|prestadores)/.test(norm) ||
+    const isCountQuery = /cuantos?\s+(?:hospitales|centros|prestadores)/.test(norm) ||
       pending?.intent === 'count_providers';
-    const isListQuery =
-      ((norm.includes('lista') ||
-        norm.includes('muestreme') ||
-        norm.includes('cuales') ||
-        norm.includes('ver')) &&
-        (norm.includes('municipios') ||
-          norm.includes('pueblos') ||
-          norm.includes('ciudades') ||
-          norm.includes('prestadores'))) ||
+    const isListQuery = ((norm.includes('lista') ||
+      norm.includes('muestreme') ||
+      norm.includes('cuales') ||
+      norm.includes('ver')) &&
+      (norm.includes('municipios') ||
+        norm.includes('pueblos') ||
+        norm.includes('ciudades') ||
+        norm.includes('prestadores'))) ||
       pending?.intent === 'list_structural';
 
     if (!isCountQuery && !isListQuery) return false;
 
-    // 0. Bloqueo de Consultas Masivas (Prioridad sobre todo lo demás)
-    const isBroadSearch =
-      norm.includes('todos') ||
-      norm.includes('todo') ||
-      norm.includes('complet');
-    const involvesProviders =
-      norm.includes('prestador') ||
-      norm.includes('hospital') ||
-      norm.includes('centro');
+    const isBroadSearch = norm.includes('todos') || norm.includes('todo') || norm.includes('complet');
+    const involvesProviders = norm.includes('prestador') || norm.includes('hospital') || norm.includes('centro');
 
     if (isBroadSearch && involvesProviders) {
       await ctx.reply(
@@ -1839,7 +1331,6 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
       return true;
     }
 
-    // 2. PERSISTENCIA: Si falta la región
     if (!detectedRegion) {
       const msg = isCountQuery
         ? '📊 ¿De qué **municipio o departamento** deseas saber el conteo de servicios de salud?'
@@ -1855,45 +1346,27 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     const region = detectedRegion.toLowerCase();
     let handled = false;
 
-    // 3. Ejecución de Conteo
     if (isCountQuery) {
       console.log(`DEBUG: handleStructuralDataQuery - Matched Count Query`);
       if (region.includes('boyac')) {
         const count = this.boyacaHealthService.getHospitalCount();
-        await ctx.reply(
-          `📊 En **Boyacá** he encontrado **${count}** hospitales y centros de salud registrados.`,
-        );
+        await ctx.reply(`📊 En **Boyacá** he encontrado **${count}** hospitales y centros de salud registrados.`);
         handled = true;
       } else if (region.includes('antioquia')) {
-        const count = this.antioquiaHealthService.searchProviders(
-          'hospital',
-          1000,
-        ).length;
-        await ctx.reply(
-          `📊 En **Antioquia** he encontrado aproximadamente **${count}** hospitales registrados.`,
-        );
+        const count = this.antioquiaHealthService.searchProviders('hospital', 1000).length;
+        await ctx.reply(`📊 En **Antioquia** he encontrado aproximadamente **${count}** hospitales registrados.`);
         handled = true;
       } else if (region.includes('yopal')) {
-        await ctx.reply(
-          `📊 En **Yopal** tengo registros de diversos prestadores de salud.`,
-        );
+        await ctx.reply(`📊 En **Yopal** tengo registros de diversos prestadores de salud.`);
         handled = true;
       }
     }
 
-    // 4. Ejecución de Listas
     if (isListQuery && !handled) {
       console.log(`DEBUG: handleStructuralDataQuery - Matched List Query`);
-
-      // Caso específico: Lista de Municipios
-      if (
-        norm.includes('municipio') ||
-        norm.includes('pueblo') ||
-        norm.includes('ciudad')
-      ) {
+      if (norm.includes('municipio') || norm.includes('pueblo') || norm.includes('ciudad')) {
         let municipios: string[] = [];
         let regionName = '';
-
         if (region.includes('antioquia')) {
           municipios = this.antioquiaHealthService.getMunicipios();
           regionName = 'Antioquia';
@@ -1901,7 +1374,6 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
           municipios = this.boyacaHealthService.getMunicipios();
           regionName = 'Boyacá';
         }
-
         if (municipios.length > 0) {
           if (userId !== undefined) this.userState.delete(userId!);
           const list = municipios.slice(0, 50).join(', ');
@@ -1915,14 +1387,11 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
         }
       }
 
-      // Caso específico: Lista/Resumen de Prestadores en una región
       if (norm.includes('prestador')) {
         if (region.includes('boyac')) {
           if (userId !== undefined) this.userState.delete(userId!);
           const summary = this.boyacaHealthService.getKnowledgeSummary();
-          await ctx.reply(
-            `🏢 **Boyacá:** ${summary}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*`,
-          );
+          await ctx.reply(`🏢 **Boyacá:** ${summary}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*`);
           return true;
         }
         if (region.includes('antioquia')) {
@@ -1938,121 +1407,42 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
       if (userId !== undefined) this.userState.delete(userId!);
       return true;
     }
-
     return false;
   }
 
-  private async searchProvidersAcrossServices(
-    query: string,
-  ): Promise<Array<{ source: string; provider: any }>> {
+  private async searchProvidersAcrossServices(query: string): Promise<Array<{ source: string; provider: any }>> {
     const results: Array<{ source: string; provider: any }> = [];
 
     const caliMatches = this.caliHealthService.findByIdentifier(query);
     const caliSearchMatches = this.caliHealthService.searchProviders(query);
     const boyacaMatches = this.boyacaHealthService.findByIdentifier(query);
     const boyacaSearchMatches = this.boyacaHealthService.searchProviders(query);
-    const antioquiaMatches = this.antioquiaHealthService.searchProviders(
-      query,
-      10,
-    );
-    const yopalMatches =
-      this.yopalHealthService.findByIdentifier?.(query) || [];
+    const antioquiaMatches = this.antioquiaHealthService.searchProviders(query, 10);
+    const yopalMatches = this.yopalHealthService.findByIdentifier?.(query) || [];
     const yopalSearchMatches = this.yopalHealthService.searchProviders(query);
 
-    const sanitizedQuery = sanitizeLogInput(query);
     console.log(
       `DEBUG: searchProvidersAcrossServices - Cali=${caliMatches.length}, CaliSearch=${caliSearchMatches.length}, ` +
       `BoyacaId=${boyacaMatches.length}, BoyacaSearch=${boyacaSearchMatches.length}, ` +
       `Antioquia=${antioquiaMatches.length}, YopalId=${yopalMatches.length}, YopalSearch=${yopalSearchMatches.length}`,
     );
 
-    const pushUnique = (
-      service: string,
-      providers: any[],
-      keyFn: (provider: any) => string,
-    ) => {
+    const pushUnique = (service: string, providers: any[], keyFn: (provider: any) => string) => {
       for (const provider of providers) {
         const key = `${service}|${keyFn(provider)}`;
-        if (
-          !results.some(
-            (item) =>
-              item.source === service &&
-              keyFn(item.provider) === keyFn(provider),
-          )
-        ) {
+        if (!results.some(item => item.source === service && keyFn(item.provider) === keyFn(provider))) {
           results.push({ source: service, provider });
         }
       }
     };
 
-    if (caliMatches && caliMatches.length > 0) {
-      pushUnique(
-        'Cali',
-        caliMatches,
-        (provider) =>
-          provider.sede || provider.servicio || provider.direccion || '',
-      );
-    }
-    if (caliSearchMatches && caliSearchMatches.length > 0) {
-      pushUnique(
-        'Cali',
-        caliSearchMatches,
-        (provider) =>
-          provider.sede || provider.servicio || provider.direccion || '',
-      );
-    }
-
-    if (boyacaMatches && boyacaMatches.length > 0) {
-      pushUnique(
-        'Boyacá',
-        boyacaMatches,
-        (provider) =>
-          provider.nombre_de_sede ||
-          provider.razon_social ||
-          provider.direccion ||
-          '',
-      );
-    }
-    if (boyacaSearchMatches && boyacaSearchMatches.length > 0) {
-      pushUnique(
-        'Boyacá',
-        boyacaSearchMatches,
-        (provider) =>
-          provider.nombre_de_sede ||
-          provider.razon_social ||
-          provider.direccion ||
-          '',
-      );
-    }
-
-    if (antioquiaMatches && antioquiaMatches.length > 0) {
-      pushUnique(
-        'Antioquia',
-        antioquiaMatches,
-        (provider) =>
-          provider.nombreprestador ||
-          provider.nombre_sede ||
-          provider.nit ||
-          '',
-      );
-    }
-
-    if (yopalMatches && yopalMatches.length > 0) {
-      pushUnique(
-        'Yopal',
-        yopalMatches,
-        (provider) =>
-          provider.entidad_2 || provider.servicio || provider.direccion || '',
-      );
-    }
-    if (yopalSearchMatches && yopalSearchMatches.length > 0) {
-      pushUnique(
-        'Yopal',
-        yopalSearchMatches,
-        (provider) =>
-          provider.entidad_2 || provider.servicio || provider.direccion || '',
-      );
-    }
+    if (caliMatches && caliMatches.length > 0) pushUnique('Cali', caliMatches, p => p.sede || p.servicio || p.direccion || '');
+    if (caliSearchMatches && caliSearchMatches.length > 0) pushUnique('Cali', caliSearchMatches, p => p.sede || p.servicio || p.direccion || '');
+    if (boyacaMatches && boyacaMatches.length > 0) pushUnique('Boyacá', boyacaMatches, p => p.nombre_de_sede || p.razon_social || p.direccion || '');
+    if (boyacaSearchMatches && boyacaSearchMatches.length > 0) pushUnique('Boyacá', boyacaSearchMatches, p => p.nombre_de_sede || p.razon_social || p.direccion || '');
+    if (antioquiaMatches && antioquiaMatches.length > 0) pushUnique('Antioquia', antioquiaMatches, p => p.nombreprestador || p.nombre_sede || p.nit || '');
+    if (yopalMatches && yopalMatches.length > 0) pushUnique('Yopal', yopalMatches, p => p.entidad_2 || p.servicio || p.direccion || '');
+    if (yopalSearchMatches && yopalSearchMatches.length > 0) pushUnique('Yopal', yopalSearchMatches, p => p.entidad_2 || p.servicio || p.direccion || '');
 
     return results;
   }
@@ -2067,12 +1457,7 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     const userId = ctx.from?.id;
     const pending = userId ? this.userState.get(userId) : null;
 
-    if (
-      !isLocationQuery &&
-      !isNearbySearch &&
-      pending?.intent !== 'provider_search'
-    )
-      return false;
+    if (!isLocationQuery && !isNearbySearch && pending?.intent !== 'provider_search') return false;
 
     if (isNearbySearch) {
       await this.requestLocationForNearbyProviders(ctx, userId);
@@ -2080,13 +1465,7 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     }
 
     const norm = normalizeString(text);
-
-    // 0. Bloqueo de Consultas Masivas
-    if (
-      norm.includes('todos') ||
-      norm.includes('todo') ||
-      norm.includes('complet')
-    ) {
+    if (norm.includes('todos') || norm.includes('todo') || norm.includes('complet')) {
       await ctx.reply(
         '⚠️ Esta información es muy amplia. Por favor, especifica el **nombre**, el **NIT** o el **municipio** del centro de salud para poder ayudarte con una búsqueda precisa (ej: "Hospital en Tunja").',
       );
@@ -2094,18 +1473,12 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
       return true;
     }
 
-    // 1. Extraer término de búsqueda limpio (quitando la región si está presente para mayor precisión)
     let searchTerm = text;
     if (detectedRegion) {
-      searchTerm = this.removeDetectedRegionFromSearchTerm(
-        text,
-        detectedRegion,
-      );
-      // Si el término quedó vacío o es muy corto, usamos el texto original
+      searchTerm = this.removeDetectedRegionFromSearchTerm(text, detectedRegion);
       if (searchTerm.length < 3) searchTerm = text;
     }
 
-    // 2. CASO A: Sin ciudad especificada -> Búsqueda automática en todas las bases (Cali, Yopal, etc)
     if (!detectedRegion) {
       const allMatches = await this.searchProvidersAcrossServices(searchTerm);
       if (allMatches.length > 0) {
@@ -2114,177 +1487,99 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
           .slice(0, 5)
           .map((item) => this.formatProviderResult(item.provider, item.source))
           .join('\n\n');
-
         if (userId !== undefined) this.userState.delete(userId!);
-        await ctx.reply(
-          `🔍 He encontrado estos resultados en mi base de datos:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await ctx.reply(`🔍 He encontrado estos resultados en mi base de datos:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
-      // Si no hay resultados y la consulta es corta, preguntamos la región como antes
       if (norm.split(' ').length < 3) {
-        await ctx.reply(
-          '🏢 ¿En qué **municipio o departamento** deseas buscar servicios de salud?',
-        );
+        await ctx.reply('🏢 ¿En qué **municipio o departamento** deseas buscar servicios de salud?');
         if (userId) this.userState.set(userId, { intent: 'provider_search' });
         return true;
       }
     }
 
-    // 3. CASO B: Con ciudad especificada -> Búsqueda dirigida a la región
     const region = detectedRegion?.toLowerCase() || '';
     if (region.includes('cali') || region.includes('valle')) {
       const caliMatches = this.caliHealthService.searchProviders(searchTerm);
       if (caliMatches.length > 0) {
-        const response = caliMatches
-          .slice(0, 5)
-          .map((provider) => this.formatProviderResult(provider, 'Cali'))
-          .join('\n\n');
+        const response = caliMatches.slice(0, 5).map(p => this.formatProviderResult(p, 'Cali')).join('\n\n');
         if (userId !== undefined) this.userState.delete(userId!);
-        await this.sendLongMessage(
-          ctx,
-          ` Resultados encontrados en **Cali**:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await this.sendLongMessage(ctx, ` Resultados encontrados en **Cali**:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré resultados de servicios de salud en **Cali**. Intenta especificar otra sede, servicio o municipio dentro de Cali.`,
-      );
+      await ctx.reply(`⚠️ No encontré resultados de servicios de salud en **Cali**. Intenta especificar otra sede, servicio o municipio dentro de Cali.`);
       return true;
     }
 
     if (region.includes('boyac')) {
-      const boyacaMatches =
-        this.boyacaHealthService.findByIdentifier(searchTerm);
+      const boyacaMatches = this.boyacaHealthService.findByIdentifier(searchTerm);
       if (boyacaMatches.length > 0) {
-        const response = boyacaMatches
-          .slice(0, 5)
-          .map((provider) => this.formatProviderResult(provider, 'Boyacá'))
-          .join('\n\n');
+        const response = boyacaMatches.slice(0, 5).map(p => this.formatProviderResult(p, 'Boyacá')).join('\n\n');
         if (userId !== undefined) this.userState.delete(userId!);
-        await this.sendLongMessage(
-          ctx,
-          `📍 Resultados encontrados en **Boyacá**:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await this.sendLongMessage(ctx, `📍 Resultados encontrados en **Boyacá**:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré resultados de servicios de salud en **Boyacá**. Intenta especificar otro nombre de sede, NIT o municipio.`,
-      );
+      await ctx.reply(`⚠️ No encontré resultados de servicios de salud en **Boyacá**. Intenta especificar otro nombre de sede, NIT o municipio.`);
       return true;
     }
 
     if (region.includes('medell')) {
-      const antioquiaMatches = this.antioquiaHealthService.searchProviders(
-        searchTerm,
-        10,
-      );
+      const antioquiaMatches = this.antioquiaHealthService.searchProviders(searchTerm, 10);
       if (antioquiaMatches.length > 0) {
-        const response = antioquiaMatches
-          .slice(0, 5)
-          .map((provider) => this.formatProviderResult(provider, 'Antioquia'))
-          .join('\n\n');
+        const response = antioquiaMatches.slice(0, 5).map(p => this.formatProviderResult(p, 'Antioquia')).join('\n\n');
         if (userId !== undefined) this.userState.delete(userId!);
-        await this.sendLongMessage(
-          ctx,
-          `📍 Resultados encontrados en **Medellín (Antioquia)**:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await this.sendLongMessage(ctx, `📍 Resultados encontrados en **Medellín (Antioquia)**:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré resultados de servicios de salud en **Medellín**. Intenta especificar otro nombre de sede, NIT o busca otra clínica/hospital en esa ciudad.`,
-      );
+      await ctx.reply(`⚠️ No encontré resultados de servicios de salud en **Medellín**. Intenta especificar otro nombre de sede, NIT o busca otra clínica/hospital en esa ciudad.`);
       return true;
     }
 
     if (region.includes('antioquia')) {
-      const antioquiaMatches = this.antioquiaHealthService.searchProviders(
-        searchTerm,
-        10,
-      );
+      const antioquiaMatches = this.antioquiaHealthService.searchProviders(searchTerm, 10);
       if (antioquiaMatches.length > 0) {
-        const response = antioquiaMatches
-          .slice(0, 5)
-          .map((provider) => this.formatProviderResult(provider, 'Antioquia'))
-          .join('\n\n');
+        const response = antioquiaMatches.slice(0, 5).map(p => this.formatProviderResult(p, 'Antioquia')).join('\n\n');
         if (userId !== undefined) this.userState.delete(userId!);
-        await this.sendLongMessage(
-          ctx,
-          `📍 Resultados encontrados en **Antioquia**:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await this.sendLongMessage(ctx, `📍 Resultados encontrados en **Antioquia**:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré resultados de servicios de salud en **Antioquia**. Intenta especificar otro nombre de sede, NIT o busca otra clínica/hospital en ese departamento.`,
-      );
+      await ctx.reply(`⚠️ No encontré resultados de servicios de salud en **Antioquia**. Intenta especificar otro nombre de sede, NIT o busca otra clínica/hospital en ese departamento.`);
       return true;
     }
 
     if (region.includes('yopal')) {
       const yopalMatches = this.yopalHealthService.searchProviders(searchTerm);
       if (yopalMatches.length > 0) {
-        const response = yopalMatches
-          .slice(0, 5)
-          .map((provider) => this.formatProviderResult(provider, 'Yopal'))
-          .join('\n\n');
+        const response = yopalMatches.slice(0, 5).map(p => this.formatProviderResult(p, 'Yopal')).join('\n\n');
         if (userId !== undefined) this.userState.delete(userId!);
-        await this.sendLongMessage(
-          ctx,
-          ` Resultados encontrados en **Yopal**:\n\n${response}`,
-          { parse_mode: 'Markdown' },
-        );
+        await this.sendLongMessage(ctx, ` Resultados encontrados en **Yopal**:\n\n${response}`, { parse_mode: 'Markdown' });
         return true;
       }
-
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré resultados de servicios de salud en **Yopal**. Por favor, intenta con otro nombre o pregunta por otro municipio.`,
-      );
+      await ctx.reply(`⚠️ No encontré resultados de servicios de salud en **Yopal**. Por favor, intenta con otro nombre o pregunta por otro municipio.`);
       return true;
     }
 
-    // 4. Fallback final global por si la detección de región fue incorrecta o falló
     const finalMatches = await this.searchProvidersAcrossServices(searchTerm);
     if (finalMatches.length > 0) {
       if (userId !== undefined) this.userState.delete(userId!);
       const uniqueMatches = this.aggregateProviderResults(finalMatches);
-      const response = uniqueMatches
-        .slice(0, 5)
-        .map((item) => this.formatProviderResult(item.provider, item.source))
-        .join('\n\n');
-
+      const response = uniqueMatches.slice(0, 5).map(item => this.formatProviderResult(item.provider, item.source)).join('\n\n');
       const regionName = detectedRegion ? ` para **${detectedRegion}**` : '';
-      await ctx.reply(
-        `🔍 Resultados encontrados${regionName}:\n\n${response}`,
-        { parse_mode: 'Markdown' },
-      );
+      await ctx.reply(`🔍 Resultados encontrados${regionName}:\n\n${response}`, { parse_mode: 'Markdown' });
       return true;
     }
-
     return false;
   }
 
-  private aggregateProviderResults(
-    allMatches: Array<{ source: string; provider: any }>,
-  ): Array<{ source: string; provider: any }> {
+  private aggregateProviderResults(allMatches: Array<{ source: string; provider: any }>): Array<{ source: string; provider: any }> {
     const uniqueMatches = new Map<string, { source: string; provider: any }>();
     for (const item of allMatches) {
       const p = item.provider;
-      // Clave de unicidad basada en nombre y dirección para evitar duplicados entre Cali y Yopal
       const key = `${item.source}|${p.sede || p.nombre_de_sede || p.nombreprestador || p.entidad_2 || p.razon_social || p.direccion || ''}`;
       if (!uniqueMatches.has(key)) uniqueMatches.set(key, item);
     }
@@ -2296,10 +1591,7 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
     const userId = ctx.from?.id;
     const pending = userId ? this.userState.get(userId) : null;
 
-    // 1. Predicción de Riesgo (Nueva Funcionalidad)
-    const isRiskPred =
-      lowerText.includes('predecir riesgo') ||
-      pending?.intent === 'predict_risk';
+    const isRiskPred = lowerText.includes('predecir riesgo') || pending?.intent === 'predict_risk';
     if (isRiskPred) {
       const parts = lowerText.replace('predecir riesgo de', '').split(' en ');
       const eventName = pending?.data?.event || parts[0].trim();
@@ -2307,66 +1599,39 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
       const departamento = region || 'Antioquia';
 
       if (!eventName) {
-        await this.sendLongMessage(
-          ctx,
-          "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'",
-        );
+        await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'");
         return true;
       }
 
       if (!region && !lowerText.includes(' en ')) {
-        await ctx.reply(
-          `🔮 ¿En qué **municipio o departamento** deseas realizar la predicción de riesgo para **${eventName}**?`,
-          { parse_mode: 'Markdown' },
-        );
-        if (userId)
-          this.userState.set(userId, {
-            intent: 'predict_risk',
-            data: { event: eventName },
-          });
+        await ctx.reply(`🔮 ¿En qué **municipio o departamento** deseas realizar la predicción de riesgo para **${eventName}**?`, { parse_mode: 'Markdown' });
+        if (userId) this.userState.set(userId, { intent: 'predict_risk', data: { event: eventName } });
         return true;
       }
 
-      const prediction = await this.predictionService.predictRisk(
-        departamento,
-        eventName,
-      );
+      const prediction = await this.predictionService.predictRisk(departamento, eventName);
       if (userId !== undefined) this.userState.delete(userId!);
       await this.sendLongMessage(ctx, prediction);
       return true;
     }
 
-    // 2. Predicción de Casos (Funcionalidad anterior)
-    const isCasePred =
-      lowerText.startsWith('predecir casos') ||
-      pending?.intent === 'predict_cases';
+    const isCasePred = lowerText.startsWith('predecir casos') || pending?.intent === 'predict_cases';
     if (isCasePred) {
       const eventName = lowerText.replace('predecir casos', '').trim();
-
       if (!eventName) {
-        await this.sendLongMessage(
-          ctx,
-          "Por favor, especifica un evento. Ejemplo: 'predecir casos dengue'",
-        );
+        await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir casos dengue'");
         return true;
       }
 
-      const resultado =
-        await this.saludPublicaService.procesarPregunta(eventName);
+      const resultado = await this.saludPublicaService.procesarPregunta(eventName);
       if (!resultado.evento) {
-        await this.sendLongMessage(
-          ctx,
-          'No encontré ese evento para predecir.',
-        );
+        await this.sendLongMessage(ctx, 'No encontré ese evento para predecir.');
         return true;
       }
 
-      const temporalData = await this.healthDataService.getTemporalSeries(
-        resultado.evento.nombre_del_evento,
-      );
-      const cases = temporalData.map((d) => d.cases);
+      const temporalData = await this.healthDataService.getTemporalSeries(resultado.evento.nombre_del_evento);
+      const cases = temporalData.map(d => d.cases);
       const prediccion = this.healthStatsService.predictNextValue(cases);
-
       if (userId !== undefined) this.userState.delete(userId!);
       await this.sendLongMessage(
         ctx,
@@ -2388,49 +1653,28 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     const userId = ctx.from?.id;
     const pending = userId ? this.userState.get(userId) : null;
 
-    if (!norm.includes('calidad del aire') && pending?.intent !== 'air_quality')
-      return false;
+    if (!norm.includes('calidad del aire') && pending?.intent !== 'air_quality') return false;
 
     if (!detectedRegion) {
-      await ctx.reply(
-        '☁️ ¿De qué **municipio o departamento** deseas conocer la calidad del aire?',
-        { parse_mode: 'Markdown' },
-      );
+      await ctx.reply('☁️ ¿De qué **municipio o departamento** deseas conocer la calidad del aire?', { parse_mode: 'Markdown' });
       if (userId) this.userState.set(userId, { intent: 'air_quality' });
       return true;
     }
 
     const region = detectedRegion;
-    const aireData =
-      await this.airQualityService.getAirQualityByMunicipio(region);
+    const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
 
     if (aireData && aireData.length > 0) {
       if (userId !== undefined) this.userState.delete(userId!);
-      // Eliminar duplicados basándose en el nombre de la variable
-      const uniqueVariables = Array.from(
-        new Map(aireData.map((v: any) => [v.variable, v])).values(),
-      );
-      const variables = uniqueVariables
-        .slice(0, 3) // Tomamos las 3 primeras variables únicas
-        .map(
-          (item: any) =>
-            `- ${item.variable}: ${item.promedio} ${item.unidades}`,
-        )
-        .join('\n');
-      await this.sendLongMessage(
-        ctx,
-        `🍃 **Indicadores ambientales en ${region}:**\n${variables}`,
-      );
+      const uniqueVariables = Array.from(new Map(aireData.map((v: any) => [v.variable, v])).values());
+      const variables = uniqueVariables.slice(0, 3).map((item: any) => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
+      await this.sendLongMessage(ctx, `🍃 **Indicadores ambientales en ${region}:**\n${variables}`);
       return true;
     } else {
       if (userId !== undefined) this.userState.delete(userId!);
-      await ctx.reply(
-        `⚠️ No encontré datos de calidad del aire para **${region}**. Asegúrate de que el nombre del municipio sea correcto.`,
-      );
+      await ctx.reply(`⚠️ No encontré datos de calidad del aire para **${region}**. Asegúrate de que el nombre del municipio sea correcto.`);
       return true;
     }
-
-    return false;
   }
 
   private async handleSaludPublica(
@@ -2442,15 +1686,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
       const userId = ctx.from?.id;
       const pending = userId ? this.userState.get(userId) : null;
 
-      // Si el texto es solo una región y tenemos un evento pendiente, lo procesamos
       if (detectedRegion && pending?.intent === 'health_event_analysis') {
-        // amazonq-ignore-next-line
-        // amazonq-ignore-next-line
-        await this.executeHealthEventAnalysis(
-          ctx,
-          pending.data.event,
-          detectedRegion,
-        );
+        await this.executeHealthEventAnalysis(ctx, pending.data.event, detectedRegion);
         if (userId !== undefined) this.userState.delete(userId!);
         return true;
       }
@@ -2465,20 +1702,10 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
               `📊 ¿De qué **municipio o departamento** deseas conocer las estadísticas de **${resultado.evento.nombre_del_evento}**?`,
               { parse_mode: 'Markdown' },
             );
-            if (userId)
-              this.userState.set(userId, {
-                intent: 'health_event_analysis',
-                data: { event: resultado.evento },
-              });
+            if (userId) this.userState.set(userId, { intent: 'health_event_analysis', data: { event: resultado.evento } });
             return true;
           }
-
-          // amazonq-ignore-next-line
-          await this.executeHealthEventAnalysis(
-            ctx,
-            resultado.evento,
-            detectedRegion,
-          );
+          await this.executeHealthEventAnalysis(ctx, resultado.evento, detectedRegion);
           return true;
         } else if (resultado.contenido) {
           await this.sendLongMessage(ctx, resultado.contenido);
@@ -2491,64 +1718,28 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     return false;
   }
 
-  private async executeHealthEventAnalysis(
-    ctx: Context,
-    event: any,
-    region: string,
-  ) {
-    const { contenido } = await this.saludPublicaService._formatearRespuesta(
-      { evento: event },
-      'detalle',
-    );
+  private async executeHealthEventAnalysis(ctx: Context, event: any, region: string) {
+    const { contenido } = await this.saludPublicaService._formatearRespuesta({ evento: event }, 'detalle');
     let respuestaFinal = contenido;
 
-    console.log(
-      `DEBUG: handleSaludPublica - Llamando analizarRiesgoEvento para ${event.nombre_del_evento} en ${region}`,
-    );
+    console.log(`DEBUG: handleSaludPublica - Llamando analizarRiesgoEvento para ${event.nombre_del_evento} en ${region}`);
 
-    const analisis = await this.saludAnaliticaService.analizarRiesgoEvento(
-      event.nombre_del_evento,
-      region,
-    );
+    const analisis = await this.saludAnaliticaService.analizarRiesgoEvento(event.nombre_del_evento, region);
     respuestaFinal += `\n\n${analisis}`;
 
-    // ENRIQUECIMIENTO: Datos de calidad del aire
     const environmentalKeywords = [
-      'dengue',
-      'zika',
-      'chikun',
-      'malaria',
-      'tuberculosis',
-      'contaminacion',
-      'chagas',
-      'ofidico',
-      'animales',
-      'eta',
-      'alimentos',
-      'intoxicacion',
-      'desnutricion',
-      'respiratoria',
+      'dengue', 'zika', 'chikun', 'malaria', 'tuberculosis', 'contaminacion',
+      'chagas', 'ofidico', 'animales', 'eta', 'alimentos', 'intoxicacion',
+      'desnutricion', 'respiratoria',
     ];
-    const isEnvRelevant = environmentalKeywords.some((k) =>
-      event.nombre_del_evento.toLowerCase().includes(k),
-    );
+    const isEnvRelevant = environmentalKeywords.some(k => event.nombre_del_evento.toLowerCase().includes(k));
 
     try {
       if (isEnvRelevant) {
-        const aireData =
-          await this.airQualityService.getAirQualityByMunicipio(region);
+        const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
         if (aireData && aireData.length > 0) {
-          const uniqueVariables = Array.from(
-            new Map(aireData.map((v: any) => [v.variable, v])).values(),
-          );
-          const variables = uniqueVariables
-            .slice(0, 3)
-            .map(
-              (item: any) =>
-                `- ${item.variable}: ${item.promedio} ${item.unidades}`,
-            )
-            .join('\n');
-
+          const uniqueVariables = Array.from(new Map(aireData.map((v: any) => [v.variable, v])).values());
+          const variables = uniqueVariables.slice(0, 3).map((item: any) => `- ${item.variable}: ${item.promedio} ${item.unidades}`).join('\n');
           respuestaFinal += `\n\n🍃 **Indicadores ambientales en ${region}:**\n${variables}\n(Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas).`;
         } else {
           respuestaFinal += `\n\n(Nota: Los datos de salud pública mostrados son estadísticas nacionales consolidadas. No se encontraron datos ambientales locales para ${region}).`;
