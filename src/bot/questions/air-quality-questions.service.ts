@@ -1,0 +1,66 @@
+import { Injectable } from '@nestjs/common';
+import { normalizeString } from '../../shared/health-utils';
+import { AirQualityService } from '../air-quality.service';
+
+@Injectable()
+export class AirQualityQuestionsService {
+    constructor(
+        private readonly airQualityService: AirQualityService,
+    ) { }
+
+    getAvailableQuestions(): string {
+        return `🍃 **Consultas sobre Calidad del Aire**
+
+Puedo consultar indicadores de calidad del aire para cualquier municipio o departamento de Colombia.
+
+💡 **Ejemplos:**
+• *"¿Cómo está la calidad del aire en Bogotá?"*
+• *"Calidad del aire en Cali"*
+• *"Indicadores ambientales en Medellín"*
+• *"Cómo está el aire en Bucaramanga"*
+
+¿De qué municipio o departamento deseas conocer la calidad del aire?`;
+    }
+
+    /**
+     * Procesa una consulta de texto y retorna una respuesta formateada.
+     * Retorna null si la consulta no es de tipo calidad del aire.
+     */
+    async processAirQualityQuery(
+        text: string,
+        region?: string,
+    ): Promise<{ respuesta: string; tipo: string } | null> {
+        const norm = normalizeString(text);
+
+        // Detectar si pregunta sobre capacidades del servicio
+        if (
+            norm.includes('que calidad del aire') ||
+            norm.includes('que info de aire') ||
+            norm.includes('que datos de aire') ||
+            norm.includes('que sabes de calidad del aire') ||
+            (norm.includes('que') && norm.includes('calidad del aire'))
+        ) {
+            return { respuesta: this.getAvailableQuestions(), tipo: 'listado' };
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtiene datos de calidad del aire para un municipio/región.
+     */
+    async obtenerCalidadAire(region: string): Promise<string | null> {
+        const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
+        if (!aireData || aireData.length === 0) return null;
+
+        const uniqueVariables = Array.from(
+            new Map(aireData.map((v: any) => [v.variable, v])).values()
+        );
+        const variables = uniqueVariables
+            .slice(0, 3)
+            .map((item: any) => `- ${item.variable}: ${item.promedio} ${item.unidades}`)
+            .join('\n');
+
+        return `🍃 **Indicadores ambientales en ${region}:**\n${variables}`;
+    }
+}

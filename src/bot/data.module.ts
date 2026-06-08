@@ -17,6 +17,10 @@ import { PredictionService } from './prediction.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
+// Removed: import { ProviderQuestionsService } from './questions/provider-questions.service';
+import { AdvancedPredictionService } from './advanced-prediction.service';
+import { EarlyWarningService } from './early-warning.service';
+import { MlPredictionService } from './ml-prediction.service';
 
 @Module({
   imports: [
@@ -40,6 +44,9 @@ import { GraphicsQuestionsService } from './questions/graphics-questions.service
     SaludPublicaQuestionsService,
     YopalQuestionsService,
     GraphicsQuestionsService,
+    EarlyWarningService, // Keep this
+    AdvancedPredictionService,
+    MlPredictionService,
   ],
   exports: [
     AirQualityService,
@@ -59,6 +66,9 @@ import { GraphicsQuestionsService } from './questions/graphics-questions.service
     SaludPublicaQuestionsService,
     YopalQuestionsService,
     GraphicsQuestionsService,
+    EarlyWarningService, // Keep this
+    AdvancedPredictionService,
+    MlPredictionService,
   ],
 })
 export class DataModule { }

@@ -2,6 +2,10 @@
 
 **Proyecto desarrollado para el Concurso IA Colombia**
 
+<p align="center">
+  <img src="./images/Imagen_bot.jpg" alt="Salud IA Bot - Logo" width="300"/>
+</p>
+
 ## 1. Introducción y Alcance
 
 El proyecto **Salud IA Bot** es una solución tecnológica diseñada para actuar como un puente de información entre los sistemas de salud pública de Colombia y la ciudadanía. Su objetivo primordial es la **prevención de enfermedades** mediante el suministro de información experta, oportuna y accesible a través de la mensajería instantánea (Telegram).

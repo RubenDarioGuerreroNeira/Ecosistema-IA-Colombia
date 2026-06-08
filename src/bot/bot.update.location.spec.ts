@@ -19,6 +19,7 @@ import { VaccinationService } from './vaccination.service';
 import { MentalHealthService } from './mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
+import { RiskQuestionsService } from './questions/risk-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { ChartQueryService } from './chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
@@ -137,6 +138,10 @@ describe('BotUpdate Geo-localization', () => {
         {
           provide: SaludPublicaQuestionsService,
           useValue: { processPublicHealthQuery: jest.fn() },
+        },
+        {
+          provide: RiskQuestionsService,
+          useValue: { processRiskQuery: jest.fn() },
         },
         {
           provide: YopalQuestionsService,

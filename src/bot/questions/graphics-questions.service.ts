@@ -38,20 +38,16 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
   async processGraphicsQuery(text: string): Promise<string | null> {
     const norm = normalizeString(text);
 
-    if (
-      norm.includes('visulaizar') ||
-      norm.includes('visualizar') ||
-      norm.includes('graficar') ||
-      norm.includes('gráfico') ||
-      norm.includes('grafico') ||
-      norm.includes('graficos') ||
-      norm.includes('grafica') ||
-      norm.includes('graficas') ||
-      norm.includes('que puedes') ||
-      norm.includes('que grafic') ||
-      norm === 'graficos' ||
-      norm === 'graficas'
-    ) {
+    // Solo devolver la lista de capacidades si el usuario pregunta EXPLÍCITAMENTE
+    // qué gráficos puede hacer, no cuando menciona "grafico" + algo específico
+    const explicitQuery =
+      norm.includes('que graficos') ||
+      norm.includes('que graficas') ||
+      norm.includes('que puedes graficar') ||
+      norm.includes('que tipo de graficos') ||
+      (norm.includes('ayuda') && norm.includes('grafico'));
+
+    if (explicitQuery) {
       return this.getAvailableQuestions();
     }
 

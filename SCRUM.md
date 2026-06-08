@@ -1,5 +1,9 @@
 # Scrum Framework - Salud IA Bot 🏥🤖
 
+<p align="center">
+  <img src="./images/Imagen_bot.jpg" alt="Salud IA Bot - Logo" width="300"/>
+</p>
+
 Este documento define la metodología de trabajo y el estado del ciclo de vida del proyecto basándose en el marco Scrum.
 
 ## 📝 Visión del Producto
@@ -30,16 +34,23 @@ Proporcionar una herramienta de inteligencia artificial en Telegram que facilite
 - **Cobertura de Tests:** Implementación robusta de tests unitarios y E2E para nuevos servicios.
 - **Geolocalización:** Implementación de búsqueda de prestadores por coordenadas (radio 5km).
 
----
+### Sprint 5: Optimización y Calidad de Código 🧹
+
+- **Corrección de UX:** Mensaje de bienvenida reparado (formato Markdown roto y texto mal formateado en la sección de Salud Pública).
+- **Eliminación de `console.log`:** Reemplazo completo de logs directos por el sistema de logging de NestJS (`Logger`) en `bot.update.ts`.
+- **Tipado fuerte:** Interfaces TypeScript agregadas (`UserState`, `HealthEvent`, `AirQualityItem`, `AgeDistribution`, etc.) eliminando dependencia de `any` en parámetros clave.
+- **Descomposición de métodos:** `handleMentalHealthQuery` (~260 líneas) dividido en 7 sub-métodos especializados.
+- **Constantes globales:** Extracción de listas de departamentos, regiones, keywords y strings de respuesta a constantes fuera de la clase para mejor mantenibilidad.
+- **Funciones auxiliares independientes:** `escapeMarkdown()` y `normalizeText()` extraídas como funciones puras reutilizables.
 
 ## 📋 Product Backlog (Pendientes)
 
-| Prioridad | Tarea                          | Descripción                                                                                                  | Estado     |
-| :-------- | :----------------------------- | :----------------------------------------------------------------------------------------------------------- | :--------- |
-| **Media** | Geocodificación de Direcciones | Investigar e implementar la conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali. | Pendiente  |
-| **Media** | UI Polishing                   | Mejorar el formato de mensajes largos y menús interactivos (Inline Buttons).                                 | Pendiente  |
-| **Baja**  | Dashboard Analítico            | Integración con Genkit para generar visualizaciones dinámicas de tendencias de salud.                        | Pendiente  |
-| **Baja**  | Exportación de Datos           | Permitir a los usuarios descargar resúmenes de salud en PDF/Excel.                                           | Pendiente  |
+| Prioridad | Tarea                          | Descripción                                                                                                  | Estado    |
+| :-------- | :----------------------------- | :----------------------------------------------------------------------------------------------------------- | :-------- |
+| **Media** | Geocodificación de Direcciones | Investigar e implementar la conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali. | Pendiente |
+| **Media** | UI Polishing                   | Mejorar el formato de mensajes largos y menús interactivos (Inline Buttons).                                 | Pendiente |
+| **Baja**  | Dashboard Analítico            | Integración con Genkit para generar visualizaciones dinámicas de tendencias de salud.                        | Pendiente |
+| **Baja**  | Exportación de Datos           | Permitir a los usuarios descargar resúmenes de salud en PDF/Excel.                                           | Pendiente |
 
 ---
 

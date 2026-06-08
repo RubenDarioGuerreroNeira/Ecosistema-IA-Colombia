@@ -23,3 +23,7 @@ propuestas/
 mejoras/
 
 .aider*
+
+# Agregar esto al final de tu .gitignore
+nul
+

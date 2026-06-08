@@ -30,8 +30,12 @@ export class ChartQueryService {
     async processChartQuery(text: string, region?: string): Promise<ChartQueryResult> {
         const norm = normalizeString(text);
 
-        // 1. Calidad del Aire
-        if (norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) {
+        // --- Helper para detectar si la consulta es explícitamente sobre aire/ambiente ---
+        const isAirQuery = (norm.includes('calidad del aire') || norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
+            (norm.includes('grafic') || norm.includes('visual') || norm.includes('indicador') || norm.includes('mostrar') || norm.includes('muestra'));
+
+        // 1. Calidad del Aire (solo si la consulta menciona explícitamente aire)
+        if (isAirQuery) {
             if (!region) {
                 return {
                     success: true,
@@ -52,8 +56,11 @@ export class ChartQueryService {
             return { success: false };
         }
 
-        // 2. Cali Health
-        if (region === 'CALI' || norm.includes('servicios')) {
+        // 2. Cali Health - Solo cuando se piden EXPRESAMENTE servicios de salud en Cali
+        const serviciosKeywords = ['servicios', 'clinicas', 'hospitales', 'prestadores', 'ips'];
+        const isCaliServicesQuery = norm.includes('servicios') ||
+            (region === 'CALI' && serviciosKeywords.some(k => norm.includes(k)));
+        if (isCaliServicesQuery) {
             const stats = this.caliHealthService.getStatsByCategory();
             const chartUrl = this.chartService.generatePieChart(stats.labels, stats.data, 'Servicios de Salud en Cali (Top Categorías)');
             return { success: true, photo: chartUrl, caption: '📊 Distribución de servicios de salud en Cali.' };
@@ -61,7 +68,7 @@ export class ChartQueryService {
 
         // 3. Salud Mental
         const mentalKeywords = ['mental', 'psicologia', 'psiquiatria', 'depresion', 'ansiedad', 'trastorno', 'esquizo', 'bipol', 'demencia', 'delirio', 'psicosis', 'mania', 'spa'];
-        if (mentalKeywords.some(k => norm.includes(k))) {
+        if (mentalKeywords.some(k => norm.includes(k)) && (norm.includes('grafic') || norm.includes('visual') || norm.includes('top') || norm.includes('mas frecuentes') || norm.includes('distribucion'))) {
             const top = await this.mentalHealthService.getTopDiagnoses(6);
             const labels = top.map(d => d.diagnostico_ingreso.length > 20 ? d.diagnostico_ingreso.substring(0, 17) + '...' : d.diagnostico_ingreso);
             const data = top.map(d => d.total);
@@ -70,7 +77,7 @@ export class ChartQueryService {
         }
 
         // 4. Top Eventos Salud Pública
-        if (norm.includes('salud publica') || norm.includes('eventos') || norm.includes('casos de enfermedades')) {
+        if ((norm.includes('salud publica') || norm.includes('eventos') || norm.includes('casos de enfermedades')) && (norm.includes('grafic') || norm.includes('visual') || norm.includes('top') || norm.includes('mas frecuentes') || (norm.includes('mostrar') && norm.includes('grafico')))) {
             const top = await this.healthDataService.getTopEvents(6);
             const labels = top.map(e => e.nombre_del_evento.length > 20 ? e.nombre_del_evento.substring(0, 17) + '...' : e.nombre_del_evento);
             const data = top.map(e => e.total_de_eventos);
@@ -84,6 +91,7 @@ export class ChartQueryService {
         if (detectedEvent) {
             const stats = await this.healthDataService.getStatsForEvent(detectedEvent);
             if (stats) {
+                // Subcategorías específicas
                 if (norm.includes('sexo') || norm.includes('genero')) {
                     const chartUrl = this.chartService.generatePieChart(['Femenino', 'Masculino'], [stats.femenino, stats.masculino], `Distribución por Sexo: ${stats.nombre_del_evento}`);
                     return { success: true, photo: chartUrl, caption: `👥 Proporción por sexo de ${stats.nombre_del_evento}.` };
@@ -99,6 +107,19 @@ export class ChartQueryService {
                     const chartUrl = this.chartService.generateLineChart(labels, data, `Tendencia de ${stats.nombre_del_evento} (6 meses)`);
                     return { success: true, photo: chartUrl, caption: `📈 Evolución de casos de ${stats.nombre_del_evento}.` };
                 }
+
+                // --- GRÁFICO GENERAL POR DEFECTO para eventos específicos ---
+                // Si no se especificó sexo/zona/tendencia, mostrar distribución por sexo (más informativo)
+                const chartUrl = this.chartService.generateBarChart(
+                    ['Femenino', 'Masculino'],
+                    [stats.femenino, stats.masculino],
+                    `Casos de ${stats.nombre_del_evento} en Colombia por Sexo`,
+                );
+                return {
+                    success: true,
+                    photo: chartUrl,
+                    caption: `📊 Distribución de ${stats.nombre_del_evento} por sexo. Usa "gráfico de ${detectedEvent} por zona/tendencia" para más detalles.`,
+                };
             }
         }
 
