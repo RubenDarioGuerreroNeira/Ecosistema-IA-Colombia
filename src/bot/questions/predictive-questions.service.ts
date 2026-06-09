@@ -3,7 +3,7 @@ import { normalizeString } from '../../shared/health-utils';
 import { EarlyWarningService } from '../early-warning.service';
 import { AdvancedPredictionService } from '../advanced-prediction.service';
 import { MlPredictionService } from '../ml-prediction.service';
-import { SaludPublicaService } from '../salud-publica.service';
+import { SaludPublicaService } from '../public-health/salud-publica.service';
 
 @Injectable()
 export class PredictiveQuestionsService {

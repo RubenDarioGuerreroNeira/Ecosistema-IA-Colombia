@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
+import { MentalHealthQuestionsService } from '../questions/mental-health-questions.service';
 import { MentalHealthService } from './mental-health.service';
 
 describe('MentalHealthQuestionsService', () => {

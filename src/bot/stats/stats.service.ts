@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { HealthDataService } from '../health-data.service';
-import { MentalHealthService } from '../mental-health.service';
+import { MentalHealthService } from '../mental-health/mental-health.service';
 import { HealthStatsService } from './health-stats.service';
 import { MentalHealthStatsService } from './mental-health-stats.service';
 import { SexualHealthStatsService } from './sexual-health-stats.service';
-import { AntioquiaHealthService } from '../antioquia-health.service';
-import { BoyacaHealthService } from '../boyaca-health.service';
-import { CaliHealthService } from '../cali-health.service';
-import { YopalHealthService } from '../yopal-health.service';
+import { AntioquiaHealthService } from '../antioquia/antioquia-health.service';
+import { BoyacaHealthService } from '../boyaca/boyaca-health.service';
+import { CaliHealthService } from '../cali/cali-health.service';
+import { YopalHealthService } from '../yopal/yopal-health.service';
 import { NationalHealthService } from '../national-health.service';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class StatsService {
     private readonly caliHealthService: CaliHealthService,
     private readonly yopalHealthService: YopalHealthService,
     private readonly nationalHealthService: NationalHealthService,
-  ) {}
+  ) { }
 
   async getSummary(query: string): Promise<string> {
     const queryLower = query.toLowerCase();
@@ -101,65 +101,65 @@ export class StatsService {
       'psiquiatría',
       'enfermedad mental',
     ];
-    
+
     // Nueva detección para la "más frecuente" general o por grupo de edad o comparativas (vs)
     if (mentalKeywords.some((kw) => queryLower.includes(kw)) || queryLower.includes(' vs ')) {
-       
-       // Detección de Perfil de Riesgo (Propuesta #4)
-       if (queryLower.includes('perfil de riesgo') || queryLower.includes('perfil riesgo')) {
-          console.log('DEBUG: Detección de perfil de riesgo activada para:', queryLower);
-          
-          // Limpiar la consulta para obtener solo el término de búsqueda, eliminando frases comunes y palabras introductorias
-          let terms = queryLower
-            .replace(/perfil de riesgo de/g, '')
-            .replace(/perfil riesgo de/g, '')
-            .replace(/perfil de riesgo/g, '')
-            .replace(/perfil riesgo/g, '')
-            .replace(/deme el/g, '')
-            .replace(/dame el/g, '')
-            .replace(/por favor/g, '')
-            .trim();
-          
-          console.log('DEBUG: Términos limpios para búsqueda:', terms);
-          
-          // Buscar diagnósticos que coincidan con el término
-          const matches = await this.mentalHealthService.searchDiagnoses(terms);
-          
-          console.log('DEBUG: Diagnósticos encontrados:', matches.length);
-          
-          if (matches.length > 0) {
-            // Si hay varios (ej. ansiedad generalizada, trastorno mixto), elegir el que tenga más casos (total)
-            const bestMatch = matches.sort((a, b) => b.total - a.total)[0];
-            console.log('DEBUG: Mejor diagnóstico seleccionado:', bestMatch.diagnostico_ingreso);
-            return await this.getMentalHealthRiskProfile(bestMatch.diagnostico_ingreso);
-          }
-       }
 
-       // Detección de comparativa "X vs Y"
-       if (queryLower.includes(' vs ')) {
-          const parts = queryLower.split(' vs ');
-          if (parts.length === 2) {
-             return this.compareMentalHealth(parts[0].trim(), parts[1].trim());
-          }
-       }
+      // Detección de Perfil de Riesgo (Propuesta #4)
+      if (queryLower.includes('perfil de riesgo') || queryLower.includes('perfil riesgo')) {
+        console.log('DEBUG: Detección de perfil de riesgo activada para:', queryLower);
 
-       // Detección de grupo de edad específico en la consulta
-       if (queryLower.includes('joven') || queryLower.includes('jovenes') || queryLower.includes('adolescent')) {
-          const topMental = await this.mentalHealthService.getTopByLifeCycle('jovenes', 1);
-          if (topMental.length > 0) {
-             const d = topMental[0];
-             return `En el grupo de adolescentes y jóvenes, la enfermedad de salud mental más frecuente es: ${d.diagnostico_ingreso} con ${d.total_en_ciclo} casos registrados en este ciclo de vida.`;
-          }
-       }
-       
-       // Fallback a global
-       if (queryLower.includes('más frecuente') || queryLower.includes('que más afecta')) {
-         const topMental = await this.mentalHealthService.getTopDiagnoses(1);
-         if (topMental.length > 0) {
-           const d = topMental[0];
-           return `La enfermedad de salud mental que más afecta a los registrados es: ${d.diagnostico_ingreso} con ${d.total} casos.`;
-         }
-       }
+        // Limpiar la consulta para obtener solo el término de búsqueda, eliminando frases comunes y palabras introductorias
+        let terms = queryLower
+          .replace(/perfil de riesgo de/g, '')
+          .replace(/perfil riesgo de/g, '')
+          .replace(/perfil de riesgo/g, '')
+          .replace(/perfil riesgo/g, '')
+          .replace(/deme el/g, '')
+          .replace(/dame el/g, '')
+          .replace(/por favor/g, '')
+          .trim();
+
+        console.log('DEBUG: Términos limpios para búsqueda:', terms);
+
+        // Buscar diagnósticos que coincidan con el término
+        const matches = await this.mentalHealthService.searchDiagnoses(terms);
+
+        console.log('DEBUG: Diagnósticos encontrados:', matches.length);
+
+        if (matches.length > 0) {
+          // Si hay varios (ej. ansiedad generalizada, trastorno mixto), elegir el que tenga más casos (total)
+          const bestMatch = matches.sort((a, b) => b.total - a.total)[0];
+          console.log('DEBUG: Mejor diagnóstico seleccionado:', bestMatch.diagnostico_ingreso);
+          return await this.getMentalHealthRiskProfile(bestMatch.diagnostico_ingreso);
+        }
+      }
+
+      // Detección de comparativa "X vs Y"
+      if (queryLower.includes(' vs ')) {
+        const parts = queryLower.split(' vs ');
+        if (parts.length === 2) {
+          return this.compareMentalHealth(parts[0].trim(), parts[1].trim());
+        }
+      }
+
+      // Detección de grupo de edad específico en la consulta
+      if (queryLower.includes('joven') || queryLower.includes('jovenes') || queryLower.includes('adolescent')) {
+        const topMental = await this.mentalHealthService.getTopByLifeCycle('jovenes', 1);
+        if (topMental.length > 0) {
+          const d = topMental[0];
+          return `En el grupo de adolescentes y jóvenes, la enfermedad de salud mental más frecuente es: ${d.diagnostico_ingreso} con ${d.total_en_ciclo} casos registrados en este ciclo de vida.`;
+        }
+      }
+
+      // Fallback a global
+      if (queryLower.includes('más frecuente') || queryLower.includes('que más afecta')) {
+        const topMental = await this.mentalHealthService.getTopDiagnoses(1);
+        if (topMental.length > 0) {
+          const d = topMental[0];
+          return `La enfermedad de salud mental que más afecta a los registrados es: ${d.diagnostico_ingreso} con ${d.total} casos.`;
+        }
+      }
     }
 
     if (
@@ -318,7 +318,7 @@ export class StatsService {
           const direccion = p.direccion || 'N/A';
           const telefono = p.telefono || 'N/A';
           const email = provider.correo_electronico || 'N/A';
-          
+
           return `🏢 Entidad: ${nombre}\n👤 Gerente: ${gerente}\n📍 Dirección: ${direccion}\n📞 Teléfono: ${telefono}\n📧 Email: ${email}`;
         });
         return `🏥 Servicios de Salud en Yopal (Casanare):\n\n${lines.join('\n\n')}`;
@@ -365,8 +365,8 @@ export class StatsService {
         matchedMunicipios.length === 1
           ? `Centros de salud en ${matchedMunicipios[0]} (según archivos locales):`
           : `Centros de salud en ${matchedMunicipios.join(
-              ', ',
-            )} (según archivos locales):`;
+            ', ',
+          )} (según archivos locales):`;
 
       return `${header}\n${lines.join('\n\n')}`;
     }

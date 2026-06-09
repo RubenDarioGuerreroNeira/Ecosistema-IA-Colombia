@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { YopalHealthService } from '../yopal-health.service';
+import { YopalHealthService } from '../yopal/yopal-health.service';
 import { normalizeString } from '../../shared/health-utils';
 
 @Injectable()

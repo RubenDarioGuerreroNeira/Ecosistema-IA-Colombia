@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { normalizeString } from '../../shared/health-utils';
-import { SaludAnaliticaService } from '../salud-analitica.service';
+import { SaludAnaliticaService } from '../analytic-health/salud-analitica.service';
 
 @Injectable()
 export class RiskQuestionsService {

@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MentalHealthService } from '../mental-health.service';
+import { MentalHealthService } from '../mental-health/mental-health.service';
 
 @Injectable()
 export class MentalHealthStatsService {
   private readonly logger = new Logger(MentalHealthStatsService.name);
 
-  constructor(private readonly mentalHealthService: MentalHealthService) {}
+  constructor(private readonly mentalHealthService: MentalHealthService) { }
 
   /**
    * Analiza la salud mental agrupando por ciclos de vida.

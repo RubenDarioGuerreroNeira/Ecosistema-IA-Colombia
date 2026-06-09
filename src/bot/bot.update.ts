@@ -4,31 +4,31 @@ import { Logger } from '@nestjs/common';
 import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
-import { CaliHealthService } from './cali-health.service';
-import { BoyacaHealthService } from './boyaca-health.service';
-import { YopalHealthService } from './yopal-health.service';
-import { AntioquiaHealthService } from './antioquia-health.service';
-import { SaludPublicaService } from './salud-publica.service';
-import { SaludAnaliticaService } from './salud-analitica.service';
+import { CaliHealthService } from './cali/cali-health.service';
+import { BoyacaHealthService } from './boyaca/boyaca-health.service';
+import { YopalHealthService } from './yopal/yopal-health.service';
+import { AntioquiaHealthService } from './antioquia/antioquia-health.service';
+import { SaludPublicaService } from './public-health/salud-publica.service';
+import { SaludAnaliticaService } from './analytic-health/salud-analitica.service';
 import { HealthStatsService } from './stats/health-stats.service';
 import { HealthDataService } from './health-data.service';
-import { SexualHealthService, Intencion } from './sexual-health.service';
-import { AirQualityService } from './air-quality.service';
+import { SexualHealthService, Intencion } from './sexual-health/sexual-health.service';
+import { AirQualityService } from './air/air-quality.service';
 import { PredictionService } from './prediction.service';
-import { ChartService } from './chart.service';
+import { ChartService } from './chart/chart.service';
 import { VaccinationService } from './vaccination.service';
 import { normalizeString } from '../shared/health-utils';
 import {
     MentalHealthService,
     MentalHealthEvent,
     MentalHealthEventWithTotal,
-} from './mental-health.service';
+} from './mental-health/mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { RiskQuestionsService } from './questions/risk-questions.service';
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
-import { ChartQueryService } from './chart-query.service';
+import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
 import { EarlyWarningService } from './early-warning.service';
 import { AdvancedPredictionService } from './advanced-prediction.service';

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SaludPublicaService } from './salud-publica.service';
+import { SaludPublicaService } from './public-health/salud-publica.service';
 import { VaccinationService } from './vaccination.service';
-import { AirQualityService } from './air-quality.service';
+import { AirQualityService } from './air/air-quality.service';
 
 interface EarlyWarning {
     nivel: '🟢 NORMAL' | '🟡 VIGILANCIA' | '🟠 ALERTA' | '🔴 EMERGENCIA';
@@ -175,13 +175,13 @@ export class EarlyWarningService {
         switch (nivel) {
             case '🔴 EMERGENCIA':
                 return `${base}. ACTIVAR PROTOCOLO DE EMERGENCIA. Notificar autoridades sanitarias. ${coberturaVacuna !== null && coberturaVacuna < 0.6
-                        ? 'Campaña masiva de vacunación REQUERIDA.'
-                        : 'Intensificar búsqueda activa de casos.'
+                    ? 'Campaña masiva de vacunación REQUERIDA.'
+                    : 'Intensificar búsqueda activa de casos.'
                     }`;
             case '🟠 ALERTA':
                 return `${base}. Intensificar medidas preventivas. ${coberturaVacuna !== null && coberturaVacuna < 0.8
-                        ? 'Reforzar esquemas de vacunación.'
-                        : 'Mantener vigilancia comunitaria.'
+                    ? 'Reforzar esquemas de vacunación.'
+                    : 'Mantener vigilancia comunitaria.'
                     }`;
             case '🟡 VIGILANCIA':
                 return `${base}. Monitorear evolución semanal. Revisar datos de vacunación y condiciones ambientales.`;

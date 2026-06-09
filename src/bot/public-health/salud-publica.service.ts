@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { parseStringPromise } from 'xml2js';
-import { HealthEvent } from './health-data.service';
+import { HealthEvent } from '../health-data.service';
 
 @Injectable()
 export class SaludPublicaService implements OnModuleInit {

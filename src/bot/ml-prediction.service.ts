@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SaludPublicaService } from './salud-publica.service';
+import { SaludPublicaService } from './public-health/salud-publica.service';
 import { VaccinationService } from './vaccination.service';
-import { AirQualityService } from './air-quality.service';
+import { AirQualityService } from './air/air-quality.service';
 import { HealthDataService } from './health-data.service';
 
 // @ts-ignore - ml-random-forest no tiene tipos oficiales

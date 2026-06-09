@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SaludAnaliticaService } from './salud-analitica.service';
-import { SaludPublicaService } from './salud-publica.service';
-import { HealthEvent } from './types/health-event.interface';
-import { VaccinationService } from './vaccination.service';
-import { NationalHealthService } from './national-health.service';
+import { SaludPublicaService } from '../public-health/salud-publica.service';
+import { HealthEvent } from '../types/health-event.interface';
+import { VaccinationService } from '../vaccination.service';
+import { NationalHealthService } from '../national-health.service';
 
 describe('SaludAnaliticaService', () => {
   let service: SaludAnaliticaService;

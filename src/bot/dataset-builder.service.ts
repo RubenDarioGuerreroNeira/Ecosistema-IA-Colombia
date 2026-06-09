@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { SaludPublicaService } from './salud-publica.service';
-import { AirQualityService } from './air-quality.service';
+import { SaludPublicaService } from './public-health/salud-publica.service';
+import { AirQualityService } from './air/air-quality.service';
 import { VaccinationService } from './vaccination.service';
 
 @Injectable()

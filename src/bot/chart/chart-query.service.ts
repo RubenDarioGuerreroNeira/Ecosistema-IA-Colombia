@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ChartService } from './chart.service';
-import { AirQualityService } from './air-quality.service';
-import { CaliHealthService } from './cali-health.service';
-import { MentalHealthService } from './mental-health.service';
-import { HealthDataService } from './health-data.service';
-import { VaccinationService } from './vaccination.service';
-import { normalizeString } from '../shared/health-utils';
+import { AirQualityService } from '../air/air-quality.service';
+import { CaliHealthService } from '../cali/cali-health.service';
+import { MentalHealthService } from '../mental-health/mental-health.service';
+import { HealthDataService } from '../health-data.service';
+import { VaccinationService } from '../vaccination.service';
+import { normalizeString } from '../../shared/health-utils';
 
 export interface ChartQueryResult {
     success: boolean;

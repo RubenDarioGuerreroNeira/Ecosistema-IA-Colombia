@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { XMLParser } from 'fast-xml-parser';
-import { normalizeString } from '../shared/health-utils';
+import { normalizeString } from '../../shared/health-utils';
 
 export interface MentalHealthEvent {
   diagnostico_ingreso: string;

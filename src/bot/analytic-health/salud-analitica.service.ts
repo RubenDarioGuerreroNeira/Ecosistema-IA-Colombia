@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SaludPublicaService } from './salud-publica.service';
-import { VaccinationService } from './vaccination.service';
-import { HealthEvent } from './health-data.service';
-import { NationalHealthService } from './national-health.service';
+import { SaludPublicaService } from '../public-health/salud-publica.service';
+import { VaccinationService } from '../vaccination.service';
+import { HealthEvent } from '../health-data.service';
+import { NationalHealthService } from '../national-health.service';
 
 @Injectable()
 export class SaludAnaliticaService {
@@ -31,7 +31,7 @@ export class SaludAnaliticaService {
     private readonly saludPublicaService: SaludPublicaService,
     private readonly vaccinationService: VaccinationService,
     private readonly nationalHealthService: NationalHealthService,
-  ) {}
+  ) { }
 
   /**
    * Genera un análisis de riesgo mejorado incluyendo datos de vacunación.

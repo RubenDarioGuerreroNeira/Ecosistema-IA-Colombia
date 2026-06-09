@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { SaludPublicaService } from '../salud-publica.service';
+import { SaludPublicaService } from '../public-health/salud-publica.service';
 import { normalizeString } from '../../shared/health-utils';
 
-import { CaliHealthService } from '../cali-health.service';
-import { BoyacaHealthService } from '../boyaca-health.service';
-import { YopalHealthService } from '../yopal-health.service';
-import { AntioquiaHealthService } from '../antioquia-health.service';
+import { CaliHealthService } from '../cali/cali-health.service';
+import { BoyacaHealthService } from '../boyaca/boyaca-health.service';
+import { YopalHealthService } from '../yopal/yopal-health.service';
+import { AntioquiaHealthService } from '../antioquia/antioquia-health.service';
 
 export interface ServiceQueryResult {
   handled: boolean;

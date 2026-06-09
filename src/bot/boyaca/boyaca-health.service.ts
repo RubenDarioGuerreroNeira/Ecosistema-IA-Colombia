@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xml2js from 'xml2js';
-import { normalizeString, normalizeNit, STOPWORDS } from '../shared/health-utils';
+import { normalizeString, normalizeNit, STOPWORDS } from '../../shared/health-utils';
 
 export interface BoyacaHealthProvider {
   municipio?: string;
@@ -61,7 +61,7 @@ export class BoyacaHealthService implements OnModuleInit {
 
       const parser = new xml2js.Parser({ explicitArray: false });
       const result = await parser.parseStringPromise(xmlData);
-      
+
       if (!result?.response?.rows) {
         throw new Error('Estructura XML inesperada: falta response.rows');
       }
@@ -172,7 +172,7 @@ export class BoyacaHealthService implements OnModuleInit {
         const municipioResults = this.providersByMunicipio.get(token)!;
         if (tokens.length > 1) {
           const otherTokens = tokens.filter(t => t !== token);
-          const filtered = municipioResults.filter(p => 
+          const filtered = municipioResults.filter(p =>
             otherTokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
           );
           if (filtered.length > 0) return filtered.slice(0, safeLimit);
@@ -182,7 +182,7 @@ export class BoyacaHealthService implements OnModuleInit {
     }
 
     // Full-scan with pre-computed normalized fields and 'every' logic
-    const results = this.providers.filter(p => 
+    const results = this.providers.filter(p =>
       tokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
     );
 

@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as xml2js from 'xml2js';
-import { normalizeString, normalizeNit, STOPWORDS } from '../shared/health-utils';
+import { normalizeString, normalizeNit, STOPWORDS } from '../../shared/health-utils';
 
 export interface AntioquiaHealthProvider {
   codigohabilitacion: string;
@@ -41,7 +41,7 @@ export interface AntioquiaHealthProvider {
   _normalized?: string[];
 }
 
-const KNOWLEDGE_SUMMARY_TEMPLATE = (count: number) => 
+const KNOWLEDGE_SUMMARY_TEMPLATE = (count: number) =>
   `He encontrado ${count} centros de salud en Antioquia registrados en mi base de datos local. Si desea consultar alguno, me puedes especificar algunos de estos datos y te mostraré la info: municipio, nombre prestador ó nit.`;
 
 @Injectable()
@@ -63,7 +63,7 @@ export class AntioquiaHealthService implements OnModuleInit {
       const xmlData = await fs.promises.readFile(filePath, 'utf-8');
       const parser = new xml2js.Parser({ explicitArray: false });
       const result = await parser.parseStringPromise(xmlData);
-      
+
       if (!result?.response?.rows) {
         throw new Error('Estructura XML inesperada: falta response.rows');
       }
@@ -169,7 +169,7 @@ export class AntioquiaHealthService implements OnModuleInit {
         const municipioResults = this.providersByMunicipio.get(token)!;
         if (tokens.length > 1) {
           const otherTokens = tokens.filter(t => t !== token);
-          const filtered = municipioResults.filter(p => 
+          const filtered = municipioResults.filter(p =>
             otherTokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
           );
           if (filtered.length > 0) return filtered.slice(0, safeLimit);
@@ -186,7 +186,7 @@ export class AntioquiaHealthService implements OnModuleInit {
 
     // Full-scan with pre-computed normalized fields for performance
     // Use 'every' to ensure ALL search terms must match something in the provider record
-    const results = this.providers.filter(p => 
+    const results = this.providers.filter(p =>
       tokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
     );
 

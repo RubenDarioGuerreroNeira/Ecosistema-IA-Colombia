@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Context } from 'telegraf';
-import { MentalHealthService, MentalHealthEvent, MentalHealthEventWithTotal } from '../mental-health.service';
+import { MentalHealthService, MentalHealthEvent, MentalHealthEventWithTotal } from '../mental-health/mental-health.service';
 import { normalizeString } from '../../shared/health-utils';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
