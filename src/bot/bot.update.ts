@@ -376,15 +376,19 @@ export class BotUpdate {
 Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales y fuentes ambientales para ofrecerte información, análisis y recomendaciones.
 
 ✨ **¿Qué preguntas soy capaz de responder?**
-El bot está diseñado para responder a consultas de alta precisión basadas en datos reales (no solo lenguaje natural):
+El bot está diseñado para responder a consultas de alta precisión basadas en datos reales 
+(no solo lenguaje natural):
 
 🥼 **Salud Pública:**
 - Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
-- Me Puedes preguntar "¿Qué sabes de Salud Pública?" 
-o "¿Qué info tienes de la salud pública en Colombia?" y te mostraré las preguntas que puedo responder
+- Me Puedes preguntar:
+ "¿Qué sabes de Salud Pública?" 
+"¿Qué info tienes de la salud pública en Colombia?" 
+y te mostraré las preguntas que puedo responder
 
 📊 **Gráficos:**
-- Puedes preguntarme "¿Qué puedes Graficar?" 
+- Puedes preguntarme:
+ "¿Qué puedes Graficar?" 
 (te mostraré la lista de gráficos que puedo hacer para ti)
 
 📍 **Búsqueda Geográfica y Logística:**
@@ -405,9 +409,8 @@ o "¿Qué info tienes de la salud pública en Colombia?" y te mostraré las preg
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
 🧠 **Salud Mental y Sexual (CIE-10 y Protocolos):**
-- "¿Cuál es el diagnóstico de salud mental más común en niños?"
-- "¿Cuál es el perfil de riesgo para la ansiedad?"
-- "¿Qué derechos tengo para la prevención del VIH?"
+Te puedo responder preguntas sobre salud mental solo escribe:
+- "Qué información tienes sobre salud mental?"
 
 🍃 **Monitoreo Ambiental:**
 - "¿Cómo está la calidad del aire hoy en Cali?"
@@ -595,7 +598,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
 
         // PRIORIDAD 2: Salud mental (incluye perfil de riesgo, diagnósticos)
-        if (await this.handleMentalHealthQuery(ctx, messageText)) return;
+        if (await this.mentalHealthQuestionsService.handleMentalHealthQuery(ctx, messageText)) return;
 
         // PRIORIDAD 2.5: Consultas de salud pública vía servicio especializado
         if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
@@ -692,274 +695,6 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         }
     }
 
-    // ─── Mental Health ────────────────────────────────────────────────────────────
-    private async handleMentalHealthQuery(ctx: Context, text: string): Promise<boolean> {
-        const norm = normalizeString(text);
-
-        const isMentalHealth =
-            norm.includes('salud mental') ||
-            norm.includes('psicologia') ||
-            norm.includes('psiquiatria') ||
-            norm.includes('depresion') ||
-            norm.includes('ansiedad') ||
-            norm.includes('trastorno') ||
-            norm.includes('esquizo') ||
-            norm.includes('bipol') ||
-            norm.includes('demencia') ||
-            norm.includes('delirio') ||
-            norm.includes('psicosis') ||
-            norm.includes('mania') ||
-            norm.includes('agorafobia') ||
-            norm.includes('retraso') ||
-            norm.includes('spa') ||
-            (norm.includes('diagnostico') && norm.includes('mental'));
-
-        const isRiskProfileQuery =
-            (norm.includes('perfil') && norm.includes('riesgo')) ||
-            (norm.includes('factor') && norm.includes('riesgo'));
-
-        const isLifeCycleQuery =
-            (norm.includes('ninos') ||
-                norm.includes('nino') ||
-                norm.includes('adolescente') ||
-                norm.includes('jovenes') ||
-                norm.includes('joven') ||
-                norm.includes('adultos') ||
-                norm.includes('adulto') ||
-                norm.includes('mayores') ||
-                norm.includes('mayor')) &&
-            (norm.includes('diagnostico') ||
-                norm.includes('frecuente') ||
-                norm.includes('comunes') ||
-                norm.includes('mental') ||
-                norm.includes('salud'));
-
-        if (!isMentalHealth && !isLifeCycleQuery && !isRiskProfileQuery) {
-            return false;
-        }
-
-        const hasRiskKeyword =
-            (norm.includes('perfil') && norm.includes('riesgo')) ||
-            (norm.includes('factor') && norm.includes('riesgo'));
-
-        const isGenericRiskQuery =
-            hasRiskKeyword &&
-            !norm.includes('depres') &&
-            !norm.includes('ansied') &&
-            !norm.includes('trastorn') &&
-            !norm.includes('esquizo') &&
-            !norm.includes('bipol') &&
-            !norm.includes('spa') &&
-            !norm.includes('dengue') &&
-            !norm.includes('zika') &&
-            !norm.includes('chikun') &&
-            !norm.includes('malaria') &&
-            !norm.includes('tuberculosis') &&
-            !norm.includes('vih') &&
-            !norm.includes('sifilis') &&
-            !norm.includes('cancer') &&
-            !norm.includes('anticoncep');
-
-        if (isGenericRiskQuery) {
-            await ctx.reply(
-                '❓ No detecté de qué patología deseas conocer el perfil de riesgo.\n\n' +
-                'Por favor, especifica la enfermedad. Aquí tienes las áreas que manejo:\n\n' +
-                GENERIC_RISK_LIST +
-                '\n\n**Ejemplo:** "¿Cuál es el perfil de riesgo de depresión?" o "Riesgo de dengue"',
-                { parse_mode: 'Markdown' },
-            );
-            return true;
-        }
-
-        const explicitDiagnosis = await this.mentalHealthService.getStatsForDiagnosis(text);
-
-        if (await this.handleMentalHealthCapabilitiesQuery(ctx, norm)) return true;
-
-        if (await this.handleMentalHealthTopDiagnoses(ctx, norm)) return true;
-
-        if (await this.handleMentalHealthAgeDistribution(ctx, norm)) return true;
-
-        if (await this.handleMentalHealthLifeCycleQuery(ctx, norm, text)) return true;
-
-        if (await this.handleMentalHealthRiskProfile(ctx, norm, text, explicitDiagnosis)) return true;
-
-        if (await this.handleMentalHealthComparison(ctx, norm, text)) return true;
-
-        if (await this.handleMentalHealthStats(ctx, text)) return true;
-
-        return false;
-    }
-
-    private async handleMentalHealthCapabilitiesQuery(ctx: Context, norm: string): Promise<boolean> {
-        if (
-            norm.includes('que informacion tienes') ||
-            norm.includes('que puedes') ||
-            norm.includes('ayuda') ||
-            norm.includes('como funciona') ||
-            norm.includes('que sabes')
-        ) {
-            await ctx.reply(this.mentalHealthQuestionsService.getAvailableQuestions(), {
-                parse_mode: 'Markdown',
-            });
-            return true;
-        }
-        return false;
-    }
-
-    private async handleMentalHealthTopDiagnoses(ctx: Context, norm: string): Promise<boolean> {
-        if (
-            norm.includes('frecuente') ||
-            norm.includes('top') ||
-            norm.includes('mas comunes')
-        ) {
-            const top = await this.mentalHealthService.getTopDiagnoses(5);
-            const lines = top.map(
-                (d: MentalHealthEvent, i: number) => `${i + 1}. **${d.diagnostico_ingreso}**: ${d.total} casos`,
-            );
-            await ctx.reply(
-                `🧠 **Top diagnósticos de salud mental:**\n\n${lines.join('\n')}`,
-                { parse_mode: 'Markdown' },
-            );
-            return true;
-        }
-        return false;
-    }
-
-    private async handleMentalHealthAgeDistribution(ctx: Context, norm: string): Promise<boolean> {
-        if (norm.includes('distribucion') && norm.includes('edad')) {
-            const dist = await this.mentalHealthService.getAgeDistribution();
-            const lines = [
-                `👤 Menor a 1 año: ${dist.menor_a_1}`,
-                `👶 1-4 años: ${dist.de_1_a_4}`,
-                `🧒 5-9 años: ${dist.de_5_a_9}`,
-                `🧑 10-14 años: ${dist.de_10_a_14}`,
-                `🧑 15-19 años: ${dist.de_15_a_19}`,
-                `👨 20-49 años: ${dist.de_20_a_49}`,
-                `🧔 50-64 años: ${dist.de_50_a_64}`,
-                `👴 65+ años: ${dist._65_y_mas}`,
-            ];
-            await ctx.reply(
-                `📊 **Distribución por edad en salud mental:**\n\n${lines.join('\n')}\n\n📈 Total: ${dist.total_global} casos`,
-                { parse_mode: 'Markdown' },
-            );
-            return true;
-        }
-        return false;
-    }
-
-    private async handleMentalHealthLifeCycleQuery(ctx: Context, norm: string, text: string): Promise<boolean> {
-        for (const { keys, cycle } of CYCLE_KEYWORDS) {
-            const hasCycle = keys.some((k) => norm.includes(k));
-            if (
-                hasCycle &&
-                (norm.includes('diagnostico') ||
-                    norm.includes('frecuente') ||
-                    norm.includes('comunes'))
-            ) {
-                const top = await this.mentalHealthService.getTopByLifeCycle(cycle, 3);
-                if (top.length > 0) {
-                    const lines = top.map(
-                        (d: MentalHealthEventWithTotal) => `- **${d.diagnostico_ingreso}**: ${d.total_en_ciclo} casos`,
-                    );
-                    await ctx.reply(
-                        `🧠 **Diagnósticos más frecuentes en ${cycle}:**\n\n${lines.join('\n')}`,
-                        { parse_mode: 'Markdown' },
-                    );
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private async handleMentalHealthRiskProfile(
-        ctx: Context,
-        norm: string,
-        text: string,
-        explicitDiagnosis?: MentalHealthEvent | null,
-    ): Promise<boolean> {
-        if (
-            (norm.includes('perfil') || norm.includes('factor')) &&
-            norm.includes('riesgo')
-        ) {
-            let diagName =
-                explicitDiagnosis?.diagnostico_ingreso ||
-                text
-                    .replace(/[¿?]/g, '')
-                    .replace(/(perfil|factor) de riesgo (de |del )?/i, '')
-                    .replace(/en salud mental/i, '')
-                    .replace(/cu[áa]l\s+es\s+el/i, '')
-                    .replace(/^\s*(el|la|los|las)\s+/i, '')
-                    .trim();
-
-            diagName = diagName.replace(/perfil de riesgo/gi, '').trim();
-
-            if (!diagName || diagName.length < 3) return false;
-
-            const profile = await this.mentalHealthService.getRiskProfileByDiagnosis(diagName);
-            if (profile) {
-                const lines = Object.entries(profile.distribucion).map(
-                    ([cycle, count]) => `- ${cycle}: ${count}`,
-                );
-                await ctx.reply(
-                    `🧠 **Perfil de riesgo: ${profile.diagnostico}**\n\nTotal: ${profile.total} casos\n\n**Distribución por ciclo de vida:**\n${lines.join('\n')}`,
-                    { parse_mode: 'Markdown' },
-                );
-                return true;
-            } else {
-                await ctx.reply(
-                    `⚠️ No encontré datos específicos sobre el factor o perfil de riesgo para "${diagName}" en mis registros de salud mental.`,
-                );
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private async handleMentalHealthComparison(ctx: Context, norm: string, text: string): Promise<boolean> {
-        if (norm.includes('compara') && norm.includes(' vs ')) {
-            const parts = text.split(/\s+vs\s+/i);
-            if (parts.length === 2) {
-                const d1Name = parts[0].replace(/compara\s*/i, '').trim();
-                const d2Name = parts[1].trim();
-                const comp = await this.mentalHealthService.getComparisonBetweenDiagnoses(
-                    d1Name,
-                    d2Name,
-                );
-                if (comp) {
-                    await ctx.reply(
-                        `⚖️ **Comparativa:**\n\n**${comp.d1.diagnostico_ingreso}:** ${comp.d1.total} casos\n**${comp.d2.diagnostico_ingreso}:** ${comp.d2.total} casos`,
-                        { parse_mode: 'Markdown' },
-                    );
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private async handleMentalHealthStats(ctx: Context, text: string): Promise<boolean> {
-        const cleanSearch = text
-            .replace(/cuantos? casos hay de?/i, '')
-            .replace(/casos de?/i, '')
-            .replace(/\?/g, '')
-            .trim();
-
-        if (cleanSearch.length > 3) {
-            const stats = await this.mentalHealthService.getStatsForDiagnosis(cleanSearch);
-            if (stats) {
-                await ctx.reply(
-                    `🧠 **${stats.diagnostico_ingreso}**\n\n` +
-                    `📊 **Total:** ${stats.total} casos\n` +
-                    `🆔 **Código:** ${stats.codigo_dx_ingreso}\n` +
-                    `📅 **Año:** ${stats.a_o_diagn_stico}`,
-                    { parse_mode: 'Markdown' },
-                );
-                return true;
-            }
-        }
-        return false;
-    }
 
     // ─── Sexual Health ────────────────────────────────────────────────────────────
     private async handleSexualHealthQuery(ctx: Context, text: string): Promise<boolean> {
@@ -1113,8 +848,8 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
 🧠 **Salud Mental y Sexual:**
-- "¿Cuál es el diagnóstico de salud mental más común en niños?"
-- "¿Qué derechos tengo para la prevención del VIH?"
+- Te puedo responder preguntas sobre salud mental basadas en datos oficiales.  escribebeme |Por ejemplo:
+¿Qué información tienes sobre salud mental?
 
 🍃 **Monitoreo Ambiental:**
 - "¿Cómo está la calidad del aire hoy en Cali?"
