@@ -68,7 +68,6 @@ export class YopalQuestionsService {
 
 🔍 **Búsqueda general (nombre, teléfono, dirección)**
 “Buscar MEDIMAS en Yopal”
-“Buscar MEDIMAS en Yopal”
 “Buscar SANITAS en Yopal”
 “Buscar NUEVA EPS en Yopal”
 “Teléfono de CRUZ ROJA en Yopal”
@@ -114,9 +113,9 @@ Si quieres saber algo específico, solo pregúntame. ¡Estoy aquí para ayudarte
       norm.includes('prestadores de salud en yopal') ||
       norm.includes('centros de salud en yopal') ||
       norm.includes('centros de atencion en yopal') ||
-      norm.includes('que info') ||
-      norm.includes('que informacion') ||
-      norm === 'yopal'
+      norm.includes('que información tienes de yopal') ||
+      norm.includes('que informacion tienes de yopal') ||
+      norm.includes('tienes alguna informacion sobre yopal')
     ) {
       return this.getAvailableQuestions();
     }

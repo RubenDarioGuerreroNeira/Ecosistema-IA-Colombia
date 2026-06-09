@@ -176,6 +176,7 @@ const GENERIC_RISK_LIST = `🧠 **Salud Mental (CIE-10):**
 const GREETING_REGEX = /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start|que sabes hacer|que puedes hacer)/i;
 
 const YOPAL_KEYWORDS = [
+    '¿tienes alguna información sobre Yopal?',
     'yopal',
     'qué información tienes de yopal',
     'manejas datos de yopal',
@@ -375,26 +376,39 @@ export class BotUpdate {
 
 Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales y fuentes ambientales para ofrecerte información, análisis y recomendaciones.
 
-✨ **¿Qué preguntas soy capaz de responder?**
+✨ **¿Qué preguntas soy capaz de responder?: **
+
 El bot está diseñado para responder a consultas de alta precisión basadas en datos reales 
 (no solo lenguaje natural):
 
 🥼 **Salud Pública:**
 - Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
+
 - Me Puedes preguntar:
  "¿Qué sabes de Salud Pública?" 
 "¿Qué info tienes de la salud pública en Colombia?" 
-y te mostraré las preguntas que puedo responder
+ y te mostraré las preguntas que puedo responder
 
 📊 **Gráficos:**
 - Puedes preguntarme:
  "¿Qué puedes Graficar?" 
 (te mostraré la lista de gráficos que puedo hacer para ti)
 
-📍 **Búsqueda Geográfica y Logística:**
+📍 **Información sobre Yopal:**
 - "Usuarios en Yopal pueden hacer esta consulta -> ¿Qué hospitales hay cerca de mi?"
 - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 - "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
+   ó simplemente me preguntas: 
+  ¿tienes alguna información sobre Yopal?
+   y te mostrare los datos que tengo disponibles.
+
+  🧠 **Salud Mental y Sexual (CIE-10 y Protocolos):**
+Te puedo responder preguntas sobre salud mental solo escribe:
+- "Qué información tienes sobre salud mental?"
+
+📈 **Predicciones:**
+- ¿Qué puedes responder sobre predicciones?
+
 - "¿Qué hospitales hay en Medellín?"
 - "Lista de municipios de Boyacá con centros de salud."
 
@@ -408,16 +422,11 @@ y te mostraré las preguntas que puedo responder
 - "Analizar riesgo de dengue en Antioquia"
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
-🧠 **Salud Mental y Sexual (CIE-10 y Protocolos):**
-Te puedo responder preguntas sobre salud mental solo escribe:
-- "Qué información tienes sobre salud mental?"
-
 🍃 **Monitoreo Ambiental:**
 - "¿Cómo está la calidad del aire hoy en Cali?"
 - "Graficar contaminación ambiental en Medellín."
 
-📈 **Predicciones:**
-- ¿Qué puedes responder sobre predicciones?
+
 
 💬 ¿Sobre qué tema te gustaría consultar hoy?`;
     }
