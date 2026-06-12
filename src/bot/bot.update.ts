@@ -308,14 +308,37 @@ export class BotUpdate {
             norm.includes('que info tienes de salud publica') ||
             norm.includes('salud pública') ||
             norm.includes('resumen') ||
-            norm.includes('rural') ||
-            norm.includes('urbana') ||
+            // plural de eventos Rurales
+            norm.includes('eventos mas rurales') ||
+            norm.includes('los mas rurales') ||
+            norm.includes('cuales son los eventos mas rurales') ||
+            norm.includes('ranking de eventos rurales') ||
+
+            // Plural eventos Salud Urbana
+            norm.includes('cuales son los eventos mas urbanos') ||
+            norm.includes('eventos más rurales') ||
+            norm.includes('ranking de eventos urbanos') ||
+            norm.includes('que evento es el mas urbano en colombia') ||
+            // Singular evento salud Rural
+            norm.includes('cual es el evento mas rural') ||
+            norm.includes('enfermedad mas rural') ||
+            norm.includes('mayor concentracion rural') ||
+            // Singular evento salud urbano
+            norm.includes('cual es el evento mas urbano') ||
+            norm.includes('enfermedad mas urbana') ||
+            norm.includes('mayor concentracion urbano') ||
+
             norm.includes('adolescentes') ||
             norm.includes('mayores') ||
             norm.includes('proporcion') ||
             norm.includes('brecha') ||
             norm.includes('sexo') ||
             norm.includes('genero') ||
+            norm.includes('eventos con mas casos') ||
+            norm.includes('top eventos') ||
+            norm.includes('ranking de eventos') ||
+            norm.includes('puedes mostrarme el ranking de eventos de salud en colombia') ||
+
             norm.includes('adultos jovenes');
 
         if (!isPublicHealthQuery) return false;
@@ -385,16 +408,18 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 - Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
 
 - Me Puedes preguntar:
- "¿Qué sabes de Salud Pública?" 
-"¿Qué info tienes de la salud pública en Colombia?" 
- y te mostraré las preguntas que puedo responder
+ "¿Qué info tienes de la salud pública en Colombia?" 
+ (y te mostraré las preguntas que puedo responder)
+ 
 
 📊 **Gráficos:**
-- Puedes preguntarme:
+ Puedes preguntarme:
  "¿Qué puedes Graficar?" 
-(te mostraré la lista de gráficos que puedo hacer para ti)
+ (te mostraré la lista de gráficos que puedo hacer para ti)
 
 📍 **Información sobre Yopal:**
+ Puedes hacerme esta pregunta:
+ ¿que informacion tienes de yopal?
 - "Usuarios en Yopal pueden hacer esta consulta -> ¿Qué hospitales hay cerca de mi?"
 - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 - "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
