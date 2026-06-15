@@ -3,10 +3,6 @@
 **Proyecto desarrollado para el Concurso IA Colombia**
 
 <p align="center">
-  <img src="./images/Imagen_bot.jpg" alt="Salud IA Bot - Logo" width="300"/>
-</p>
-
-<p align="center">
   <img src="./images/Salud Publica Colombia.jfif" alt="Salud IA Bot - Infografía General" width="800"/>
   <br>
   <em>Infografía: Capacidades, Tecnología y Valor Preventivo del Proyecto</em>
