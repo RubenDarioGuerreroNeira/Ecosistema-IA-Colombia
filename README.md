@@ -52,29 +52,29 @@ graph TD
     classDef user fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold
 
     subgraph UserInterface ["📱 Canal de Interacción"]
-        User((👤 Usuario Telegram)):::user <--> Telegram[💬 Telegram Bot API]:::core
+        User(("👤 Usuario Telegram")):::user <--> Telegram["💬 Telegram Bot API"]:::core
     end
 
     subgraph Core ["🧠 Núcleo Orquestador (NestJS)"]
-        Bot[🤖 BotUpdate Controller]:::core
-        AI[✨ Genkit AI - Gemini Engine]:::core
+        Bot["🤖 BotUpdate Controller"]:::core
+        AI["✨ Genkit AI - Gemini Engine"]:::core
         Bot <-->|Contexto + Prompts| AI
     end
 
     subgraph Logic ["⚙️ Motores de Inteligencia y Lógica"]
-        NLP[🗣️ NLP y Búsqueda]:::logic
-        Stats[📈 Analítica y Predicción]:::logic
-        Charts[📊 Generación de Gráficos]:::logic
-        Geo[📍 Búsqueda Local (Geo)]:::logic
+        NLP["🗣️ NLP y Búsqueda"]:::logic
+        Stats["📈 Analítica y Predicción"]:::logic
+        Charts["📊 Generación de Gráficos"]:::logic
+        Geo["📍 Búsqueda Local (Geo)"]:::logic
     end
 
     subgraph Data ["🗄️ Fuentes de Datos y Conocimiento"]
-        SIVIGILA[(🏥 SIVIGILA)]:::data
-        Mental[(🧠 Salud Mental)]:::data
-        Sexual[(❤️ Salud Sexual)]:::data
-        Air[☁️ API Calidad Aire]:::data
-        PAI[(💉 Vacunación)]:::data
-        Local[(🏥 Prestadores Locales)]:::data
+        SIVIGILA[("🏥 SIVIGILA")]:::data
+        Mental[("🧠 Salud Mental")]:::data
+        Sexual[("❤️ Salud Sexual")]:::data
+        Air["☁️ API Calidad Aire"]:::data
+        PAI[("💉 Vacunación")]:::data
+        Local[("🏥 Prestadores Locales")]:::data
     end
 
     Telegram <--> Bot

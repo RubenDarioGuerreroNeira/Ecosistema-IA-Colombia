@@ -74,20 +74,20 @@ graph TD
     classDef service fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#2e7d32,font-weight:bold
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5
 
-    User((👤 Usuario Telegram)):::user --> Bot[🤖 BotUpdate - NestJS]:::bot
+    User(("👤 Usuario Telegram")):::user --> Bot["🤖 BotUpdate - NestJS"]:::bot
     
     subgraph Enrutamiento ["Enrutamiento y Control"]
-        Bot --> Greeting[👋 handleGreeting]:::service
-        Bot --> Charts[📊 ChartService<br/>QuickChart]:::service
-        Bot --> HealthData[🏥 SaludPublicaService<br/>XML SIVIGILA]:::service
-        Bot --> AirData[☁️ AirQualityService<br/>API Calidad Aire]:::service
+        Bot --> Greeting["👋 handleGreeting"]:::service
+        Bot --> Charts["📊 ChartService<br/>QuickChart"]:::service
+        Bot --> HealthData["🏥 SaludPublicaService<br/>XML SIVIGILA"]:::service
+        Bot --> AirData["☁️ AirQualityService<br/>API Calidad Aire"]:::service
     end
 
     subgraph Procesamiento ["Procesamiento y Respuesta"]
-        Charts --> ResponderPhoto[🖼️ Bot Reply Photo]:::bot
-        HealthData --> Analysis[🧠 SaludAnaliticaService<br/>Genkit RAG]:::service
+        Charts --> ResponderPhoto["🖼️ Bot Reply Photo"]:::bot
+        HealthData --> Analysis["🧠 SaludAnaliticaService<br/>Genkit RAG"]:::service
         AirData --> Analysis
-        Analysis --> ResponderText[💬 Bot Reply Text]:::bot
+        Analysis --> ResponderText["💬 Bot Reply Text"]:::bot
     end
 ```
 
@@ -174,27 +174,27 @@ graph TD
     classDef data fill:#fff8e1,stroke:#ffa000,stroke-width:2px,color:#ff6f00,stroke-dasharray: 5 5
 
     subgraph BotLayer ["📱 Bot Layer"]
-        BotUpdate[🤖 BotUpdate]:::bot
+        BotUpdate["🤖 BotUpdate"]:::bot
     end
 
     subgraph ServicesLayer ["⚙️ Services Layer"]
         direction LR
-        Stats[📊 StatsService]:::service
-        SaludPublica[🏥 SaludPublicaService]:::service
-        SaludAnalitica[🧠 SaludAnaliticaService]:::service
-        AirQuality[☁️ AirQualityService]:::service
-        Chart[📈 ChartService]:::service
-        HealthData[🩺 HealthDataService]:::service
-        Mental[🧠 MentalHealthService]:::service
-        Sexual[❤️ SexualHealthService]:::service
-        Vaccination[💉 VaccinationService]:::service
+        Stats["📊 StatsService"]:::service
+        SaludPublica["🏥 SaludPublicaService"]:::service
+        SaludAnalitica["🧠 SaludAnaliticaService"]:::service
+        AirQuality["☁️ AirQualityService"]:::service
+        Chart["📈 ChartService"]:::service
+        HealthData["🩺 HealthDataService"]:::service
+        Mental["🧠 MentalHealthService"]:::service
+        Sexual["❤️ SexualHealthService"]:::service
+        Vaccination["💉 VaccinationService"]:::service
     end
 
     subgraph DataLayer ["🗄️ Data Layer"]
         direction LR
-        XML[📂 XML Files]:::data
-        API[🌐 External APIs]:::data
-        Redis[⚡ User Sessions]:::data
+        XML["📂 XML Files"]:::data
+        API["🌐 External APIs"]:::data
+        Redis["⚡ User Sessions"]:::data
     end
 
     %% Enrutamiento Principal
@@ -238,27 +238,27 @@ graph LR
 
     subgraph Sources ["📂 Fuentes XML (Raw)"]
         direction TB
-        XML1[📄 Eventos SIVIGILA]:::source
-        XML2[📄 Salud Mental]:::source
-        XML3[📄 Salud Sexual]:::source
+        XML1["📄 Eventos SIVIGILA"]:::source
+        XML2["📄 Salud Mental"]:::source
+        XML3["📄 Salud Sexual"]:::source
     end
 
     subgraph Processing ["⚙️ Procesamiento"]
-        Parser{{🔧 fast-xml-parser}}:::parser
+        Parser{{"🔧 fast-xml-parser"}}:::parser
     end
 
     subgraph Interfaces ["💻 Modelos de Datos (TypeScript)"]
         direction TB
-        Data1[📊 HealthEvent[ ]]:::interface
-        Data2[🧠 Diagnosis[ ]]:::interface
-        Data3[💬 QA[ ]]:::interface
+        Data1["📊 HealthEvent[ ]"]:::interface
+        Data2["🧠 Diagnosis[ ]"]:::interface
+        Data3["💬 QA[ ]"]:::interface
     end
 
     subgraph Services ["🚀 Servicios de Negocio"]
         direction TB
-        Service1[🏥 SaludPublicaService]:::service
-        Service2[🧠 MentalHealthService]:::service
-        Service3[❤️ SexualHealthService]:::service
+        Service1["🏥 SaludPublicaService"]:::service
+        Service2["🧠 MentalHealthService"]:::service
+        Service3["❤️ SexualHealthService"]:::service
     end
 
     %% Conexiones

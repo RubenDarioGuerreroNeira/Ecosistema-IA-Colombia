@@ -16,23 +16,23 @@ graph TD
     classDef rag fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100
     classDef data fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
 
-    User((👤 Usuario Telegram)):::user --> Router{🤖 BotUpdate.onText}:::router
-    Router -->|Ruta Directa| Publica[🏥 SaludPublicaService]:::core
-    Router -->|Ruta IA| RAG[🧠 Genkit RAG]:::rag
+    User(("👤 Usuario Telegram")):::user --> Router{"🤖 BotUpdate.onText"}:::router
+    Router -->|Ruta Directa| Publica["🏥 SaludPublicaService"]:::core
+    Router -->|Ruta IA| RAG["🧠 Genkit RAG"]:::rag
     
     subgraph Motor ["⚙️ Motor de Análisis (SaludPublicaService)"]
         direction TB
-        Normalizer[🔤 Normalización de Texto]:::core
-        SearchEngine[🔍 Motor de Búsqueda<br/>Sinónimos]:::core
-        Analytics[📈 Análisis Estadístico<br/>Ranking, Zona, Sexo, Edad]:::core
-        NLG[💬 Generador de Respuestas<br/>NLG Estructurado]:::core
+        Normalizer["🔤 Normalización de Texto"]:::core
+        SearchEngine["🔍 Motor de Búsqueda<br/>Sinónimos"]:::core
+        Analytics["📈 Análisis Estadístico<br/>Ranking, Zona, Sexo, Edad"]:::core
+        NLG["💬 Generador de Respuestas<br/>NLG Estructurado"]:::core
         
         Normalizer --> SearchEngine --> Analytics --> NLG
     end
     
     Publica --> Normalizer
     
-    Analytics -->|Consulta O(1)| Data[(📂 XML SIVIGILA)]:::data
+    Analytics -->|Consulta O(1)| Data[("📂 XML SIVIGILA")]:::data
 ```
 
 ## Geolocalización (Búsqueda por proximidad)
