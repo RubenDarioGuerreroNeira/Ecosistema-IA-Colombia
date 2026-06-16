@@ -21,6 +21,52 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 
 ---
 
+## 🧠 Mapa Mental del Proyecto
+
+```mermaid
+graph LR
+    Root["🏥 Salud IA Bot"] --> Interface["📱 Interfaz de Usuario"]
+    Root --> Core["⚙️ Backend NestJS"]
+    Root --> AI["🤖 Orquestador de IA"]
+    Root --> Data["📚 Datos Locales"]
+
+    Interface --> Telegram("Telegram Bot API")
+    Interface --> Telegraf("nestjs-telegraf")
+
+    Core --> AppModule("AppModule")
+    Core --> BotModule("BotModule")
+    Core --> Config("ConfigModule / Joi")
+    BotModule --> BotUpdate("BotUpdate")
+    BotModule --> GenkitService("GenkitService")
+    BotModule --> UserService("UserService")
+    BotModule --> StatsModule("StatsModule")
+    BotModule --> DataModule("DataModule")
+
+    Data --> HealthData("Eventos de Salud Pública")
+    Data --> MentalHealth("Salud Mental CIE-10")
+    Data --> SexualHealth("Salud Sexual / Reproductiva")
+    Data --> Antioquia("Antioquia")
+    Data --> Boyaca("Boyacá")
+    Data --> Yopal("Yopal")
+    Data --> Cali("Cali")
+
+    StatsModule --> HealthStats("HealthStatsService")
+    StatsModule --> MentalHealthStats("MentalHealthStatsService")
+    StatsModule --> SexualHealthStats("SexualHealthStatsService")
+
+    AI --> Genkit("Genkit")
+    AI --> Gemini("Google Gemini 2.5 Flash")
+    AI --> RAG("Contexto RAG / Datos Reales")
+
+    style Root fill:#f9f,stroke:#333,stroke-width:4px
+    style AI fill:#bbf,stroke:#333,stroke-width:2px
+    style Core fill:#dfd,stroke:#333,stroke-width:2px
+    style Interface fill:#ffd,stroke:#333,stroke-width:2px
+    style Data fill:#fdd,stroke:#333,stroke-width:2px
+```
+
+---
+
 ## 🚀 Características Principales
 
 - **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.

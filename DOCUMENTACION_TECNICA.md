@@ -75,19 +75,68 @@ graph TD
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5
 
     User(("👤 Usuario Telegram")):::user --> Bot["🤖 BotUpdate - NestJS"]:::bot
-    
-    subgraph Enrutamiento ["Enrutamiento y Control"]
+
+    subgraph Enrutamiento y Servicios Principales ["Enrutamiento y Control de Servicios"]
         Bot --> Greeting["👋 handleGreeting"]:::service
-        Bot --> Charts["📊 ChartService<br/>QuickChart"]:::service
-        Bot --> HealthData["🏥 SaludPublicaService<br/>XML SIVIGILA"]:::service
-        Bot --> AirData["☁️ AirQualityService<br/>API Calidad Aire"]:::service
+        Bot --> ChartService["📊 ChartService"]:::service
+        Bot --> SaludPublicaService["🏥 SaludPublicaService"]:::service
+        Bot --> MentalHealthService["🧠 MentalHealthService"]:::service
+        Bot --> SexualHealthService["❤️ SexualHealthService"]:::service
+        Bot --> YopalHealthService["📍 YopalHealthService"]:::service
+        Bot --> CaliHealthService["📍 CaliHealthService"]:::service
+        Bot --> AntioquiaHealthService["📍 AntioquiaHealthService"]:::service
+        Bot --> BoyacaHealthService["📍 BoyacaHealthService"]:::service
+        Bot --> AirQualityService["☁️ AirQualityService"]:::service
+        Bot --> PredictiveServices["🤖 Predicción y Riesgo<br/>(ML/Advanced/EW)"]:::service
     end
 
     subgraph Procesamiento ["Procesamiento y Respuesta"]
-        Charts --> ResponderPhoto["🖼️ Bot Reply Photo"]:::bot
-        HealthData --> Analysis["🧠 SaludAnaliticaService<br/>Genkit RAG"]:::service
-        AirData --> Analysis
-        Analysis --> ResponderText["💬 Bot Reply Text"]:::bot
+        ChartService --> ResponderPhoto["🖼️ Bot Reply Photo"]:::bot
+
+        SaludPublicaService --> GenkitRAG["🧠 Genkit RAG<br/>(SaludAnaliticaService)"]:::service
+        MentalHealthService --> GenkitRAG
+        SexualHealthService --> GenkitRAG
+        YopalHealthService --> GenkitRAG
+        CaliHealthService --> GenkitRAG
+        AntioquiaHealthService --> GenkitRAG
+        BoyacaHealthService --> GenkitRAG
+        AirQualityService --> GenkitRAG
+        PredictiveServices --> GenkitRAG
+
+        GenkitRAG --> ResponderText["💬 Bot Reply Text"]:::bot
+
+        PredictiveServices --> ResponderText
+        YopalHealthService --> ResponderText
+        CaliHealthService --> ResponderText
+        AntioquiaHealthService --> ResponderText
+        BoyacaHealthService --> ResponderText
+        SaludPublicaService --> ResponderText
+        MentalHealthService --> ResponderText
+        SexualHealthService --> ResponderText
+        AirQualityService --> ResponderText
+    end
+
+    subgraph Fuentes de Datos ["Fuentes de Datos"]
+        XML_SIVIGILA[("📂 XML SIVIGILA")]:::data
+        XML_SaludMental[("🧠 XML Salud Mental")]:::data
+        XML_SaludSexual[("❤️ XML Salud Sexual")]:::data
+        XML_Prestadores[("📍 XML Prestadores Locales")]:::data
+        XML_Vacunacion[("💉 XML Vacunación")]:::data
+        API_CalidadAire[("☁️ API Calidad Aire")]:::data
+        Redis[("⚡ User Sessions")]:::data
+    end
+
+    SaludPublicaService --> XML_SIVIGILA
+    MentalHealthService --> XML_SaludMental
+    SexualHealthService --> XML_SaludSexual
+    YopalHealthService --> XML_Prestadores
+    CaliHealthService --> XML_Prestadores
+    AntioquiaHealthService --> XML_Prestadores
+    BoyacaHealthService --> XML_Prestadores
+    AirQualityService --> API_CalidadAire
+    PredictiveServices --> XML_SIVIGILA
+    PredictiveServices --> XML_Vacunacion
+    PredictiveServices --> API_CalidadAire
     end
 ```
 
@@ -209,7 +258,7 @@ graph TD
     SaludAnalitica --> SaludPublica & AirQuality & Vaccination
     MLPredict --> DatasetBuilder
     EarlyWarning --> SaludPublica & Vaccination & AirQuality
-    
+
     %% Acceso a Datos
     HealthData --> XML
     Mental --> XML
@@ -269,9 +318,9 @@ graph LR
 
     %% Conexiones
     XML1 & XML2 & XML3 --> Parser
-    
+
     Parser --> Data1 & Data2 & Data3
-    
+
     Data1 --> Service1
     Data2 --> Service2
     Data3 --> Service3
