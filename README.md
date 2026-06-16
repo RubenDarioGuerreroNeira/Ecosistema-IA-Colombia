@@ -36,7 +36,7 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
   - Filtrado de eventos.
-- **🤖 Predicción y Valor Preventivo**: Sistema avanzado que cruza indicadores de salud pública (SIVIGILA), **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)** para proyectar niveles de riesgo y brindar recomendaciones preventivas proactivas.
+- **🤖 Predicción y Valor Preventivo (Machine Learning)**: Sistema avanzado que cruza indicadores de salud pública (SIVIGILA), **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)**. Incorpora **Random Forest** nativo y análisis de **Series Temporales (Holt-Winters)** para proyectar niveles de riesgo epidemiológico, calcular intervalos de confianza y emitir **Alertas Tempranas (Early Warnings)**.
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
 
 ### 🏗️ Arquitectura del Sistema

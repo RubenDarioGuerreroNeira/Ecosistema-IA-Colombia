@@ -79,3 +79,12 @@ sequenceDiagram
 4. **`eventosPorRango(min, max)`**: Filtro estadístico avanzado.
 5. **`procesarPreguntaCompleja(texto)`**: Motor de análisis para comparativas directas (ej: Dengue vs Chikungunya).
 6. **`_formatearRespuesta(datos, tipo)`**: Motor de generación de lenguaje natural (NLG) que asegura salidas coherentes y con contexto (porcentajes, emojis, conclusiones).
+
+## Módulos de Inteligencia Predictiva (Machine Learning)
+
+El proyecto ha incorporado modelos predictivos y algoritmos nativos (sin dependencia exclusiva de LLMs) para calcular riesgos, proyecciones y alertas:
+
+1. **`MlPredictionService`**: Implementa el algoritmo de **Random Forest** (mediante `ml-random-forest`) para clasificación de riesgo (BAJO, MEDIO, ALTO, CRÍTICO). El modelo se entrena en tiempo real consolidando datos de SIVIGILA, tasas de vacunación departamental (`VaccinationService`) y promedios de calidad de aire (`AirQualityService`).
+2. **`AdvancedPredictionService`**: Aplica descomposición de **Series Temporales** (evaluando tendencia, estacionalidad y residuos, inspirados en Holt-Winters) para proyectar casos epidemiológicos con intervalos de confianza estadísticos.
+3. **`EarlyWarningService`**: Motor de alertas dinámicas que monitorea umbrales predefinidos (percentiles, cambios >20% mensual, o bajas coberturas vacunales <60%) para emitir avisos automatizados a los usuarios ante posibles brotes o riesgos en salud pública.
+4. **`DatasetBuilderService`**: Tubería de datos encargada de limpiar y normalizar las fuentes (XML, APIs externas) y convertirlas en tensores y vectores compatibles para la alimentación de los modelos de ML.

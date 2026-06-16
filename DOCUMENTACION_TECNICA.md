@@ -188,6 +188,10 @@ graph TD
         Mental["🧠 MentalHealthService"]:::service
         Sexual["❤️ SexualHealthService"]:::service
         Vaccination["💉 VaccinationService"]:::service
+        MLPredict["🤖 MlPredictionService"]:::service
+        Advanced["📈 AdvancedPredictionService"]:::service
+        EarlyWarning["🚨 EarlyWarningService"]:::service
+        DatasetBuilder["📦 DatasetBuilderService"]:::service
     end
 
     subgraph DataLayer ["🗄️ Data Layer"]
@@ -198,11 +202,13 @@ graph TD
     end
 
     %% Enrutamiento Principal
-    BotUpdate --> Stats & SaludPublica & SaludAnalitica & AirQuality & Chart & HealthData & Mental & Sexual & Vaccination
+    BotUpdate --> Stats & SaludPublica & SaludAnalitica & AirQuality & Chart & HealthData & Mental & Sexual & Vaccination & MLPredict & Advanced & EarlyWarning
 
     %% Dependencias de Servicios
     Stats --> HealthData
     SaludAnalitica --> SaludPublica & AirQuality & Vaccination
+    MLPredict --> DatasetBuilder
+    EarlyWarning --> SaludPublica & Vaccination & AirQuality
     
     %% Acceso a Datos
     HealthData --> XML
@@ -382,11 +388,12 @@ detectRegion(text: string): string | undefined {
 - [ ] Implementar notificaciones proactivas de alertas
 - [ ] Traducción a inglés para turistas
 
-#### Fase 3: Inteligencia Predictiva (Mes 5-6)
+#### Fase 3: Inteligencia Predictiva (✅ Implementado)
 
-- [ ] Implementar modelos de series temporales para predicción
+- [x] Implementar modelos de series temporales para predicción (Holt-Winters)
+- [x] Clasificación de riesgo con Random Forest
+- [x] Sistema de alertas tempranas por brotes
 - [ ] Integrar datos históricos de 10 años
-- [ ] Sistema de alertas tempranas por brotes
 - [ ] Dashboard web administrativo
 
 #### Fase 4: Multi-Canal (Mes 7-8)
