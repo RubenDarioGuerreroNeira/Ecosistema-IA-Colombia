@@ -778,4 +778,17 @@ export class SaludPublicaService implements OnModuleInit {
     }
     return { encontrado: false };
   }
+
+
+  async eventosMasAfectanMujeres(n = 3): Promise<HealthEvent[]> {
+    await this.ensureReady();
+    return [...this.events]
+      .filter((e) => e.femenino + e.masculino > 0)
+      .sort(
+        (a, b) =>
+          b.femenino / (b.femenino + b.masculino) -
+          a.femenino / (a.femenino + a.masculino),
+      )
+      .slice(0, n);
+  }
 }

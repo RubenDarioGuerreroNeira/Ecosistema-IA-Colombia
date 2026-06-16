@@ -241,7 +241,9 @@ La población más afectada según el ciclo de vida es:
       (norm.includes('perfil') && norm.includes('riesgo')) ||
       (norm.includes('factor') && norm.includes('riesgo'));
 
+    // Solo detectar ciclo de vida si la consulta NO menciona "eventos" (que es de salud pública)
     const isLifeCycleQuery =
+      !norm.includes('eventos') &&
       (norm.includes('ninos') ||
         norm.includes('nino') ||
         norm.includes('adolescente') ||
@@ -366,6 +368,9 @@ La población más afectada según el ciclo de vida es:
   }
 
   async handleMentalHealthLifeCycleQuery(ctx: Context, norm: string, text: string): Promise<boolean> {
+    // Si la consulta menciona "eventos", es de salud pública, NO de salud mental
+    if (norm.includes('eventos')) return false;
+
     for (const { keys, cycle } of CYCLE_KEYWORDS) {
       const hasCycle = keys.some((k) => norm.includes(k));
       if (

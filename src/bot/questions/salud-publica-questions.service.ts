@@ -38,20 +38,21 @@ export class SaludPublicaQuestionsService {
 • "Proporción global por sexo"
 • "Eventos con mayor brecha de género"
 • "¿Qué evento es el más urbano en Colombia?"
-  "Qué evento es el más rural en Colombia?" 
-• "Top 5 eventos más urbanos"
-• "¿Cuales son los eventos más rurales?"
- 
+  "¿Cual es el evento más rural en Colombia?" 
+• "Top 5 eventos más urbanos" (muestra la gráfica de barras)
+• "¿Cuales son los eventos más rurales?" (muestra los 5 eventos de salud con mayor proporción rural)
+• "¿Cuales son los eventos más urbanos?" (muestra los 5 eventos de salud con mayor proporción urbana)
 
 👥 **Por grupo etario:**
-• "¿Qué eventos afectan más a los adolescentes?" (ranking)
 • "Eventos más comunes en niños"
 • "Eventos más frecuentes en adultos mayores"
+• "¿Qué eventos afectan más a los adolescentes?" (ranking)
 
 📂 **Por categoría:**
 • "Eventos infecciosos más comunes"
 • "Eventos maternos frecuentes"
-• "Violencia: eventos más reportados"
+• "Eventos de salud que más afectan a las mujeres" 
+• "Eventos más reportados"  *** VOY AQUI***
 • "¿cual es el evento mas rural en Colombia?" 
 
 🔍 **Consulta específica:**
@@ -103,24 +104,21 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
       return this.getAvailableQuestions();
     }
 
-    // === NUEVA SECCIÓN: Top eventos ===
+    // === NUEVA SECCIÓN: Top eventos (DEBE ir DESPUÉS de los filtros específicos) ===
     if (
       norm.includes('top eventos') ||
       norm.includes('eventos mas reportados') ||
-      norm.includes('eventos mas frecuentes') ||
+      (norm.includes('eventos mas frecuentes') && !norm.includes('ninos') && !norm.includes('adolescentes') && !norm.includes('adultos') && !norm.includes('mayores')) ||
       norm.includes('eventos con mas casos') ||
       norm.includes('puedes mostrarme el ranking de eventos de salud en colombia') ||
       norm.includes('ranking de eventos')
     ) {
       return this.handleTopEvents(7);
     }
-
-
     // Resumen general
     if (norm.includes('resumen') || norm.includes('estadisticas generales') || (norm.includes('panorama') && norm.includes('general'))) {
       return this.handleGeneralSummary();
     }
-
     // === RANKING de eventos más rurales (DEBE ir ANTES que el singular) ===
     if (
       (norm.includes('top') && norm.includes('rural')) ||
@@ -141,6 +139,7 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     ) {
       return this.handleTopUrbanEvents(5);
     }
+
 
     // Evento más rural (único) - solo para consultas SINGULARES
     if (
@@ -177,13 +176,25 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
       return this.handleGenderGap();
     }
 
-    // Eventos por ciclo de vida (ranking)
-    if (norm.includes('niños') || norm.includes('niño') || norm.includes('primera infancia') ||
-      norm.includes('adolescentes') || norm.includes('adolescente') ||
-      norm.includes('jovenes') || norm.includes('joven') ||
-      norm.includes('adultos jovenes') || norm.includes('adulto joven') ||
-      norm.includes('adultos mayores') || norm.includes('adulto mayor')) {
-      return this.handleLifeCycle(text);
+    // Eventos que más afecta a las mujeres
+    if (norm.includes('eventos que mas afectan a las mujeres') || (norm.includes('eventos') && norm.includes('afectan') && norm.includes('mujeres'))) {
+      return this.handleTopEventosMujeres()
+    }
+
+    // Eventos por ciclo de vida Niños (ranking)
+    if (norm.includes('eventos mas frecuentes en ninos') || norm.includes('nino') || norm.includes('ninos')) {
+      return this.handleEventosFreqNiños(text);
+    }
+
+    // === RANKING de eventos de salud Adoslescentes 
+    if (norm.includes('eventos mas frecuentes en adolescentes') || norm.includes('adolescente') || norm.includes('adolescentes')) {
+      return this.handleEventosFreqAdolescentes(text);
+    }
+
+    // Eventos por ciclo de vida Adultos Mayores
+    if (norm.includes('adultos') || norm.includes('adulto') ||
+      norm.includes('adultos mayores') || norm.includes('adulto mayor') || norm.includes('ancianos')) {
+      return this.handleRankingAdultosMayores(text);
     }
 
     // Top eventos por categoría
@@ -201,19 +212,38 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     if (norm.match(/(?:que me dices del|informacion de|detalles de|resumen de)\s+([a-z\s]+)/i)) {
       return this.handleEventDetails(text);
     }
-
-
-
-
     return null;
   }
 
-  // ============================================================
-  // MÉTODOS EXISTENTES MEJORADOS
-  // ============================================================
 
-  // top 6 eventos
+  // CASOS QUE MAS AFECTAN A LOS ADULTOS MAYORES (ranking)
+  private async handleRankingAdultosMayores(text: string): Promise<string> {
+    const allEvents = await this.saludPublicaService.listarEventosCompletos();
+    const eventsWithGroup = allEvents.map(e => ({
+      nombre: e.nombre_del_evento,
+      casosEnGrupo: e.adulto_mayor as number,
+      totalCasos: e.total_de_eventos,
+    }))
+      .filter(e => e.casosEnGrupo > 0)
+      .sort((a, b) => b.casosEnGrupo - a.casosEnGrupo)
+      .slice(0, 5);
 
+    if (eventsWithGroup.length === 0) {
+      return 'No se encontraron datos de eventos para el grupo de adultos mayores.';
+    }
+
+    const topList = eventsWithGroup.map((e, idx) => {
+      const pct = e.totalCasos > 0 ? ((e.casosEnGrupo / e.totalCasos) * 100).toFixed(1) : 0;
+      return `${idx + 1}. **${e.nombre}**: ${e.casosEnGrupo.toLocaleString()} casos (${pct}% del total de ese evento)`;
+    }).join('\n');
+    return `👴 **Eventos más frecuentes en Adultos Mayores (Top 5):**
+    ${topList}
+    ℹ️ *Se muestran los eventos con mayor número absoluto de casos en este grupo etario.*`;
+  }
+
+
+
+  // top 5 eventos
   private async handleTopEvents(n: number = 5): Promise<string> {
     const eventos = await this.saludPublicaService.topEventos(n);
     if (eventos.length === 0) return 'No se encontraron eventos.';
@@ -225,15 +255,28 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
 
     return `🏆 **Top ${n} eventos más reportados en salud pública (Colombia):**
 
-${list}
+    ${list}
+    ℹ️ *Datos consolidados de SIVIGILA.*`;
+  }
 
-ℹ️ *Datos consolidados de SIVIGILA.*`;
+  // EVENTOS DE SALUD QUE MAS AFECTAN A A LAS MUJERES 
+  private async handleTopEventosMujeres(): Promise<string> {
+    const eventos = await this.saludPublicaService.eventosMasAfectanMujeres(5);
+    if (eventos.length === 0) return 'No se encontraron eventos que afecten más a las mujeres.';
+    const list = eventos.map((e, i) => {
+      const pctFem = e.total_de_eventos ? ((e.femenino / e.total_de_eventos) * 100).toFixed(1) : 0;
+      //const pctMasc = e.total_de_eventos ? ((e.masculino / e.total_de_eventos) * 100).toFixed(1) : 0;
+      return `${i + 1}. **${e.nombre_del_evento}**: ${e.femenino.toLocaleString()} casos `;
+    }).join('\n');
+    return `👩‍👩‍👧‍👧 **Top 
+5 eventos que más afectan a las mujeres:**
+${list}
+ℹ️ *Ordenados por número absoluto de casos de salud que más afectan a nuestras mujeres colombianas*`;
   }
 
 
 
-
-
+  // MAYORES CASOS 
   private async handleGeneralSummary(): Promise<string> {
     const resumen = await this.saludPublicaService.obtenerResumenGeneral();
     const top = resumen.topEventos
@@ -259,6 +302,8 @@ ${porCategoria}
 ℹ️ *Datos consolidados de SIVIGILA (2026)*`;
   }
 
+
+  // EVENTOS CON MAYOR CONCENTRACION RURAL
   private async handleRuralEvent(): Promise<string> {
     const evento = await this.saludPublicaService.eventoMasRural();
     if (!evento) return 'No se encontraron datos.';
@@ -274,6 +319,8 @@ ${porCategoria}
 📌 *Este evento tiene la proporción más alta de casos en zona rural.*`;
   }
 
+
+  // EVENTO CON MAYOR CONCENTRACION URBANA
   private async handleUrbanEvent(): Promise<string> {
     const evento = await this.saludPublicaService.eventoMasUrbano();
     if (!evento) return 'No se encontraron datos.';
@@ -313,6 +360,9 @@ ${porCategoria}
 ℹ️ *Diferencia absoluta y relativa calculada sobre el evento con mayor incidencia.*`;
   }
 
+
+
+  // PROPORCION POR GENEROS 
   private async handleGenderProportion(): Promise<string> {
     const prop = await this.saludPublicaService.proporcionSexoGlobal();
     return `👥 **Distribución Global por Sexo en Salud Pública**
@@ -344,26 +394,16 @@ ${list}
 ℹ️ *La brecha se calcula como la diferencia absoluta entre casos femeninos y masculinos.*`;
   }
 
-  private async handleLifeCycle(text: string): Promise<string> {
+
+  // Eventos frecuenetes en Niños (ranking)
+  private async handleEventosFreqNiños(text: string): Promise<string> {
     const norm = normalizeString(text);
-    let grupo: keyof Pick<any, 'infancia' | 'adolescencia' | 'juventud' | 'adulto_j_ven' | 'adulto_mayor'> = 'adulto_j_ven';
-    let label = 'Adultos jóvenes (20-49 años)';
+    let grupo: keyof Pick<any, 'infancia' | 'niños' | 'primera_infancia'> = 'infancia';
+    let label = 'Niños (5-9 años)';
 
     if (norm.includes('niños') || norm.includes('niño') || norm.includes('primera infancia')) {
       grupo = 'infancia';
       label = 'Niños (5-9 años)';
-    } else if (norm.includes('adolescentes') || norm.includes('adolescente')) {
-      grupo = 'adolescencia';
-      label = 'Adolescentes (10-14 años)';
-    } else if (norm.includes('jovenes') || norm.includes('joven')) {
-      grupo = 'juventud';
-      label = 'Jóvenes (15-19 años)';
-    } else if (norm.includes('adultos mayores') || norm.includes('adulto mayor') || norm.includes('ancianos')) {
-      grupo = 'adulto_mayor';
-      label = 'Adultos mayores (50+ años)';
-    } else if (norm.includes('adultos') || norm.includes('adulto')) {
-      grupo = 'adulto_j_ven';
-      label = 'Adultos jóvenes (20-49 años)';
     }
 
     const allEvents = await this.saludPublicaService.listarEventosCompletos();
@@ -393,8 +433,50 @@ ${topList}
 ℹ️ *Se muestran los eventos con mayor número absoluto de casos en este grupo etario.*`;
   }
 
+
+
+  // RANKING DE EVENTOS DE ADOLESCENTES
+  private async handleEventosFreqAdolescentes(text: string): Promise<string> {
+    const norm = normalizeString(text);
+    let grupo: keyof Pick<any, 'adolescencia' | 'adolescentes'> = 'adolescencia';
+    let label = 'Adolescentes (10-14 años)';
+    if (norm.includes('adolescentes') || norm.includes('adolescente')) {
+      grupo = 'adolescencia';
+      label = 'Adolescentes (10-14 años)';
+    }
+
+    const allEvents = await this.saludPublicaService.listarEventosCompletos();
+    const eventsWithGroup = allEvents
+      .map(e => ({
+        nombre: e.nombre_del_evento,
+        casosEnGrupo: e[grupo] as number,
+        totalCasos: e.total_de_eventos,
+      }))
+      .filter(e => e.casosEnGrupo > 0)
+      .sort((a, b) => b.casosEnGrupo - a.casosEnGrupo)
+      .slice(0, 5);
+
+    if (eventsWithGroup.length === 0) {
+      return `No se encontraron datos de eventos para el grupo de ${label.toLowerCase()}.`;
+    }
+
+    const topList = eventsWithGroup.map((e, idx) => {
+      const pct = e.totalCasos > 0 ? ((e.casosEnGrupo / e.totalCasos) * 100).toFixed(1) : 0;
+      return `${idx + 1}. **${e.nombre}**: ${e.casosEnGrupo.toLocaleString()} casos (${pct}% del total de ese evento)`;
+    }).join('\n');
+
+    return `🧒 **Eventos más frecuentes en ${label} (Top 5):**
+
+${topList}
+
+ℹ️ *Se muestran los eventos con mayor número absoluto de casos en este grupo etario.*`;
+  }
+
+
+
+
   // ============================================================
-  // NUEVOS MÉTODOS
+  // NUEVOS POR SECTORES
   // ============================================================
 
   /**

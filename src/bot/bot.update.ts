@@ -303,6 +303,7 @@ export class BotUpdate {
         const norm = normalizeString(text);
 
         const isPublicHealthQuery =
+            norm.includes('eventos') ||
             norm.includes('salud publica') ||
             norm.includes('qué info tienes de salud publica') ||
             norm.includes('que info tienes de salud publica') ||
