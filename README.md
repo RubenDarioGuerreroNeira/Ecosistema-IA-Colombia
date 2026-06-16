@@ -42,48 +42,50 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 ### 🏗️ Arquitectura del Sistema
 
 ```mermaid
+---
+title: Arquitectura General del Sistema
+---
 flowchart TB
-    subgraph UserInterface [Canal de Interacción]
-        User((Usuario Telegram)) <--> Telegram[Telegram Bot API]
+    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold;
+    classDef logic fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#33691e;
+    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5;
+    classDef user fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold;
+
+    subgraph UserInterface ["📱 Canal de Interacción"]
+        User((👤 Usuario Telegram)):::user <--> Telegram[💬 Telegram Bot API]:::core
     end
 
-    subgraph Core [Núcleo Orquestador - NestJS]
-        Bot[BotUpdate]
-        AI[Genkit AI - LLM Engine]
-        Bot <--> AI
+    subgraph Core ["🧠 Núcleo Orquestador (NestJS)"]
+        Bot[🤖 BotUpdate Controller]:::core
+        AI[✨ Genkit AI - Gemini Engine]:::core
+        Bot <-->|Contexto + Prompts| AI
     end
 
-    subgraph Logic [Motores de Inteligencia y Lógica]
-        NLP[Servicios de Preguntas - NLP]
-        Stats[Analítica y Predicción]
-        Charts[Generación de Gráficos]
-        Geo[Geolocalización y Búsqueda Local]
+    subgraph Logic ["⚙️ Motores de Inteligencia y Lógica"]
+        direction LR
+        NLP[🗣️ NLP y Búsqueda]:::logic
+        Stats[📈 Analítica y Predicción]:::logic
+        Charts[📊 Generación de Gráficos]:::logic
+        Geo[📍 Búsqueda Local (Geo)]:::logic
     end
 
-    subgraph Data [Fuentes de Datos y Conocimiento]
-        SIVIGILA[(SIVIGILA - XML)]
-        Mental[(Salud Mental - CIE10)]
-        Sexual[(Salud Sexual - QA)]
-        Air[API Calidad del Aire]
-        PAI[(Vacunación - PAI)]
-        Local[(Prestadores Regionales)]
+    subgraph Data ["🗄️ Fuentes de Datos y Conocimiento"]
+        direction LR
+        SIVIGILA[(🏥 SIVIGILA)]:::data
+        Mental[(🧠 Salud Mental)]:::data
+        Sexual[(❤️ Salud Sexual)]:::data
+        Air[☁️ API Calidad Aire]:::data
+        PAI[(💉 Vacunación)]:::data
+        Local[(🏥 Prestadores Locales)]:::data
     end
 
     Telegram <--> Bot
     Bot --> NLP & Stats & Charts & Geo
 
-    NLP & Stats & Charts --> SIVIGILA
-    NLP --> Mental & Sexual
-    Stats --> PAI
+    NLP --> SIVIGILA & Mental & Sexual
+    Stats --> SIVIGILA & PAI
     Charts --> Air
     Geo --> Local
-
-    classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold;
-    classDef logic fill:#f1f8e9,stroke:#33691e,stroke-width:1px,color:#33691e;
-    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#e65100,stroke-dasharray: 5 5;
-    class Bot,AI core;
-    class NLP,Stats,Charts,Geo logic;
-    class SIVIGILA,Mental,Sexual,Air,PAI,Local data;
 ```
 
 ---

@@ -6,24 +6,33 @@ El servicio `SaludPublicaService` es un motor de análisis epidemiológico basad
 ## Arquitectura del Servicio
 
 ```mermaid
+---
+title: Arquitectura de SaludPublicaService
+---
 graph TD
-    User["Usuario (Telegram)"] --> Router["BotUpdate.onText"]
-    Router --> Publica["SaludPublicaService"]
-    Router --> RAG["Genkit (RAG)"]
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b
+    classDef router fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#c2185b,font-weight:bold
+    classDef core fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#2e7d32
+    classDef rag fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100
+    classDef data fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+
+    User((👤 Usuario Telegram)):::user --> Router{🤖 BotUpdate.onText}:::router
+    Router -->|Ruta Directa| Publica[🏥 SaludPublicaService]:::core
+    Router -->|Ruta IA| RAG[🧠 Genkit RAG]:::rag
     
-    subgraph "SaludPublicaService"
-        Normalizer["Normalización de Texto"]
-        SearchEngine["Motor de Búsqueda (Sinónimos)"]
-        Analytics["Análisis (Ranking, Zona, Sexo, Edad, Rango)"]
-        NLG["Generador de Respuestas (NLG)"]
+    subgraph Motor ["⚙️ Motor de Análisis (SaludPublicaService)"]
+        direction TB
+        Normalizer[🔤 Normalización de Texto]:::core
+        SearchEngine[🔍 Motor de Búsqueda<br/>Sinónimos]:::core
+        Analytics[📈 Análisis Estadístico<br/>Ranking, Zona, Sexo, Edad]:::core
+        NLG[💬 Generador de Respuestas<br/>NLG Estructurado]:::core
+        
+        Normalizer --> SearchEngine --> Analytics --> NLG
     end
     
     Publica --> Normalizer
-    Publica --> SearchEngine
-    Publica --> Analytics
-    Publica --> NLG
     
-    Analytics --> Data["XML Datos (SIVIGILA)"]
+    Analytics -->|Consulta O(1)| Data[(📂 XML SIVIGILA)]:::data
 ```
 
 ## Geolocalización (Búsqueda por proximidad)
@@ -36,14 +45,30 @@ Se implementó un flujo de proximidad que detecta consultas tipo "cerca de mí" 
     - `@On('location') onLocation(ctx)` — maneja la ubicación recibida y llama a `YopalHealthService.findNearby(lat, lon, radiusKm)`.
 
 ```mermaid
-graph TD
-    User((Usuario Telegram)) --> Bot[BotUpdate.onText]
-    Bot -->|Detecta 'cerca de mí'| Request[Request location (keyboard)]
-    Request --> User
-    User -->|Envía ubicación| Bot_OnLocation[Bot @On('location')]
-    Bot_OnLocation --> Yopal[YopalHealthService.findNearby]
-    Yopal --> Bot_OnLocation
-    Bot_OnLocation --> Reply[Bot reply con prestadores]
+---
+title: Flujo de Búsqueda de Prestadores por Geolocalización
+---
+sequenceDiagram
+    autonumber
+    actor User as 👤 Usuario
+    participant Telegram as 📱 Telegram API
+    participant Bot as 🤖 BotUpdate
+    participant Yopal as 🏥 YopalHealthService
+
+    User->>Telegram: Mensaje "centros de salud cerca de mí"
+    Telegram->>Bot: Webhook (Mensaje texto)
+    Bot->>Bot: Detecta intención de proximidad
+    Bot->>Telegram: Envía teclado (request_location: true)
+    Telegram-->>User: Botón "Compartir Ubicación"
+    
+    User->>Telegram: Presiona botón (Comparte GPS)
+    Telegram->>Bot: Webhook (@On('location'))
+    
+    Bot->>Yopal: findNearby(lat, lon, radius)
+    Yopal-->>Bot: Calcula distancias (Haversine)<br/>Retorna prestadores cercanos
+    
+    Bot->>Telegram: Respuesta formateada con lista de centros
+    Telegram-->>User: Visualiza opciones cercanas
 ```
 
 ## Métodos Clave

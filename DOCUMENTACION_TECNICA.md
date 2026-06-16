@@ -65,72 +65,85 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
 ### 3.0 Diagrama Arquitectónico General
 
 ```mermaid
+---
+title: Diagrama Arquitectónico General
+---
 graph TD
-    User((Usuario Telegram)) --> Bot[BotUpdate - NestJS]
-    Bot --> Greeting[handleGreeting]
-    Bot --> Charts[ChartService - QuickChart]
-    Bot --> HealthData[SaludPublicaService - XML SIVIGILA]
-    Bot --> AirData[AirQualityService - API Calidad Aire]
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold
+    classDef bot fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#c2185b,font-weight:bold
+    classDef service fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#2e7d32,font-weight:bold
+    classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5
 
-    Charts --> Responder[Bot Reply Photo]
-    HealthData --> Analysis[SaludAnaliticaService]
-    AirData --> Analysis
+    User((👤 Usuario Telegram)):::user --> Bot[🤖 BotUpdate - NestJS]:::bot
+    
+    subgraph Enrutamiento ["Enrutamiento y Control"]
+        Bot --> Greeting[👋 handleGreeting]:::service
+        Bot --> Charts[📊 ChartService<br/>QuickChart]:::service
+        Bot --> HealthData[🏥 SaludPublicaService<br/>XML SIVIGILA]:::service
+        Bot --> AirData[☁️ AirQualityService<br/>API Calidad Aire]:::service
+    end
 
-    Analysis --> Responder[Bot Reply Text]
-
-    style HealthData fill:#f9f,stroke:#333,stroke-width:2px
-    style AirData fill:#ccf,stroke:#333,stroke-width:2px
-    style Analysis fill:#ff9,stroke:#333,stroke-width:2px
-    style Charts fill:#9f9,stroke:#333,stroke-width:2px
+    subgraph Procesamiento ["Procesamiento y Respuesta"]
+        Charts --> ResponderPhoto[🖼️ Bot Reply Photo]:::bot
+        HealthData --> Analysis[🧠 SaludAnaliticaService<br/>Genkit RAG]:::service
+        AirData --> Analysis
+        Analysis --> ResponderText[💬 Bot Reply Text]:::bot
+    end
 ```
 
 ### 3.1 Flujo de Trabajo (Workflow)
 
 ```mermaid
+---
+title: Flujo de Trabajo (Workflow)
+---
 sequenceDiagram
-    participant User as Usuario
-    participant Telegram as Telegram API
-    participant Bot as BotUpdate
-    participant Stats as StatsService
-    participant Chart as ChartService
-    participant Genkit as Genkit + Gemini
-    participant XML as XML Data Source
-    participant API as External API
+    autonumber
+    actor User as 👤 Usuario
+    participant Telegram as 📱 Telegram API
+    box rgb(240, 248, 255) Capa Bot (NestJS)
+        participant Bot as 🤖 BotUpdate
+        participant Stats as 📊 StatsService
+        participant Chart as 📈 ChartService
+    end
+    box rgb(255, 245, 238) Capa IA y Datos
+        participant Genkit as 🧠 Genkit + Gemini
+        participant XML as 📂 Datos XML
+        participant API as 🌐 APIs Externas
+    end
 
     User->>Telegram: Envía mensaje
-    Telegram->>Bot: Recepción webhook
+    Telegram->>Bot: Webhook (Update)
     Bot->>Bot: Detección de intención
 
     alt Consulta Analítica
         Bot->>Stats: getSummary(text)
-        Stats->>XML: Consulta SIVIGILA
+        Stats->>XML: Consulta datos SIVIGILA
         XML-->>Stats: Datos estructurados
         Stats-->>Bot: Contexto analítico
-        Bot->>Genkit: Prompt + contexto
-        Genkit-->>Bot: Respuesta IA
+        Bot->>Genkit: Prompt + contexto (RAG)
+        Genkit-->>Bot: Respuesta IA generada
         Bot->>Telegram: Respuesta textual
-
-    alt Consulta Gráfica
+    else Consulta Gráfica
         Bot->>Chart: generateBarChart(data)
         Chart->>Chart: Construye URL QuickChart
         Chart-->>Bot: URL imagen
         Bot->>Telegram: replyWithPhoto(URL)
+    else Búsqueda por proximidad
+        Bot->>Telegram: Solicita ubicación (keyboard)
+        Telegram-->>User: Botón "Enviar ubicación"
+        User->>Telegram: Comparte ubicación
+        Telegram->>Bot: Webhook @On('location')
+        Bot->>XML: YopalHealthService.findNearby()
+        XML-->>Bot: Lista de prestadores
+        Bot->>Telegram: Respuesta con prestadores
+    else Análisis de Riesgo
+        Bot->>Genkit: Prompt con contexto de riesgo
+        Genkit-->>Bot: Predicción y recomendaciones
+        Bot->>Telegram: Respuesta preventiva
+    end
 
-    alt Búsqueda por proximidad (cerca de mí)
-        Bot->>Telegram: reply with keyboard (request_location)
-        Telegram->>User: show location button
-        User->>Telegram: sends location
-        Telegram->>Bot: On('location') webhook
-        Bot->>YopalService: YopalHealthService.findNearby(lat,lon,radius)
-        YopalService-->>Bot: nearby providers
-        Bot->>Telegram: reply with providers list
-
-    alt Análisis de Riesgo
-        Bot->>Genkit: Prompt con contexto RAG
-        Genkit-->>Bot: Predicción riesgo
-        Bot->>Telegram: Respuesta con recomendaciones
-
-    Bot->>User: Entrega respuesta
+    Telegram-->>User: Entrega respuesta final
 ```
 
 ### 3.2 Flujo de Procesamiento de Datos
@@ -151,52 +164,52 @@ sequenceDiagram
 ### 3.4 Arquitectura de Servicios
 
 ```mermaid
+---
+title: Arquitectura de Servicios Internos
+---
 graph TD
-    subgraph "Bot Layer"
-        BotUpdate[BotUpdate]
+    classDef layer fill:#f8f9fa,stroke:#dee2e6,stroke-width:2px,color:#495057
+    classDef bot fill:#ffe2e5,stroke:#f11bc7,stroke-width:2px,color:#c2185b,font-weight:bold
+    classDef service fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+    classDef data fill:#fff8e1,stroke:#ffa000,stroke-width:2px,color:#ff6f00,stroke-dasharray: 5 5
+
+    subgraph BotLayer ["📱 Bot Layer"]
+        BotUpdate[🤖 BotUpdate]:::bot
     end
 
-    subgraph "Services Layer"
-        Stats[StatsService]
-        SaludPublica[SaludPublicaService]
-        SaludAnalitica[SaludAnaliticaService]
-        AirQuality[AirQualityService]
-        Chart[ChartService]
-        HealthData[HealthDataService]
-        Mental[mentalHealthService]
-        Sexual[SexualHealthService]
-        Vaccination[VaccinationService]
+    subgraph ServicesLayer ["⚙️ Services Layer"]
+        direction LR
+        Stats[📊 StatsService]:::service
+        SaludPublica[🏥 SaludPublicaService]:::service
+        SaludAnalitica[🧠 SaludAnaliticaService]:::service
+        AirQuality[☁️ AirQualityService]:::service
+        Chart[📈 ChartService]:::service
+        HealthData[🩺 HealthDataService]:::service
+        Mental[🧠 MentalHealthService]:::service
+        Sexual[❤️ SexualHealthService]:::service
+        Vaccination[💉 VaccinationService]:::service
     end
 
-    subgraph "Data Layer"
-        XML[XML Files]
-        API[External APIs]
-        Redis[User Sessions]
+    subgraph DataLayer ["🗄️ Data Layer"]
+        direction LR
+        XML[📂 XML Files]:::data
+        API[🌐 External APIs]:::data
+        Redis[⚡ User Sessions]:::data
     end
 
-    BotUpdate --> Stats
-    BotUpdate --> SaludPublica
-    BotUpdate --> SaludAnalitica
-    BotUpdate --> AirQuality
-    BotUpdate --> Chart
-    BotUpdate --> HealthData
-    BotUpdate --> Mental
-    BotUpdate --> Sexual
-    BotUpdate --> Vaccination
+    %% Enrutamiento Principal
+    BotUpdate --> Stats & SaludPublica & SaludAnalitica & AirQuality & Chart & HealthData & Mental & Sexual & Vaccination
 
+    %% Dependencias de Servicios
     Stats --> HealthData
-    SaludAnalitica --> SaludPublica
-    SaludAnalitica --> AirQuality
-    SaludAnalitica --> Vaccination
+    SaludAnalitica --> SaludPublica & AirQuality & Vaccination
+    
+    %% Acceso a Datos
     HealthData --> XML
-    AirQuality --> API
-    Vaccination --> XML
     Mental --> XML
     Sexual --> XML
-
-    style BotUpdate fill:#E0234E,stroke:#333,stroke-width:2px
-    style Stats fill:#4CAF50,stroke:#333,stroke-width:1px
-    style SaludAnalitica fill:#2196F3,stroke:#333,stroke-width:1px
+    Vaccination --> XML
+    AirQuality --> API
 ```
 
 ### 3.5 Componentes Técnicos
@@ -214,45 +227,48 @@ graph TD
 ### 4.0 Estructura de Datos
 
 ```mermaid
+---
+title: Flujo de Procesamiento y Estructura de Datos XML
+---
 graph LR
-    subgraph "XML Source"
-        XML1[Eventos SIVIGILA]
-        XML2[Salud Mental]
-        XML3[Salud Sexual]
+    classDef source fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#b71c1c
+    classDef parser fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#e65100,font-weight:bold
+    classDef interface fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    classDef service fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+
+    subgraph Sources ["📂 Fuentes XML (Raw)"]
+        direction TB
+        XML1[📄 Eventos SIVIGILA]:::source
+        XML2[📄 Salud Mental]:::source
+        XML3[📄 Salud Sexual]:::source
     end
 
-    subgraph "Parser"
-        Parser[fast-xml-parser]
+    subgraph Processing ["⚙️ Procesamiento"]
+        Parser{{🔧 fast-xml-parser}}:::parser
     end
 
-    subgraph "Processed Data"
-        Data1[HealthEvent[]]
-        Data2[Diagnosis[]]
-        Data3[QA[]]
+    subgraph Interfaces ["💻 Modelos de Datos (TypeScript)"]
+        direction TB
+        Data1[📊 HealthEvent[ ]]:::interface
+        Data2[🧠 Diagnosis[ ]]:::interface
+        Data3[💬 QA[ ]]:::interface
     end
 
-    subgraph "Services"
-        Service1[SaludPublicaService]
-        Service2[MentalHealthService]
-        Service3[SexualHealthService]
+    subgraph Services ["🚀 Servicios de Negocio"]
+        direction TB
+        Service1[🏥 SaludPublicaService]:::service
+        Service2[🧠 MentalHealthService]:::service
+        Service3[❤️ SexualHealthService]:::service
     end
 
-    XML1 --> Parser
-    XML2 --> Parser
-    XML3 --> Parser
-
-    Parser --> Data1
-    Parser --> Data2
-    Parser --> Data3
-
+    %% Conexiones
+    XML1 & XML2 & XML3 --> Parser
+    
+    Parser --> Data1 & Data2 & Data3
+    
     Data1 --> Service1
     Data2 --> Service2
     Data3 --> Service3
-
-    style Parser fill:#ff9,stroke:#333,stroke-width:2px
-    style Data1 fill:#f9f,stroke:#333,stroke-width:2px
-    style Data2 fill:#f9f,stroke:#333,stroke-width:2px
-    style Data3 fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
 ### 4.2 Configuración de Genkit y Gemini
