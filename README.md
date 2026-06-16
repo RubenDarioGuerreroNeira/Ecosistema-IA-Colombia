@@ -45,51 +45,30 @@ El objetivo principal es servir como un puente eficiente entre los datos complej
 ---
 title: Arquitectura General del Sistema
 ---
-graph TD
+flowchart TD
     classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold
     classDef logic fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#33691e
     classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5
     classDef user fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold
 
-    subgraph UserInterface ["📱 Canal de Interacción"]
-        User(("👤 Usuario Telegram")):::user <--> Telegram["💬 Telegram Bot API"]:::core
-    end
+    User(("👤 Usuario Telegram")):::user <--> Telegram["💬 Telegram Bot API"]:::core
+    Telegram <--> Bot["🤖 BotUpdate Controller"]:::core
+    Bot <-->|Contexto + Prompts| AI["✨ Genkit AI - Gemini Engine"]:::core
 
-    subgraph Core ["🧠 Núcleo Orquestador (NestJS)"]
-        Bot["🤖 BotUpdate Controller"]:::core
-        AI["✨ Genkit AI - Gemini Engine"]:::core
-        Bot <-->|Contexto + Prompts| AI
-    end
+    Bot --> NLP["🗣️ NLP y Búsqueda"]:::logic
+    Bot --> Stats["📈 Analítica y Predicción"]:::logic
+    Bot --> Charts["📊 Generación de Gráficos"]:::logic
+    Bot --> Geo["📍 Búsqueda Local (Geo)"]:::logic
 
-    subgraph Logic ["⚙️ Motores de Inteligencia y Lógica"]
-        NLP["🗣️ NLP y Búsqueda"]:::logic
-        Stats["📈 Analítica y Predicción"]:::logic
-        Charts["📊 Generación de Gráficos"]:::logic
-        Geo["📍 Búsqueda Local (Geo)"]:::logic
-    end
-
-    subgraph Data ["🗄️ Fuentes de Datos y Conocimiento"]
-        SIVIGILA[("🏥 SIVIGILA")]:::data
-        Mental[("🧠 Salud Mental")]:::data
-        Sexual[("❤️ Salud Sexual")]:::data
-        Air["☁️ API Calidad Aire"]:::data
-        PAI[("💉 Vacunación")]:::data
-        Local[("🏥 Prestadores Locales")]:::data
-    end
-
-    Telegram <--> Bot
-    Bot --> NLP
-    Bot --> Stats
-    Bot --> Charts
-    Bot --> Geo
-
-    NLP --> SIVIGILA
-    NLP --> Mental
-    NLP --> Sexual
+    NLP --> SIVIGILA[("🏥 SIVIGILA")]:::data
+    NLP --> Mental[("🧠 Salud Mental")]:::data
+    NLP --> Sexual[("❤️ Salud Sexual")]:::data
+    
     Stats --> SIVIGILA
-    Stats --> PAI
-    Charts --> Air
-    Geo --> Local
+    Stats --> PAI[("💉 Vacunación")]:::data
+    
+    Charts --> Air["☁️ API Calidad Aire"]:::data
+    Geo --> Local[("🏥 Prestadores Locales")]:::data
 ```
 
 ---
