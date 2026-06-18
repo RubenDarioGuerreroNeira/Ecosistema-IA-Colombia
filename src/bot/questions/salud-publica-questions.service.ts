@@ -109,6 +109,11 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
       return this.getAvailableQuestions();
     }
 
+    // Si contiene palabras clave de gráficos, redirigir a processGraphicsQuery
+    if (norm.includes('grafico') || norm.includes('grafica') || norm.includes('graficos') || norm.includes('graficas') || norm.includes('visualizar')) {
+      return null; // Dejo que el ChartQueryService maneje esta consulta específica de gráfico para evitar solapamientos y mantener la lógica de gráficos centralizada.
+    };
+
     // ===Top eventos===
     if (
       norm.includes('top eventos') ||
@@ -120,6 +125,9 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     ) {
       return this.handleTopEvents(7);
     }
+
+
+
     // Resumen general
     if (norm.includes('resumen') || norm.includes('estadisticas generales') || (norm.includes('panorama') && norm.includes('general'))) {
       return this.handleGeneralSummary();

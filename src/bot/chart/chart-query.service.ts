@@ -77,7 +77,7 @@ export class ChartQueryService {
         }
 
         // 4. Top Eventos Salud Pública
-        if ((norm.includes('salud publica') || norm.includes('casos de enfermedades')) && (norm.includes('grafic') || norm.includes('visual') || norm.includes('top') || norm.includes('mas frecuentes') || (norm.includes('mostrar') && norm.includes('grafico')))) {
+        if ((norm.includes('salud publica'))) {
             const top = await this.healthDataService.getTopEvents(6);
             const labels = top.map(e => e.nombre_del_evento.length > 20 ? e.nombre_del_evento.substring(0, 17) + '...' : e.nombre_del_evento);
             const data = top.map(e => e.total_de_eventos);

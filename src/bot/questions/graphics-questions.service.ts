@@ -12,45 +12,53 @@ export class GraphicsQuestionsService {
     return `📊 **Capacidades de Generación de Gráficos:**
 
 Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colombia:
-
+-------------------------------------------------------------------------
 🍃 **Calidad del aire**
-
+-------------------------------------------------------------------------
 • "Graficar calidad del aire en Cali"
 • "Visualizar indicadores de aire en Bogotá"
-
+-------------------------------------------------------------------------
 🏥 **Servicios de salud en Cali**
-
+-------------------------------------------------------------------------
 • "Gráfico de servicios de salud en Cali"
 • "Distribución de clínicas y hospitales en Cali"
-
+-------------------------------------------------------------------------
 🧠 **Salud M|ental**
+-------------------------------------------------------------------------
+  "Te puedo mostrar:"
 
 • "Gráfico de los diagnósticos de salud mental más frecuentes"
 • "Top 6 trastornos mentales en Colombia"
-
+-------------------------------------------------------------------------
 📍 **Distribución por sexo/zona/tendencia para eventos específicos**
+-------------------------------------------------------------------------
+  "Puedes pedirme": 
 
-• "Puedes pedirme": 
   "Grafico de distribucion por zona de los sigueintes eventos":
   ['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion', 
   'hepatitis', 'rabia'];   
   "Ejemplo: "¿Puedes mostrarme el grafico de distribucion 
    por zona de la malaria?""
 
-
+-------------------------------------------------------------------------
 🔬 **Salud pública (SIVIGILA)**
- 
-• "Top eventos de salud pública en Colombia"  *** NO F U N C IO NA ***
-• "Gráfico de distribución por sexo de los sigueintes eventos":['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion','hepatitis', 'rabia']; "
-- "Ejemplos: "¿Puedes mostrarme el grafico de distribucion por sexo de la tuberculosis?"
+-------------------------------------------------------------------------  
+"Puedes pedirme":
+
+ • "Gráfico de Top eventos de salud pública en Colombia"  
+ • "Gráfico de distribución por sexo de los sigueintes eventos":['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion','hepatitis', 'rabia']; "
+  "¿Puedes mostrarme el grafico de distribucion por sexo de la tuberculosis?"
+   -------------------------------------------------------------------------
 • "Tendencias en los ultimos 6 meses"
-- "Ejemplos: "¿Puedes mostrarme el grafico de tendencia de la tuberculosis en los últimos 6 meses?"
-  ¿Puedes mostrarme el grafico de tendencia del dengue en los últimos 6 meses?"
-  ¿Puedes mostrarme el grafico de tendencia de la zika en los últimos 6 meses?"
-  ¿Puedes mostrarme el grafico de tendencia de la malaria en los últimos 6 meses?"           
-
+   -------------------------------------------------------------------------
+- "Ejemplos: 
+  ¿Puedes mostrarme el grafico de tendencia de la tuberculosis en los últimos 6 meses?
+  ¿Puedes mostrarme el grafico de tendencia del dengue en los últimos 6 meses?
+  ¿Puedes mostrarme el grafico de tendencia de la zika en los últimos 6 meses?
+  ¿Puedes mostrarme el grafico de tendencia de la malaria en los últimos 6 meses?
+-------------------------------------------------------------------------
 💉 **Vacunación**
-
+-------------------------------------------------------------------------
 • "Graficar vacunas en Antioquia"
 • "Visualizar cobertura de vacunación en Santander"
 
