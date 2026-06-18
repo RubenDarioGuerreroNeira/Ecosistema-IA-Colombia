@@ -247,6 +247,8 @@ const CYCLE_KEYWORDS = [
     { keys: ['adultos', 'adulto'], cycle: 'adultos' },
 ];
 
+const GRAPGHIC_KEYWORDS = ['graficos', 'gráficos', 'graficar', 'gráficar', 'visualizar', 'visualiza', 'dibujar', 'dibuja', 'mostrar gráfico', 'mostrar graficos', 'mostrar gráfico de', 'mostrar graficos de', 'puedes graficar', 'puedes mostrar un gráfico de', 'puedes mostrar un graficos de'];
+
 // ─── Helper utilities ─────────────────────────────────────────────────────────
 function escapeMarkdown(text: string): string {
     return text.toString().replace(/[_*\\~`>#+=|{}.!-]/g, '\\$&');

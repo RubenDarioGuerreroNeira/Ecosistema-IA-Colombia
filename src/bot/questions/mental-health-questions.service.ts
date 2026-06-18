@@ -219,6 +219,12 @@ La población más afectada según el ciclo de vida es:
   async handleMentalHealthQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
 
+    // Si la consulta contiene "grafico", dejar que pase a handleChartQuery
+    if (norm.includes('grafico') || norm.includes('grafica') || norm.includes('graficos') || norm.includes('graficas') || norm.includes('visualizar')) {
+      return false;
+    }
+
+
     const isMentalHealth =
       norm.includes('salud mental') ||
       norm.includes('psicologia') ||

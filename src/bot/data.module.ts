@@ -21,6 +21,8 @@ import { GraphicsQuestionsService } from './questions/graphics-questions.service
 import { AdvancedPredictionService } from './advanced-prediction.service';
 import { EarlyWarningService } from './early-warning.service';
 import { MlPredictionService } from './ml-prediction.service';
+import { ChartQueryService } from './chart/chart-query.service';
+import { ChartService } from './chart/chart.service';
 
 @Module({
   imports: [
@@ -44,9 +46,11 @@ import { MlPredictionService } from './ml-prediction.service';
     SaludPublicaQuestionsService,
     YopalQuestionsService,
     GraphicsQuestionsService,
-    EarlyWarningService, // Keep this
+    EarlyWarningService,
     AdvancedPredictionService,
     MlPredictionService,
+    ChartService,
+    ChartQueryService,
   ],
   exports: [
     AirQualityService,
@@ -66,9 +70,11 @@ import { MlPredictionService } from './ml-prediction.service';
     SaludPublicaQuestionsService,
     YopalQuestionsService,
     GraphicsQuestionsService,
-    EarlyWarningService, // Keep this
+    EarlyWarningService,
     AdvancedPredictionService,
     MlPredictionService,
+    ChartService,
+    ChartQueryService,
   ],
 })
 export class DataModule { }

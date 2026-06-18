@@ -67,7 +67,7 @@ export class ChartQueryService {
         }
 
         // 3. Salud Mental
-        const mentalKeywords = ['mental', 'psicologia', 'psiquiatria', 'depresion', 'ansiedad', 'trastorno', 'esquizo', 'bipol', 'demencia', 'delirio', 'psicosis', 'mania', 'spa'];
+        const mentalKeywords = ['grafico de salud mental', 'mental', 'psicologia', 'psiquiatria', 'depresion', 'ansiedad', 'trastorno', 'esquizo', 'bipol', 'demencia', 'delirio', 'psicosis', 'mania', 'spa'];
         if (mentalKeywords.some(k => norm.includes(k)) && (norm.includes('grafic') || norm.includes('visual') || norm.includes('top') || norm.includes('mas frecuentes') || norm.includes('distribucion'))) {
             const top = await this.mentalHealthService.getTopDiagnoses(6);
             const labels = top.map(d => d.diagnostico_ingreso.length > 20 ? d.diagnostico_ingreso.substring(0, 17) + '...' : d.diagnostico_ingreso);
@@ -86,7 +86,7 @@ export class ChartQueryService {
         }
 
         // 5. Distribución por sexo/zona/tendencia para eventos específicos
-        const eventKeywords = ['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion', 'rubeola', 'hepatitis', 'rabia'];
+        const eventKeywords = ['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion', 'hepatitis', 'rabia'];
         const detectedEvent = eventKeywords.find(k => norm.includes(k));
         if (detectedEvent) {
             const stats = await this.healthDataService.getStatsForEvent(detectedEvent);
