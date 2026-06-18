@@ -339,6 +339,13 @@ export class BotUpdate {
             norm.includes('top eventos') ||
             norm.includes('ranking de eventos') ||
             norm.includes('puedes mostrarme el ranking de eventos de salud en colombia') ||
+            norm.includes('categorias') ||
+            //CATEGORIAS DE EVENTOS DE SALUD PUBLICA
+            norm.includes('categorias de eventos de salud publica') ||
+            norm.includes('cual es el ranking de categorias') ||
+            (norm.includes('cual es el ranking') && norm.includes('categorias')) ||
+            norm.includes('mayor incidencia') ||
+            norm.includes('las categorias con mayor incidencia') ||
 
             norm.includes('adultos jovenes');
 
@@ -406,8 +413,6 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 (no solo lenguaje natural):
 
 🥼 **Salud Pública:**
-- Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
-
 - Me Puedes preguntar:
  "¿Qué info tienes de la salud pública en Colombia?" 
  (y te mostraré las preguntas que puedo responder)

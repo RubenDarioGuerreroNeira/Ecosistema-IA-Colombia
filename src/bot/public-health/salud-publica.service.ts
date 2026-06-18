@@ -467,14 +467,10 @@ export class SaludPublicaService implements OnModuleInit {
       .filter((item) => item.casos > 0);
   }
 
-  // ---------------------------------------------------------------------------
-  // NUEVOS MÉTODOS PARA ENRIQUECER LAS RESPUESTAS DEL BOT
-  // ---------------------------------------------------------------------------
-
   /**
-   * Resumen ejecutivo de salud pública: total de casos, top 3 eventos, total por categorías, etc.
-   * Preguntas: "Dame un resumen de salud pública", "Estadísticas generales", "Panorama general"
-   */
+ * Resumen ejecutivo de salud pública: total de casos, top 3 eventos, total por categorías, etc.
+ * Preguntas: "Dame un resumen de salud pública", "Estadísticas generales", "Panorama general"
+ */
   public async obtenerResumenGeneral(): Promise<{
     totalCasos: number;
     totalEventos: number;
@@ -779,7 +775,7 @@ export class SaludPublicaService implements OnModuleInit {
     return { encontrado: false };
   }
 
-
+  // obtiene más Eventos de Salud que afectana a ls mujeres 
   async eventosMasAfectanMujeres(n = 3): Promise<HealthEvent[]> {
     await this.ensureReady();
     return [...this.events]
@@ -791,4 +787,19 @@ export class SaludPublicaService implements OnModuleInit {
       )
       .slice(0, n);
   }
+
+  // Obtiene mas Eventos que Afectan a los hombres
+
+  async eventosMasAfectanHombres(n = 3): Promise<HealthEvent[]> {
+    await this.ensureReady();
+    return [...this.events]
+      .filter((e) => e.femenino + e.masculino > 0)
+      .sort(
+        (a, b) =>
+          b.masculino / (b.femenino + b.masculino) -
+          a.masculino / (a.femenino + a.masculino),
+      )
+      .slice(0, n);
+  }
+
 }
