@@ -371,7 +371,13 @@ export class BotUpdate {
         const region = this.detectRegion(text)?.toUpperCase();
         const result = await this.chartQueryService.processChartQuery(text, region);
 
-        if (!result.success) return false;
+        if (!result.success) {
+            if (result.message) {
+                await ctx.reply(result.message);
+                return true;
+            }
+            return false;
+        }
 
         if (result.needsLocation && result.message) {
             await ctx.reply(result.message, { parse_mode: 'Markdown' });

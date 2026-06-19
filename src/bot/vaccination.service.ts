@@ -3,6 +3,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { XMLParser } from 'fast-xml-parser';
 import { VaccinationCoverage } from './types/vaccination-coverage.interface';
+import { Departamento, DEPARTAMENTOS_LIST } from '../Interfaces/departamentos';
 
 @Injectable()
 export class VaccinationService {
@@ -86,12 +87,54 @@ export class VaccinationService {
     };
   }
 
+  // Solicita la info de Vacunación un departamento determinado
   async getCoverageByDepartment(departamento: string): Promise<VaccinationCoverage[]> {
     const searchDepto = departamento.toLowerCase();
-    return this.data.filter(c => 
-      c.departamento.toLowerCase().includes(searchDepto) || 
+    return this.data.filter(c =>
+      c.departamento.toLowerCase().includes(searchDepto) ||
       (c.indicator1 && c.indicator1.toLowerCase().includes(searchDepto))
     );
   }
+
+  // Limpia encoding corrupto (Ã± -> ñ, Ã¡ -> á, etc.)
+  private cleanEncoding(text: string): string {
+    if (!text) return '';
+    return text
+      .replace(/Ã‘/g, 'Ñ').replace(/Ã±/g, 'ñ')
+      .replace(/Ã“/g, 'Ó').replace(/Ã³/g, 'ó')
+      .replace(/Ã/g, 'Í').replace(/Ã­/g, 'í')
+      .replace(/Ã‰/g, 'É').replace(/Ã©/g, 'é')
+      .replace(/Ãš/g, 'Ú').replace(/Ãº/g, 'ú')
+      .replace(/Ã/g, 'Á').replace(/Ã¡/g, 'á')
+      .replace(/Ã¼/g, 'ü').replace(/Ãœ/g, 'Ü')
+      .replace(/Â°/g, '°').replace(/NÂº/g, 'N°')
+      .replace(/\s+/g, ' ').trim();
+  }
+
+  // Normaliza texto: minúscula, sin acentos, sin espacios extra
+  private normalizeDepto(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // Retorna lista única de departamentos/municipios con datos de vacunación
+  async getAllDepartament(): Promise<string[]> {
+    const rawDeptos = [...new Set(this.data.map(c => this.cleanEncoding(c.departamento)))];
+    return rawDeptos
+      .filter(d => d && d !== 'Desconocido' && d.length > 2)
+      .sort();
+  }
+
+  // Retorna todos los municipios disponibles en los datos de vacunación
+  async getAllMunicipios(): Promise<string[]> {
+    const raw = [...new Set(this.data.map(c => this.cleanEncoding(c.indicator1 || '')))];
+    return raw.filter(m => m && m.length > 2).sort();
+  }
+
+
 }
 

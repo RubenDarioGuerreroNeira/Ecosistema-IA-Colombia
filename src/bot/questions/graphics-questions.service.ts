@@ -13,17 +13,17 @@ export class GraphicsQuestionsService {
 
 Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colombia:
 -------------------------------------------------------------------------
-🍃 **Calidad del aire**
+🍃 **Calidad del Aire**
 -------------------------------------------------------------------------
 • "Graficar calidad del aire en Cali"
 • "Visualizar indicadores de aire en Bogotá"
 -------------------------------------------------------------------------
-🏥 **Servicios de salud en Cali**
+🏥 **Servicios de Salud en Cali**
 -------------------------------------------------------------------------
-• "Gráfico de servicios de salud en Cali"
+• "Gráfico de Servicios de salud en Cali"
 • "Distribución de clínicas y hospitales en Cali"
 -------------------------------------------------------------------------
-🧠 **Salud M|ental**
+🧠 **Salud Mental**
 -------------------------------------------------------------------------
   "Te puedo mostrar:"
 
@@ -41,7 +41,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
    por zona de la malaria?""
 
 -------------------------------------------------------------------------
-🔬 **Salud pública (SIVIGILA)**
+🔬 **Salud Pública (SIVIGILA)**
 -------------------------------------------------------------------------  
 "Puedes pedirme":
 
@@ -59,8 +59,9 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
 -------------------------------------------------------------------------
 💉 **Vacunación**
 -------------------------------------------------------------------------
-• "Graficar vacunas en Antioquia"
-• "Visualizar cobertura de vacunación en Santander"
+• "¿De que departamentos puedes generar gráficos de la  información de vacunación?" 
+  (Te mostrare el listado de departamentos)
+• "¿De cuál deseas ver la cobertura? (Ej: "Graficar vacunas en Santander") "
 
 ¿Qué información deseas visualizar hoy?`;
   }
@@ -79,6 +80,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
       norm.includes('que tipo de graficas puedes hacer') ||
       norm.includes('que graficos puedes hacer') ||
       norm.includes('que graficas puedes hacer') ||
+
       (norm.includes('ayuda') && norm.includes('grafico'));
 
     if (explicitQuery) {
@@ -91,7 +93,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
     if (norm.includes('grafico') || norm.includes('grafica') || norm.includes('graficos') || norm.includes('graficas') || norm.includes('visualizar') || norm.includes('mostrar grafico')) {
       return null;
     }
-
     return null;
   }
+
 }

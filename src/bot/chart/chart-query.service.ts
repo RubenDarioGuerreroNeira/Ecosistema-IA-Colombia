@@ -10,7 +10,7 @@ import { normalizeString } from '../../shared/health-utils';
 export interface ChartQueryResult {
     success: boolean;
     message?: string;
-    photo?: string;  // URL de la imagen generada (no Buffer)
+    photo?: string;
     caption?: string;
     needsLocation?: boolean;
     intent?: 'chart_air_quality' | 'chart_vaccination';
@@ -109,7 +109,6 @@ export class ChartQueryService {
                 }
 
                 // --- GRÁFICO GENERAL POR DEFECTO para eventos específicos ---
-                // Si no se especificó sexo/zona/tendencia, mostrar distribución por sexo (más informativo)
                 const chartUrl = this.chartService.generateBarChart(
                     ['Femenino', 'Masculino'],
                     [stats.femenino, stats.masculino],
@@ -126,9 +125,11 @@ export class ChartQueryService {
         // 6. Vacunación
         if (norm.includes('vacun')) {
             if (!region) {
+                const deptos = await this.vaccinationService.getAllDepartament();
+                const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');
                 return {
                     success: true,
-                    message: '💉 ¿De qué **departamento** deseas visualizar la cobertura de vacunación? (Ej: "Graficar vacunas en Antioquia")',
+                    message: `💉 Puedo generar gráficos de la  información de vacunación de los siguientes departamentos:\n\n${listaDeptos}\n\n¿De cuál deseas ver la cobertura? (Ej: "Graficar vacunas en Antioquia")`,
                     needsLocation: true,
                     intent: 'chart_vaccination',
                 };
@@ -147,6 +148,7 @@ export class ChartQueryService {
                 const chartUrl = this.chartService.generatePieChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
                 return { success: true, photo: chartUrl, caption: `💉 Coberturas de vacunación en ${region}.` };
             }
+            return { success: false, message: `No se encontró información de vacunación en ${region}.` };
         }
 
         return { success: false };
