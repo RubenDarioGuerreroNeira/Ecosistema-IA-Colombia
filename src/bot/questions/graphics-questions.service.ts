@@ -49,7 +49,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
  • "Gráfico de distribución por sexo de los sigueintes eventos":['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion','hepatitis', 'rabia']; "
   "¿Puedes mostrarme el grafico de distribucion por sexo de la tuberculosis?"
    -------------------------------------------------------------------------
-• "Tendencias en los ultimos 6 meses"
+📉 **Tendencias en los ultimos 6 meses**
    -------------------------------------------------------------------------
 - "Ejemplos: 
   ¿Puedes mostrarme el grafico de tendencia de la tuberculosis en los últimos 6 meses?
