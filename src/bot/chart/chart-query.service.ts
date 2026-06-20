@@ -123,7 +123,7 @@ export class ChartQueryService {
         }
 
         // 6. Vacunación
-        if (norm.includes('vacun')) {
+        if (norm.includes('vacun') || norm.includes('puedes graficar')) {
             if (!region) {
                 const deptos = await this.vaccinationService.getAllDepartament();
                 const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');
@@ -145,7 +145,16 @@ export class ChartQueryService {
                 const sorted = Array.from(dataMap.entries()).sort(([, a], [, b]) => b - a).slice(0, 8);
                 const labels = sorted.map(([l]) => l);
                 const data = sorted.map(([, d]) => d);
-                const chartUrl = this.chartService.generatePieChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
+
+                // Elegir tipo de gráfico según la cantidad de vacunas:
+                // - Hasta 6: doughnut (torta)
+                // - Más de 6: barras horizontales (más legible)
+                let chartUrl: string;
+                if (labels.length <= 6) {
+                    chartUrl = this.chartService.generatePieChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
+                } else {
+                    chartUrl = this.chartService.generateHorizontalBarChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
+                }
                 return { success: true, photo: chartUrl, caption: `💉 Coberturas de vacunación en ${region}.` };
             }
             return { success: false, message: `No se encontró información de vacunación en ${region}.` };

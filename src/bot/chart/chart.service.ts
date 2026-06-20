@@ -111,6 +111,67 @@ export class ChartService {
   }
 
   /**
+   * Genera un gráfico de barras horizontales (ideal para muchas categorías)
+   */
+  generateHorizontalBarChart(labels: string[], data: number[], title: string): string {
+    const config = {
+      type: 'horizontalBar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Cobertura (%)',
+            data: data,
+            backgroundColor: [
+              '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+              '#FF6384', '#C9CBCF', '#FFB1C1', '#9AD0F5', '#FFD8B1', '#B1E6D1',
+              '#D4A5FF', '#FFC107', '#8BC34A', '#00BCD4', '#E91E63', '#9C27B0',
+            ],
+            borderColor: 'rgba(0,0,0,0.1)',
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        title: {
+          display: true,
+          text: title,
+          fontSize: 18,
+        },
+        legend: {
+          display: false,
+        },
+        scales: {
+          xAxes: [{
+            ticks: {
+              beginAtZero: true,
+              callback: (value) => value + '%',
+            },
+          }],
+          yAxes: [{
+            ticks: {
+              fontSize: 11,
+            },
+          }],
+        },
+        plugins: {
+          datalabels: {
+            anchor: 'end',
+            align: 'end',
+            color: '#000',
+            font: {
+              weight: 'bold',
+              size: 11,
+            },
+            formatter: (value) => value.toFixed(1) + '%',
+          },
+        },
+      },
+    };
+    return this.generateChartUrl(config, { width: 600, height: 350 });
+  }
+
+  /**
    * Genera un gráfico de líneas para series temporales
    */
   generateLineChart(labels: string[], data: number[], title: string): string {

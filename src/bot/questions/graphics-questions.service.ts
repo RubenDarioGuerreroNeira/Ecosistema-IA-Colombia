@@ -34,7 +34,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
 -------------------------------------------------------------------------
   "Puedes pedirme": 
 
-  "Grafico de distribucion por zona de los sigueintes eventos":
+  "Grafico de distribucion por zona de los siguientes eventos":
   ['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion', 
   'hepatitis', 'rabia'];   
   "Ejemplo: "¿Puedes mostrarme el grafico de distribucion 
@@ -61,7 +61,7 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
 -------------------------------------------------------------------------
 • "¿De que departamentos puedes generar gráficos de la  información de vacunación?" 
   (Te mostrare el listado de departamentos)
-• "¿De cuál deseas ver la cobertura? (Ej: "Graficar vacunas en Santander") "
+• "¿De cuál deseas ver la cobertura? (Ej: "Puedes Graficar vacunas en Santander") "
 
 ¿Qué información deseas visualizar hoy?`;
   }
