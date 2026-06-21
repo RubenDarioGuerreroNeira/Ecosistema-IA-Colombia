@@ -9,16 +9,23 @@ export class GraphicsQuestionsService {
     return `📊 **Capacidades de Generación de Gráficos:**
 
 Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colombia:
+-------------------------------------------------------------------------
+🍃 **Calidad del Aire**
+-------------------------------------------------------------------------
+Escribe: 
+• "¿Puedes graficar la calidad del aire?" (Te mostrare los municipios de los cuales poseo info)
+ejemplo:
+• "¿Puedes graficar la calidad del aire en Cali"
 
-🍃 **Calidad del aire**
-• "Graficar calidad del aire en Cali"
-• "Visualizar indicadores de aire en Bogotá"
-
-🏥 **Servicios de salud en Cali**
-• "Gráfico de servicios de salud en Cali"
+-------------------------------------------------------------------------
+🏥 **Servicios de Salud en Cali**
+-------------------------------------------------------------------------
+• "Gráfico de Servicios de salud en Cali"
 • "Distribución de clínicas y hospitales en Cali"
-
-🧠 **Salud mental**
+-------------------------------------------------------------------------
+🧠 **Salud Mental**
+-------------------------------------------------------------------------
+  "Te puedo mostrar:"
 • "Gráfico de los diagnósticos de salud mental más frecuentes"
 • "Top 6 trastornos mentales en Colombia"
 

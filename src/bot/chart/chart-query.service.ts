@@ -31,15 +31,31 @@ export class ChartQueryService {
         const norm = normalizeString(text);
 
         // --- Helper para detectar si la consulta es explícitamente sobre aire/ambiente ---
-        const isAirQuery = (norm.includes('calidad del aire') || norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
+        const isAirQuery = ( norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
             (norm.includes('grafic') || norm.includes('visual') || norm.includes('indicador') || norm.includes('mostrar') || norm.includes('muestra'));
+        const isAirQueryIn = (norm.includes('calidad del aire en') || norm.includes('calidad aire en'));
 
         // 1. Calidad del Aire (solo si la consulta menciona explícitamente aire)
-        if (isAirQuery) {
+        if (isAirQueryIn && region) {
+            // Caso: consulta específica con región ("calidad del aire en bello")
+            const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
+            if (aireData && aireData.length > 0) {
+                const uniqueVariables = Array.from(new Map(aireData.map((v: any) => [v.variable, v])).values());
+                const variables = uniqueVariables.slice(0, 6);
+                const labels = variables.map((v: any) => v.variable);
+                const data = variables.map((v: any) => parseFloat(v.promedio));
+                const chartUrl = this.chartService.generateBarChart(labels, data, `Calidad del Aire en ${region} (Promedios)`);
+                return { success: true, photo: chartUrl, caption: `🍃 Indicadores ambientales para ${region}.` };
+            }
+            return { success: false };
+        } else if (isAirQuery) {
+            // Caso: consulta general sin región específica
             if (!region) {
+                const municipios = await this.airQualityService.getAllMunicipios();
+                const listaMunicipios = municipios.slice(0, 30).map(m => `• ${m}`).join('\n');
                 return {
                     success: true,
-                    message: '☁️ ¿De qué **municipio o departamento** deseas visualizar la calidad del aire? (Ej: "Graficar aire en Cali")',
+                    message: `☁️ Tengo datos de calidad del aire para varios municipios de Colombia.\n\nEjemplos:\n${listaMunicipios}\n\n📍 ¿De qué **municipio o departamento** deseas consultar? (Ej: "Graficar aire en Cali")`,
                     needsLocation: true,
                     intent: 'chart_air_quality',
                 };

@@ -696,14 +696,16 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     private async handleConversationContinuity(
         ctx: Context,
         text: string,
-        region?: string,
+        detectedRegion?: string,
     ): Promise<boolean> {
         const userId = ctx.from?.id;
         const pending = userId ? this.userState.get(userId) : null;
-        if (!pending || !region) return false;
+        if (!pending) return false;
 
         const isShortResponse = text.trim().split(/\s+/).length <= 3;
         if (!isShortResponse) return false;
+
+        const region = detectedRegion || text.trim();
 
         this.logger.log(`Reanudando intent "${pending.intent}" para region "${region}"`);
 
@@ -847,7 +849,17 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
             return regex.test(cleanText);
         });
 
-        return matchedRegion === 'atioquia' ? 'Antioquia' : matchedRegion;
+        if (matchedRegion) {
+            return matchedRegion === 'atioquia' ? 'Antioquia' : matchedRegion;
+        }
+
+        // Extracción dinámica para patrones específicos donde la región no está en las listas estáticas
+        const matchAire = text.match(/aire\s+en\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+?)(?:\s*[,]|$)/i);
+        if (matchAire && matchAire[1]) {
+            return matchAire[1].trim();
+        }
+
+        return undefined;
     }
 
     // ─── Greeting Handler ──────────────────────────────────────────────────────────
@@ -1087,15 +1099,23 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             return true;
         }
 
-        if (!norm.includes('calidad del aire') && pending?.intent !== 'air_quality') return false;
+        if (!norm.includes('calidad del aire') && !norm.includes('calidad aire') && pending?.intent !== 'air_quality') return false;
 
-        if (!detectedRegion) {
+        // Si no se detectó región por las listas, intentar extraerla del texto después de "calidad del aire en" o "calidad aire en"
+        let region = detectedRegion;
+        if (!region) {
+            const matchCalidadAire = norm.match(/calidad\s+(?:del\s+)?aire\s+en\s+([a-z\s]+?)(?:\s*[,]|$)/i);
+            if (matchCalidadAire && matchCalidadAire[1]) {
+                region = matchCalidadAire[1].trim().toUpperCase();
+            }
+        }
+
+        if (!region) {
             await ctx.reply('☁️ ¿De qué **municipio o departamento** deseas conocer la calidad del aire?', { parse_mode: 'Markdown' });
             if (userId) this.userState.set(userId, { intent: 'air_quality' });
             return true;
         }
 
-        const region = detectedRegion;
         const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
 
         if (aireData && aireData.length > 0) {

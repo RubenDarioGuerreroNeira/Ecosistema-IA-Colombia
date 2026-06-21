@@ -14,10 +14,33 @@ export class AirQualityService {
           $limit: 10,
         },
       });
+      console.log(`[DEBUG] Searching air quality for: ${municipio.toUpperCase()}`);
+      console.log(`[DEBUG] Found ${response.data?.length || 0} records`);
+      if (response.data?.length > 0) {
+        console.log(`[DEBUG] Sample record:`, response.data[0]);
+      }
       return response.data;
     } catch (error) {
       console.error(`Error fetching air quality for ${municipio}:`, error);
       return null;
     }
   }
+
+  async getAllMunicipios(): Promise<string[]> {
+    try {
+      const response = await axios.get(this.apiUrl, {
+        params: {
+          $select: 'DISTINCT nombre_del_municipio, nombre_del_departamento',
+          $limit: 100,
+        },
+      });
+      const municipios: string[] = response.data.map(m => m.nombre_del_municipio).filter(Boolean);
+      return [...new Set(municipios)].sort();
+    } catch (error) {
+      console.error(`Error fetching air quality for all municipios:`, error);
+      return [];
+    }
+  }
+
+
 }
