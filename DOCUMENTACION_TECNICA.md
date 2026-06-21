@@ -37,11 +37,11 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
 
 - **Ingeniería de Prompts:** Se implementó un _System Prompt_ especializado que define el rol de la IA como "Asistente Experto en Salud Pública para Colombia".
 - **Restricciones Lingüísticas:** Se aplicaron reglas gramaticales estrictas para asegurar que la comunicación sea natural y correcta (ej. uso del género femenino para referirse a "una Colombia más sana").
-- **Orquestación:** Uso de Genkit para estructurar la entrada y salida de datos, asegurando que la respuesta sea concisa y estructurada.
+- **Orquestación:** Uso del cliente oficial de `openai` conectado a **OpenRouter** para estructurar la entrada y salida de datos, asegurando que la respuesta sea concisa y estructurada.
 
 ### 2.4 Modeling (Modelado de la IA)
 
-- **Modelo Seleccionado:** `gemini-2.5-flash`.
+- **Modelo Seleccionado:** `Meta-Llama-3.1-70B-Instruct` (A través de OpenRouter).
 - **Razón de la elección:** Equilibrio óptimo entre velocidad de respuesta (latencia baja) y capacidad de razonamiento complejo.
 - **Arquitectura de Servicios:** Implementación de servicios de estadísticas especializados (`HealthStatsService`, `MentalHealthStatsService`, `SexualHealthStatsService`) bajo el principio de Responsabilidad Única (SRP).
 - **Implementación:** Orquestación a través de `StatsService` para la detección de intenciones analíticas (rankings, comparativas urbanas/rurales, etc.).
@@ -93,7 +93,7 @@ graph TD
     subgraph Procesamiento ["Procesamiento y Respuesta"]
         ChartService --> ResponderPhoto["🖼️ Bot Reply Photo"]:::bot
 
-        SaludPublicaService --> GenkitRAG["🧠 Genkit RAG<br/>(SaludAnaliticaService)"]:::service
+        SaludPublicaService --> GenkitRAG["🧠 OpenAI SDK RAG<br/>(SaludAnaliticaService)"]:::service
         MentalHealthService --> GenkitRAG
         SexualHealthService --> GenkitRAG
         YopalHealthService --> GenkitRAG
@@ -155,7 +155,7 @@ sequenceDiagram
         participant Chart as 📈 ChartService
     end
     box rgb(255, 245, 238) Capa IA y Datos
-        participant Genkit as 🧠 Genkit + Gemini
+        participant Genkit as 🧠 OpenRouter + LLaMA
         participant XML as 📂 Datos XML
         participant API as 🌐 APIs Externas
     end
@@ -203,7 +203,7 @@ sequenceDiagram
     - Si es **Consulta Gráfica**: Se utiliza `ChartService`.
 4.  **Procesamiento**:
     - **ChartService** $\rightarrow$ Genera URL de imagen dinámica.
-    - **SaludAnaliticaService** $\rightarrow$ Realiza RAG y análisis con Gemini.
+    - **SaludAnaliticaService** $\rightarrow$ Realiza RAG y análisis con LLaMA 3.1.
 5.  **Responder** $\rightarrow$ Envío de respuesta textual (con contexto) o visual (foto).
 6.  **Usuario** $\rightarrow$ Recibe la respuesta estructurada en su dispositivo.
 
@@ -269,8 +269,8 @@ graph TD
 ### 3.4 Componentes Técnicos
 
 - **Backend:** NestJS (Node.js).
-- **IA Framework:** Genkit.
-- **LLM:** Gemini 2.5 Flash.
+- **IA Framework:** SDK de OpenAI conectado a OpenRouter.
+- **LLM:** Meta LLaMA 3.1 70B Instruct.
 - **API de Interfaz:** Telegram Bot API.
 - **Validación:** Joi (para variables de entorno).
 
@@ -325,15 +325,19 @@ graph LR
     Data3 --> Service3
 ```
 
-### 4.2 Configuración de Genkit y Gemini
+### 4.2 Configuración de OpenRouter
 
 ```typescript
 // genkit.service.ts
-const gemini = genkitPluginGoogleAI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1',
 });
 
-const model = gemini.model('gemini-2.5-flash');
+const response = await this.openai.chat.completions.create({
+  model: process.env.OPENROUTER_MODEL || 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+  messages: [{ role: 'user', content: prompt }],
+});
 ```
 
 **Configuración de System Prompt:**
@@ -426,7 +430,7 @@ detectRegion(text: string): string | undefined {
 | **Alcance Geográfico**      | Datos completos solo para Antioquia, Valle, Boyacá, Yopal | Restricción regional              | Expandir a todo el país     |
 | **Tiempo de Respuesta**     | 2-5 segundos en consultas complejas                       | UX en dispositivos lentos         | Optimizar cache y queries   |
 | **Cobertura de Vacunación** | Datos agregados por departamento                          | Falta granularidad municipal      | Integrar datos municipales  |
-| **Modelo IA**               | Gemini 2.5 Flash (sin contexto extendido)                 | Límite de contexto                | Implementar RAG vectorial   |
+| **Modelo IA**               | Dependencia de API Externa (OpenRouter)                   | Límite de latencia externa        | Implementar modelo local (ej. Ollama) |
 | **Visualización**           | QuickChart (servicio externo)                             | Depende de disponibilidad externa | Generar imágenes localmente |
 
 ### 6.2 Roadmap de Mejoras
@@ -515,8 +519,8 @@ artillery quick -d 60 -r 10 https://your-bot-url.com/health
 ### 8.1 Referencias
 
 1. **NestJS Documentation:** https://docs.nestjs.com/
-2. **Genkit Framework:** https://firebase.google.com/docs/genkit
-3. **Gemini API:** https://ai.google.dev/
+2. **OpenAI Node SDK:** https://github.com/openai/openai-node
+3. **OpenRouter API:** https://openrouter.ai/
 4. **Telegram Bot API:** https://core.telegram.org/bots/api
 5. **SIVIGILA:** https://www.ins.gov.co/
 
