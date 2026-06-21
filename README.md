@@ -76,7 +76,6 @@ graph LR
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, líneas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias y distribuciones demográficas.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
-- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
 - **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
 - **📈 Análisis Epidemiológico Avanzado**:
   - Rankings de incidencia.
@@ -155,15 +154,22 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 
 **Calidad del Aire**
 
+- "¿Puedes graficar la calidad del aire en Andes?" (o cualquier otro municipio de Colombia)
 - "Graficar aire en Cali", "Muéstrame la calidad del aire en Bogotá", "Visualizar contaminación en Medellín"
 - "Ver indicadores ambientales de Yopal"
 - "Graficar datos ambientales" (El bot preguntará la ciudad si no se especifica)
-  **Salud Mental**
+
+**Salud Mental**
+
 - "Graficar diagnósticos de salud mental", "Muéstrame un gráfico de depresión y ansiedad en Colombia"
 - "Visualizar estadísticas de psicología", "Ver gráfico de salud mental"
-  **Servicios de Salud en Cali**
+
+**Servicios de Salud en Cali**
+
 - "Muéstrame un gráfico de los servicios en Cali", "Graficar servicios de salud en Cali", "Visualizar categorías de salud en Cali"
-  **Salud Pública (SIVIGILA)**
+
+**Salud Pública (SIVIGILA)**
+
 - "Graficar eventos de salud pública", "Muéstrame las enfermedades más frecuentes en el país"
 - "Ver gráfico de eventos SIVIGILA", "Visualizar reporte de salud pública"
 - "Ver tendencia de tuberculosis" (Gráfico de líneas)
@@ -214,7 +220,7 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 1. **Clonar el repositorio:**
 
    ```bash
-   git clone https://github.com/tu-usuario/salud-ia-bot.git
+   git clone https://github.com/RubenDarioGuerreroNeira/Ecosistema-IA-Colombia.git salud-ia-bot
    cd salud-ia-bot
    ```
 
