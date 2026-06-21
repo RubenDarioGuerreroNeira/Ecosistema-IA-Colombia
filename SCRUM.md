@@ -28,13 +28,13 @@ Proporcionar una herramienta de inteligencia artificial en Telegram que facilite
 - **Servicio Boyacá:** Integración de servicios de salud departamentales.
 - **Eventos SIVIGILA:** Consulta de eventos de interés en salud pública a nivel nacional.
 
-### Sprint 4: Refactorización y Mejora de Experiencia
+### Sprint 3: Refactorización y Mejora de Experiencia
 
 - **Refactorización de Servicios:** Consolidación de lógica en `MentalHealthQuestionsService`, `SaludPublicaQuestionsService`, `YopalQuestionsService` y `GraphicsQuestionsService`.
 - **Cobertura de Tests:** Implementación robusta de tests unitarios y E2E para nuevos servicios.
 - **Geolocalización:** Implementación de búsqueda de prestadores por coordenadas (radio 5km).
 
-### Sprint 5: Optimización y Calidad de Código 🧹
+### Sprint 4: Optimización y Calidad de Código 🧹
 
 - **Corrección de UX:** Mensaje de bienvenida reparado (formato Markdown roto y texto mal formateado en la sección de Salud Pública).
 - **Eliminación de `console.log`:** Reemplazo completo de logs directos por el sistema de logging de NestJS (`Logger`) en `bot.update.ts`.
@@ -43,13 +43,19 @@ Proporcionar una herramienta de inteligencia artificial en Telegram que facilite
 - **Constantes globales:** Extracción de listas de departamentos, regiones, keywords y strings de respuesta a constantes fuera de la clase para mejor mantenibilidad.
 - **Funciones auxiliares independientes:** `escapeMarkdown()` y `normalizeText()` extraídas como funciones puras reutilizables.
 
+### Sprint 5: Visualización Gráfica y NLP Avanzado 📊
+
+- **Generación de Gráficos:** Integración de gráficas dinámicas (barras, tortas, líneas) para métricas de Salud Pública, Calidad del Aire, y Salud Mental.
+- **Detección Dinámica NLP:** Actualización del motor de detección de regiones para extraer de manera dinámica cualquier municipio usando Expresiones Regulares (RegEx).
+- **Resolución Continua:** Optimización de la continuidad conversacional al esperar respuestas de los usuarios.
+
 ## 📋 Product Backlog (Pendientes)
 
 | Prioridad | Tarea                          | Descripción                                                                                                  | Estado    |
 | :-------- | :----------------------------- | :----------------------------------------------------------------------------------------------------------- | :-------- |
 | **Media** | Geocodificación de Direcciones | Investigar e implementar la conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali. | Pendiente |
 | **Media** | UI Polishing                   | Mejorar el formato de mensajes largos y menús interactivos (Inline Buttons).                                 | Pendiente |
-| **Baja**  | Dashboard Analítico            | Integración con Genkit para generar visualizaciones dinámicas de tendencias de salud.                        | Pendiente |
+| **Baja**  | Dashboard Web Analítico        | Desarrollo de una interfaz web externa para visualizaciones (las gráficas del bot ya están implementadas).   | Pendiente |
 | **Baja**  | Exportación de Datos           | Permitir a los usuarios descargar resúmenes de salud en PDF/Excel.                                           | Pendiente |
 
 ---
@@ -59,10 +65,10 @@ Proporcionar una herramienta de inteligencia artificial en Telegram que facilite
 Para que una tarea se considere terminada, debe:
 
 1. Superar el linting (`npm run lint`).
-2. Pasar todos los tests unitarios (`npm test`).
+2. Crear/Actualizar y pasar todos los tests unitarios y E2E correspondientes (`npm test` / `npm run test:e2e`).
 3. Estar documentada en el código y en este archivo si es un hito mayor.
 4. No introducir errores de compilación (`npm run build`).
 
 ---
 
-_Última actualización: 5 de junio de 2026_
+_Última actualización: 21 de junio de 2026_
