@@ -7,15 +7,14 @@
 </p>
 
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
-![Genkit](https://img.shields.io/badge/Genkit-AI-blue?style=for-the-badge)
-![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)
-![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-AI-blue?style=for-the-badge)
+![LLaMA](https://img.shields.io/badge/Meta_LLaMA_3.1-0466C8?style=for-the-badge&logo=meta&logoColor=white)
 
 ---
 
 ## 🌟 Descripción
 
-**Salud IA Bot** es una solución innovadora diseñada para democratizar el acceso a la información de salud pública en Colombia. Utilizando la potencia de **Genkit** y el modelo **Gemini 2.5 Flash**, el bot actúa como un experto en salud pública, proporcionando respuestas precisas sobre prevención de enfermedades, reportes de brotes y orientación sanitaria.
+**Salud IA Bot** es una solución innovadora diseñada para democratizar el acceso a la información de salud pública en Colombia. Utilizando la API de **OpenRouter** y el potente modelo **Meta-Llama 3.1 70B Instruct**, el bot actúa como un experto en salud pública, proporcionando respuestas precisas sobre prevención de enfermedades, reportes de brotes y orientación sanitaria.
 
 El objetivo principal es servir como un puente eficiente entre los datos complejos de salud pública y el ciudadano común a través de una interfaz familiar: **Telegram**, aportando valor preventivo mediante el cruce de datos oficiales de salud, vacunación y medio ambiente.
 
@@ -37,7 +36,7 @@ graph LR
     Core --> BotModule("BotModule")
     Core --> Config("ConfigModule / Joi")
     BotModule --> BotUpdate("BotUpdate")
-    BotModule --> GenkitService("GenkitService")
+    BotModule --> GenkitService("Servicio AI (OpenRouter)")
     BotModule --> UserService("UserService")
     BotModule --> StatsModule("StatsModule")
     BotModule --> DataModule("DataModule")
@@ -54,8 +53,8 @@ graph LR
     StatsModule --> MentalHealthStats("MentalHealthStatsService")
     StatsModule --> SexualHealthStats("SexualHealthStatsService")
 
-    AI --> Genkit("Genkit")
-    AI --> Gemini("Google Gemini 2.5 Flash")
+    AI --> OpenRouter("OpenRouter API")
+    AI --> LLaMA("Meta LLaMA 3.1 70B Instruct")
     AI --> RAG("Contexto RAG / Datos Reales")
 
     style Root fill:#f9f,stroke:#333,stroke-width:4px
@@ -69,7 +68,7 @@ graph LR
 
 ## 🚀 Características Principales
 
-- **🧠 IA Especializada + RAG**: Genkit con Google Gemini 2.5 Flash genera respuestas basadas en contexto real de salud pública y evitando información no sustentada.
+- **🧠 IA Especializada + RAG**: Orquestación directa usando el SDK de OpenAI hacia OpenRouter (LLaMA 3.1) para generar respuestas basadas en contexto real de salud pública y evitando alucinaciones.
 - **🔬 Módulo de Salud Pública Avanzado**: Procesamiento de lenguaje natural para consultas complejas sobre SIVIGILA (resúmenes nacionales, comparativas, brechas de género y ciclos de vida).
 - **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
 - **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
@@ -98,7 +97,7 @@ flowchart TD
 
     User(("👤 Usuario Telegram")):::user <--> Telegram["💬 Telegram Bot API"]:::core
     Telegram <--> Bot["🤖 BotUpdate Controller"]:::core
-    Bot <-->|Contexto + Prompts| AI["✨ Genkit AI - Gemini Engine"]:::core
+    Bot <-->|Contexto + Prompts| AI["✨ LLaMA 3.1 Engine (vía OpenRouter)"]:::core
 
     Bot --> NLP["🗣️ NLP y Búsqueda"]:::logic
     Bot --> Stats["📈 Analítica y Predicción"]:::logic
@@ -206,8 +205,8 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 | Componente           | Tecnología                                                                | Propósito                                        |
 | :------------------- | :------------------------------------------------------------------------ | :----------------------------------------------- |
 | **Framework**        | [NestJS](https://nestjs.com/)                                             | Arquitectura backend modular y escalable.        |
-| **IA Orchestration** | [Genkit](https://firebase.google.com/docs/genkit)                         | Gestión de flujos de IA y despliegue.            |
-| **LLM**              | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/)          | Generación de respuestas inteligentes y rápidas. |
+| **IA Orchestration** | [OpenAI SDK / OpenRouter](https://openrouter.ai)          | Integración directa evitando _lock-in_ y permitiendo flexibilidad de modelos. |
+| **LLM**              | [Meta LLaMA 3.1 70B Instruct](https://ai.meta.com/llama/) | Generación de respuestas especializadas, fluidas y coherentes.             |
 | **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                                      | Comunicación con la API de Telegram.             |
 | **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser) | Procesamiento eficiente de fuentes XML locales.  |
 
@@ -235,7 +234,8 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 
    ```env
    TELEGRAM_BOT_TOKEN=tu_token_de_telegram
-   GOOGLE_GENAI_API_KEY=tu_api_key_de_google
+   OPENROUTER_API_KEY=tu_api_key_de_openrouter
+   OPENROUTER_MODEL=meta-llama/Meta-Llama-3.1-70B-Instruct
    PORT=3000
    ```
 
