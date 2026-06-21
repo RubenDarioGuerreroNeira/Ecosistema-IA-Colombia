@@ -137,7 +137,6 @@ graph TD
     PredictiveServices --> XML_SIVIGILA
     PredictiveServices --> XML_Vacunacion
     PredictiveServices --> API_CalidadAire
-    end
 ```
 
 ### 3.1 Flujo de Trabajo (Workflow)
@@ -210,7 +209,7 @@ sequenceDiagram
 
 ---
 
-### 3.4 Arquitectura de Servicios
+### 3.3 Arquitectura de Servicios
 
 ```mermaid
 ---
@@ -267,7 +266,7 @@ graph TD
     AirQuality --> API
 ```
 
-### 3.5 Componentes Técnicos
+### 3.4 Componentes Técnicos
 
 - **Backend:** NestJS (Node.js).
 - **IA Framework:** Genkit.
@@ -373,22 +372,30 @@ const processed = data.Eventos.map((e) => ({
 
 ```typescript
 detectRegion(text: string): string | undefined {
-  const departments = ['Antioquia', 'Valle del Cauca', 'Boyacá', ...];
-  const capitals = ['Medellín', 'Cali', 'Tunja', ...];
-
+  const staticLists = [...DEPARTMENTS, ...CAPITALS, ...MAJOR_VALLE_TOWNS];
   const cleanText = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  return departments.find(r =>
+  // 1. Búsqueda en listas estáticas
+  const found = staticLists.find(r => 
     new RegExp(`\\b${r.toLowerCase()}\\b`, 'i').test(cleanText)
   );
+  if (found) return found;
+
+  // 2. Extracción dinámica por NLP (Regex)
+  const dynamicMatch = cleanText.match(/(?:en|de)\s+([a-zA-Z\s]+)/i);
+  if (dynamicMatch && dynamicMatch[1]) {
+    return dynamicMatch[1].trim();
+  }
+  return undefined;
 }
 ```
 
 **Características:**
 
-- Normalización de acentos (í → i)
-- Coincidencia exacta con límites de palabra (evita "cali" con "calidad")
-- Soporte para errores ortográficos comunes ("atioquia" → "Antioquia")
+- **Enfoque Híbrido:** Prioriza coincidencias exactas y hace fallback a extracción dinámica (NLP).
+- **Normalización de acentos:** (í → i)
+- **Coincidencia exacta:** con límites de palabra (evita "cali" con "calidad").
+- **Extracción contextual:** Extrae el municipio a partir de conectores gramaticales ("en", "de").
 
 ---
 
@@ -473,6 +480,7 @@ detectRegion(text: string): string | undefined {
 | **Greeting**        | `/start`                                  | Mensaje de bienvenida personalizado | ✅ Implementado |
 | **Consultar casos** | "¿Cuántos casos de dengue hay en Cali?"   | Estadísticas SIVIGILA               | ✅ Implementado |
 | **Gráfico aire**    | "Graficar aire en Medellín"               | Imagen con calidad del aire         | ✅ Implementado |
+| **Gráfico dinámico**| "¿Puedes graficar aire en Andes?"         | Gráfico extraído dinámicamente      | ✅ Implementado |
 | **Comparativa**     | "Compara tuberculosis en Cali vs Tuluá"   | Tabla comparativa                   | ⚠️ Parcial      |
 | **Predicción**      | "Predecir riesgo de malaria en Antioquia" | Análisis de riesgo                  | ✅ Implementado |
 | **Provider search** | "Hospitales en Tunja"                     | Lista de hospitales                 | ✅ Implementado |
