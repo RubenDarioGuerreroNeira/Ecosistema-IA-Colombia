@@ -1,37 +1,112 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { normalizeString } from '../../shared/health-utils';
 import { SaludAnaliticaService } from '../analytic-health/salud-analitica.service';
+import { PredictionService } from '../prediction.service';
+import { VaccinationService } from '../vaccination.service';
+import { AirQualityService } from '../air/air-quality.service';
+import { SaludPublicaService } from '../public-health/salud-publica.service';
 
 @Injectable()
 export class RiskQuestionsService {
+    private readonly logger = new Logger(RiskQuestionsService.name);
+
     constructor(
         private readonly saludAnaliticaService: SaludAnaliticaService,
+        private readonly predictionService: PredictionService,
+        private readonly vaccinationService: VaccinationService,
+        private readonly airQualityService: AirQualityService,
+        private readonly saludPublicaService: SaludPublicaService,
     ) { }
 
-    getAvailableQuestions(): string {
-        return `🛡️ **Análisis de Riesgo de Enfermedades Específicas**
+    /**
+     * Retorna la lista de eventos disponibles dinámicamente desde SIVIGILA.
+     */
+    private async getAvailableEvents(): Promise<string[]> {
+        try {
+            const eventos = await this.saludPublicaService.listarEventosCompletos();
+            if (!eventos || eventos.length === 0) return [];
+            return eventos
+                .map(e => e.nombre_del_evento)
+                .filter(n => n && n.length > 0)
+                .slice(0, 20); // Limitar a 20 para no saturar
+        } catch (error) {
+            this.logger.warn(`Error obteniendo eventos disponibles: ${error.message}`);
+            return [];
+        }
+    }
 
-Puedo analizar el riesgo de las siguientes enfermedades en cualquier departamento o municipio de Colombia:
+    /**
+     * Retorna las ubicaciones disponibles dinámicamente desde vacunación y calidad del aire.
+     */
+    private async getAvailableLocations(): Promise<string[]> {
+        try {
+            const [vaccinationDeptos, airQualityMunis] = await Promise.all([
+                this.vaccinationService.getAllDepartament(),
+                this.airQualityService.getAllMunicipios(),
+            ]);
+            const combined = [...vaccinationDeptos, ...airQualityMunis];
+            const unique = Array.from(new Set(combined.map(l => l.trim())))
+                .filter(l => l.length > 2);
+            return unique.slice(0, 12); // Limitar a 12 para no saturar
+        } catch (error) {
+            this.logger.warn(`Error obteniendo ubicaciones disponibles: ${error.message}`);
+            return [];
+        }
+    }
 
-🔬 **Enfermedades disponibles:**
-• Tuberculosis
-• Dengue
+    /**
+     * Genera el mensaje de lista de eventos y ubicaciones disponibles usando datos dinámicos.
+     */
+    async getAvailableQuestions(): Promise<string> {
+        const [events, locations] = await Promise.all([
+            this.getAvailableEvents(),
+            this.getAvailableLocations(),
+        ]);
+
+        const eventsList = events.length > 0
+            ? events.map(e => `• ${e}`).join('\n')
+            : `• Dengue
 • Zika
+• Chikungunya
 • Malaria
+• Tuberculosis
+• Hepatitis A, B, C
 • Sarampión
 • Rubeola
+• Tos Ferina
 • Fiebre Amarilla
-• Hepatitis
-• Polio
-• Tos ferina
+• Leishmaniasis
+• Chagas
+• Intoxicación por alimentos
+• Accidente ofídico`;
 
-💡 **Ejemplos:**
-• *"Analizar riesgo de dengue en Cali"*
-• *"Riesgo de tuberculosis en Antioquia"*
-• *"Analizar sarampión en Bogotá"*
-• *"Riesgo de malaria en el Chocó"*
+        const locationsList = locations.length > 0
+            ? locations.map(l => `• ${l}`).join('\n')
+            : `• Antioquia
+• Boyacá
+• Casanare (Yopal)
+• Cundinamarca
+• Meta
+• Norte de Santander
+• Valle del Cauca`;
 
-¿Sobre qué enfermedad deseas analizar el riesgo?`;
+        return `🔮 **Predicción de Riesgo Epidemiológico**
+
+Puedo predecir y analizar el riesgo de los siguientes eventos de salud pública en Colombia, combinando datos oficiales de SIVIGILA, cobertura de vacunación y calidad del aire:
+
+📋 **Eventos disponibles para predicción:**
+${eventsList}
+
+📍 **Ubicaciones con datos disponibles:**
+${locationsList}
+
+💡 **Ejemplos de uso:**
+• *"Predecir riesgo de dengue en Amazonas"*
+• *"Analizar riesgo de sarampión en Caldas"*
+• *"Riesgo de malaria en el Arauca"*
+• *"Predecir riesgo de tuberculosis en Boyacá"*
+
+¿Sobre qué evento y ubicación deseas realizar la predicción?`;
     }
 
     /**
@@ -44,23 +119,33 @@ Puedo analizar el riesgo de las siguientes enfermedades en cualquier departament
     ): Promise<{ respuesta: string; tipo: string; event?: string } | null> {
         const norm = normalizeString(text);
 
-        // Detectar si pregunta sobre capacidades del servicio
+        // Detectar si pregunta sobre capacidades del servicio de predicción de riesgos
         if (
             norm.includes('que riesgos') ||
             norm.includes('que analisis de riesgo') ||
+            norm.includes('que predicciones') ||
             (norm.includes('que') && norm.includes('analizar riesgo')) ||
-            (norm.includes('que') && norm.includes('riesgo') && norm.includes('enfermedades'))
+            (norm.includes('que') && norm.includes('riesgo') && norm.includes('enfermedades')) ||
+            (norm.includes('que') && norm.includes('riesgo') && norm.includes('predecir')) ||
+            (norm.includes('riesgos') && norm.includes('puedes predecir')) ||
+            (norm.includes('puedes predecir') && norm.includes('riesgo'))
         ) {
-            return { respuesta: this.getAvailableQuestions(), tipo: 'listado' };
+            const respuesta = await this.getAvailableQuestions();
+            return { respuesta, tipo: 'listado' };
         }
 
         return null;
     }
 
     /**
-     * Ejecuta el análisis de riesgo para un evento en una región.
+     * Ejecuta el análisis de riesgo para un evento en una región usando PredictionService.
      */
     async analizarRiesgo(event: string, region: string): Promise<string> {
-        return await this.saludAnaliticaService.analizarRiesgoEvento(event, region);
+        try {
+            return await this.predictionService.predictRisk(region, event);
+        } catch (error) {
+            this.logger.error(`Error en analizarRiesgo: ${error.message}`);
+            return `⚠️ No se pudo realizar la predicción de riesgo para **${event}** en **${region}**.`;
+        }
     }
 }

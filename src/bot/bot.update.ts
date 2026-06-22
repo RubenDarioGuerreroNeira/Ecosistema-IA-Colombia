@@ -18,6 +18,20 @@ import { PredictionService } from './prediction.service';
 import { ChartService } from './chart/chart.service';
 import { VaccinationService } from './vaccination.service';
 import { normalizeString } from '../shared/health-utils';
+import { escapeMarkdown, normalizeText } from './utils/text-normalizer';
+import {
+    YOPAL_KEYWORDS,
+    RISK_ANALYSIS_KEYWORDS,
+    ENVIRONMENTAL_KEYWORDS,
+    CYCLE_KEYWORDS,
+    GRAPHIC_KEYWORDS,
+    DEPARTMENTS,
+    CAPITALS,
+    MAJOR_VALLE_TOWNS,
+    OTHER_REGION_NAMES,
+    BYPASS_MARKERS,
+    GREETING_REGEX,
+} from './constants/keywords';
 import {
     MentalHealthService,
     MentalHealthEvent,
@@ -95,55 +109,6 @@ interface AgeDistribution {
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 const MAX_MESSAGE_LENGTH = 4000;
-
-const DEPARTMENTS = [
-    'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas',
-    'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca',
-    'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño',
-    'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés',
-    'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada',
-];
-
-const CAPITALS = [
-    'Leticia', 'Medellín', 'Arauca', 'Barranquilla', 'Cartagena', 'Tunja',
-    'Manizales', 'Florencia', 'Yopal', 'Popayán', 'Valledupar', 'Quibdó',
-    'Montería', 'Bogotá', 'Inírida', 'San José del Guaviare', 'Neiva', 'Riohacha',
-    'Santa Marta', 'Villavicencio', 'Pasto', 'Cúcuta', 'Mocoa', 'Armenia',
-    'Pereira', 'Bucaramanga', 'Sincelejo', 'Ibagué', 'Cali', 'Mitú', 'Puerto Carreño',
-];
-
-const MAJOR_VALLE_TOWNS = [
-    'Buga', 'Tuluá', 'Palmira', 'Jamundí', 'Cartago', 'Buenaventura', 'Yumbo',
-    'Candelaria', 'Florida', 'El Cerrito', 'Sevilla', 'Zarzal', 'Caicedonia',
-    'Guacarí', 'Roldanillo',
-];
-
-const OTHER_REGION_NAMES = [
-    'valle', 'capresoca', 'coomeva', 'medimas', 'sanitas', 'nueva eps',
-    'coosalud', 'horo', 'orinoquia', 'atioquia',
-];
-
-const RISK_ANALYSIS_KEYWORDS = [
-    'tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion',
-    'rubeola', 'fiebre amarilla', 'hepatitis', 'polio', 'tos ferina',
-];
-
-const ENVIRONMENTAL_KEYWORDS = [
-    'dengue', 'zika', 'chikun', 'malaria', 'tuberculosis', 'contaminacion',
-    'chagas', 'ofidico', 'animales', 'eta', 'alimentos', 'intoxicacion',
-    'desnutricion', 'respiratoria',
-];
-
-const BYPASS_MARKERS = [
-    '--- ANÁLISIS',
-    '--- RANKING',
-    '--- DISTRIBUCIÓN',
-    '--- ANÁLISIS GLOBAL',
-    '--- SALUD MENTAL',
-    '--- PERFIL DE RIESGO',
-    '--- COMPARATIVA SIVIGILA',
-];
-
 const RESPONSE_NO_INFORMATION = `Lo siento, no tengo información sobre ese tema en mi base de datos actual. 
 
 Mi especialidad es la salud pública en Colombia. Puedo ayudarte con:
@@ -173,96 +138,28 @@ const GENERIC_RISK_LIST = `🧠 **Salud Mental (CIE-10):**
 - Cáncer de cuello uterino y mama (VPH)
 - Métodos anticonceptivos y derechos reproductivos`;
 
-const GREETING_REGEX = /^(hola|buenos dias|buenas tardes|buenas noches|saludos|hi|hello|\/start|que sabes hacer|que puedes hacer)/i;
-
-const YOPAL_KEYWORDS = [
-    '¿tienes alguna información sobre Yopal?',
-    'yopal',
-    'qué información tienes de yopal',
-    'manejas datos de yopal',
-    'qué inf tienes de yopal',
-    'sabes alguna información de yopal',
-    'que sabes de yopal',
-    'laboratorios clínicos en yopal',
-    'opticas u oftalmólogos en yopal',
-    'ambulancias o transporte asistencial',
-    'centros de radiología e imágenes diagnósticas',
-    'servicios de urgencias en yopal',
-    'hospitales en yopal',
-    'clinicas en yopal',
-    'cerca de mi',
-    'cerca de mi estoy en yopal',
-    'prestadores de salud en yopal',
-    'centros de salud en yopal',
-    'centros de atencion en yopal',
-    'que sabes de los centros de salud en yopal',
-    'servicios en yopal',
-    'hospital cercano en yopal',
-    'que hospitales hay cerca de mi',
-    'qué hospitales hay cerca de mi estoy en yopal',
-    'qué hospitales hay cerca de mi',
-    'centro medico cercano en yopal',
-    'que hospital tengo cerca estoy en yopal',
-    'que hospital esta cerca estoy en yopal',
-    'qué hospitales tengo cerca en yopal',
-    'que hospitales tengo cerca yo estoy en yopal',
-    'hospitales cercanos en yopal',
-    'clinicas cercanas en yopal',
-    'centro medico cercano en yopal',
-    'prestadores de salud cercanos en yopal',
-    'hospital cerca yopal',
-    'clinica cerca yopal',
-    'centro medico cerca yopal',
-    'correo electronico de',
-    'correo electronico',
-    'email de',
-    'telefono de',
-    'direccion de',
-    'servinsalud', 'capresoca', 'coomeva en yopal', 'medimas en yopal',
-    'sanitas EN YOPAL', 'nueva eps en yopal', 'hororegional', 'urmedicas',
-    'centro de escanografia', 'visionamos salud', 'instituto de fracturas',
-    'optisalud', 'clinica casanare', 'cruz roja en yopal', 'clinica del oriente',
-    'esesalud', 'rehabilitar', 'asistir ips', 'ses salud', 'panorex', 'cedent',
-    'nora alvarez', 'avanti salud', 'medytec', 'gamma ips', 'ortophos',
-    'salud llanos', 'health care', 'fundacion promover', 'nueva ips optica',
-    'ser saludable', 'prosalud', 'puertabierta', 'famedic', 'famelab',
-    'centro odontologico', 'trinisalud', 'rx ayudas', 'dentisalud', 'simalink',
-    'domisalud', 'centro de reconocimiento', 'smio', 'mundo radiologico',
-    'cemediq', 'orl vital', 'gyomedical', 'colmedica', 'clinica vascular',
-    'hemato oncologia', 'enrique guerrero', 'medicenter', 'medical help',
-    'sanas ips', 'medical sky', 'angiografia', 'lacor', 'cardio andes',
-    'ips gmi', 'vital alliance', 'centro de especialidades pediatricas',
-    'servicios integrales', 'onco oriente', 'oxi care', 'erika munoz',
-    'fundesarrollo', 'kairos', 'jersalud', 'sies salud', 'oftalmo optica',
-    'centro de rehabilitacion', 'ips orinoco', 'crc del llano', 'suly yarid',
-    'manejo del dolor', 'ambulancias sar', 'bihospharma', 'ambulancias de colombia',
-    'caimed', 'coosalud',
+const RISK_EVENTS = [
+    'Dengue',
+    'Zika',
+    'Chikungunya',
+    'Malaria',
+    'Tuberculosis',
+    'Hepatitis A',
+    'Hepatitis B',
+    'Hepatitis C',
+    'Sarampión',
+    'Rubeola',
+    'Tos Ferina',
+    'Fiebre Amarilla',
+    'Leishmaniasis',
+    'Chagas',
+    'Intoxicación por alimentos',
+    'Accidente ofídico',
+    'Ansiedad',
+    'Depresión',
+    'Estrés',
+    'Trastorno mental',
 ];
-
-const CYCLE_KEYWORDS = [
-    { keys: ['adolescente', 'adolescentes'], cycle: 'adolescentes' },
-    { keys: ['jovenes', 'joven'], cycle: 'jovenes' },
-    { keys: ['mayores', 'mayor'], cycle: 'mayores' },
-    { keys: ['ninos', 'nino', 'nena'], cycle: 'niños' },
-    { keys: ['adultos', 'adulto'], cycle: 'adultos' },
-];
-
-const GRAPGHIC_KEYWORDS = ['graficos', 'gráficos', 'graficar', 'gráficar', 'visualizar', 'visualiza', 'dibujar', 'dibuja', 'mostrar gráfico', 'mostrar graficos', 'mostrar gráfico de', 'mostrar graficos de', 'puedes graficar', 'puedes mostrar un gráfico de', 'puedes mostrar un graficos de'];
-
-// ─── Helper utilities ─────────────────────────────────────────────────────────
-function escapeMarkdown(text: string): string {
-    return text.toString().replace(/[_*\\~`>#+=|{}.!-]/g, '\\$&');
-}
-
-function normalizeText(text: string): string {
-    return text
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, ' ')
-        .replace(/k/g, 'c')
-        .trim();
-}
 
 @Update()
 export class BotUpdate {
@@ -419,20 +316,24 @@ Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales 
 
 El bot está diseñado para responder a consultas de alta precisión basadas en datos reales 
 (no solo lenguaje natural):
-
+----------------------------------------------------------------
 🥼 **Salud Pública:**
+----------------------------------------------------------------
 - Me Puedes preguntar:
  "¿Qué info tienes de la salud pública en Colombia?" 
  (y te mostraré las preguntas que puedo responder)
  
-
+----------------------------------------------------------------
 📊 **Gráficos:**
+----------------------------------------------------------------
  Puedes preguntarme:
  "¿Qué puedes Graficar?" 
  (te mostraré la lista de gráficos que puedo hacer para ti)
 
+------------------------------------------------------------------
 📍 **Información sobre Yopal:**
- Puedes hacerme esta pregunta:
+------------------------------------------------------------------
+Puedes hacerme esta pregunta:
  ¿que informacion tienes de yopal?
 - "Usuarios en Yopal pueden hacer esta consulta -> ¿Qué hospitales hay cerca de mi?"
 - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
@@ -441,31 +342,38 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
   ¿tienes alguna información sobre Yopal?
    y te mostrare los datos que tengo disponibles.
 
+------------------------------------------------------------------
   🧠 **Salud Mental y Sexual (CIE-10 y Protocolos):**
+------------------------------------------------------------------
 Te puedo responder preguntas sobre salud mental solo escribe:
 - "Qué información tienes sobre salud mental?"
 
+----------------------------------------------------------------
 📈 **Predicciones:**
-- ¿Qué puedes responder sobre predicciones?
+----------------------------------------------------------------
+Puedes Escribirme:
+- ¿Qué puedes predecir?" → (muestra las capacidades predictivas generales (alertas, pronósticos, ML, análisis completo)
+- ¿Qué riesgos se pueden predecir? → (muestra la lista de eventos y departamentos/municipios disponibles)
 
-- "¿Qué hospitales hay en Medellín?"
-- "Lista de municipios de Boyacá con centros de salud."
-
+----------------------------------------------------------------
 📊 **Estadísticas e Inteligencia Epidemiológica:**
+----------------------------------------------------------------
 - "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
 - "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
 - "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
 
+----------------------------------------------------------------
 🛡️ **Análisis de Riesgo y Vacunación:**
+----------------------------------------------------------------
 - "Analizar riesgo de sarampión en Antioquia" (revisaré casos vs. cobertura de vacuna TV).
 - "Analizar riesgo de dengue en Antioquia"
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
+----------------------------------------------------------------
 🍃 **Monitoreo Ambiental:**
+----------------------------------------------------------------
 - "¿Cómo está la calidad del aire hoy en Cali?"
 - "Graficar contaminación ambiental en Medellín."
-
-
 
 💬 ¿Sobre qué tema te gustaría consultar hoy?`;
     }
@@ -606,9 +514,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 `;
             nearbyProviders.slice(0, 5).forEach((p: any, index: number) => {
                 const contacts = this.yopalHealthService.getProviderContacts(p);
-                response += `*${index + 1}. ${escapeMarkdown(p.entidad_2 || 'N/A')}*
+                const escapedEntity = this.escapeMarkdown(p.entidad_2 || 'N/A');
+                response += `*${index + 1}. ${escapedEntity}*
 `;
-                response += `   - Dirección: ${escapeMarkdown(p.direccion || 'N/A')}
+                response += `   - Dirección: ${this.escapeMarkdown(p.direccion || 'N/A')}
 `;
                 response += `   - Teléfono: ${contacts.primaryPhone || 'N/A'}
 `;
@@ -631,7 +540,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     async onText(@Ctx() ctx: Context): Promise<void> {
         if (!ctx.message || !('text' in ctx.message)) return;
 
-        const messageText = (ctx.message as { text: string }).text;
+        const messageText = ctx.message.text;
 
         // Detectar región para posibles análisis posteriores
         const detectedRegion = this.detectRegion(messageText);
@@ -713,7 +622,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         detectedRegion?: string,
     ): Promise<boolean> {
         const userId = ctx.from?.id;
-        const pending = userId ? this.userState.get(userId) : null;
+        const pending = userId ? this.userState.get(userId) : undefined;
         if (!pending) return false;
 
         const isShortResponse = text.trim().split(/\s+/).length <= 3;
@@ -835,7 +744,8 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                     return true;
                 }
 
-                const analysis = await this.saludAnaliticaService.analizarRiesgoEvento(event, detectedRegion);
+                // Usar PredictionService.predictRisk que combina SIVIGILA + vacunación + calidad del aire
+                const analysis = await this.riskQuestionsService.analizarRiesgo(event, detectedRegion);
                 if (userId) this.userState.delete(userId);
                 await this.sendLongMessage(ctx, analysis);
                 return true;
@@ -847,8 +757,18 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
     }
 
     private extractRiskEvent(norm: string, pending: UserState | null | undefined): string | undefined {
-        return RISK_ANALYSIS_KEYWORDS.find((k) => norm.includes(k)) ||
-            (pending?.data as { event?: string } | undefined)?.event;
+        const fromKeywords = RISK_ANALYSIS_KEYWORDS.find((k) => norm.includes(k));
+        if (fromKeywords) return fromKeywords;
+        const fromRiskEvents = RISK_EVENTS.find((e) => norm.includes(e.toLowerCase()));
+        if (fromRiskEvents) return fromRiskEvents;
+        const fromPending = (pending?.data as { event?: string } | undefined)?.event;
+        if (fromPending) return fromPending;
+        // Fallback: si contiene "riesgo de" o "analizar riesgo de", extraer lo que sigue
+        const fallbackMatch = norm.match(/(?:riesgo de|analizar riesgo de)\s+([a-záéíóúñ\s]+?)(?:\s+en\s+|$)/);
+        if (fallbackMatch && fallbackMatch[1]) {
+            return fallbackMatch[1].trim();
+        }
+        return undefined;
     }
 
     // ─── Region Detection ──────────────────────────────────────────────────────────
@@ -908,8 +828,8 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
 🧠 **Salud Mental y Sexual:**
-- Te puedo responder preguntas sobre salud mental basadas en datos oficiales.  escribebeme |Por ejemplo:
-¿Qué información tienes sobre salud mental?
+- Te puedo responder preguntas sobre salud mental basadas en datos oficiales.
+Por ejemplo: "¿Qué información tienes sobre salud mental?"
 
 🍃 **Monitoreo Ambiental:**
 - "¿Cómo está la calidad del aire hoy en Cali?"
@@ -1027,7 +947,57 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
         if (await this.handleRiskPrediction(ctx, text, lowerText, userId, pending)) return true;
         if (await this.handleCasePrediction(ctx, lowerText, userId, pending)) return true;
 
+        // Si es pregunta general sobre predicciones, mostrar mensaje afirmativo y opciones (sin pedir ubicación)
+        if (
+            lowerText.includes('prediccion') ||
+            lowerText.includes('pronostico') ||
+            lowerText.includes('predecir') ||
+            lowerText.includes('proyeccion') ||
+            lowerText.includes('clasificar riesgo') ||
+            lowerText.includes('puedes predecir riesgos') ||
+            lowerText.includes('riesgos') ||
+            lowerText.includes('alerta temprana')
+        ) {
+            await this.sendPredictiveOverview(ctx);
+            return true;
+        }
+
         return false;
+    }
+
+    private async sendPredictiveOverview(ctx: Context): Promise<void> {
+        const eventsList = RISK_EVENTS.slice(0, 8).map(e => `• ${e}`).join('\n');
+
+        // Obtener ubicaciones disponibles dinámicamente desde los servicios
+        let availableLocations: string[] = [];
+        try {
+            const [vaccinationDeptos, airQualityMunis] = await Promise.all([
+                this.vaccinationService.getAllDepartament(),
+                this.airQualityService.getAllMunicipios(),
+            ]);
+
+            // Combinar departamentos y municipios, eliminando duplicados
+            const combined = [...vaccinationDeptos, ...airQualityMunis];
+            const unique = Array.from(new Set(combined.map(l => l.trim()))).filter(l => l.length > 2);
+            availableLocations = unique.slice(0, 10); // Limitar a 10 para no saturar el mensaje
+        } catch (error) {
+            this.logger.warn(`Error obteniendo ubicaciones disponibles: ${error.message}`);
+        }
+
+        // Fallback si no se pudieron obtener datos dinámicamente
+        if (availableLocations.length === 0) {
+            availableLocations = ['Norte de Santander', 'Antioquia', 'Valle del Cauca', 'Boyacá', 'Casanare (Yopal)', 'Meta', 'Cundinamarca'];
+        }
+
+        const locationsList = availableLocations.map(l => `**${l}**`).join(', ');
+        const message = `🔮 **Sí, puedo predecir y evaluar riesgos epidemiológicos en Colombia.**\n\n` +
+            `Actualmente puedo generar análisis de riesgo combinando datos oficiales de SIVIGILA, cobertura de vacunación y calidad del aire para eventos como:\n\n` +
+            `${eventsList}\n\n` +
+            `📍 **Ubicaciones disponibles para predicción:**\n` +
+            `${locationsList}.\n\n` +
+            `💬 *Escribe por ejemplo:* "predecir riesgo de dengue en Norte de Santander".\n` +
+            `También puedes consultar: "pronóstico de casos", "alertas tempranas" o "clasificar riesgo".`;
+        await this.sendLongMessage(ctx, message, { parse_mode: 'Markdown' });
     }
 
     private async handleRiskPrediction(
@@ -1042,16 +1012,22 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 
         const parts = lowerText.replace('predecir riesgo de', '').split(' en ');
         const eventName = pending?.data ? (pending.data as { event?: string }).event : undefined;
-        const finalEventName = eventName || parts[0].trim();
+        let finalEventName = eventName || parts[0].trim();
         const region = this.detectRegion(text);
         const departamento = region || 'Antioquia';
 
+        // Si no hay evento explícito, buscar en palabras clave de riesgo
         if (!finalEventName) {
-            await this.sendLongMessage(ctx, "Por favor, especifica un evento. Ejemplo: 'predecir riesgo de dengue en Cali'");
-            return true;
+            finalEventName = RISK_ANALYSIS_KEYWORDS.find((k) => lowerText.includes(k)) || '';
         }
 
         if (!region && !lowerText.includes(' en ')) {
+            if (finalEventName) {
+                const prediction = await this.predictionService.predictRisk(departamento, finalEventName);
+                if (userId !== undefined) this.userState.delete(userId!);
+                await this.sendLongMessage(ctx, prediction);
+                return true;
+            }
             await ctx.reply(`🔮 ¿En qué **municipio o departamento** deseas realizar la predicción de riesgo para **${finalEventName}**?`, { parse_mode: 'Markdown' });
             if (userId) this.userState.set(userId, { intent: 'predict_risk', data: { event: finalEventName } });
             return true;
@@ -1246,14 +1222,21 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     // ─── Service Capabilities Query ──────────────────────────────────────────────────
     private async handleServiceCapabilitiesQuery(ctx: Context, text: string): Promise<boolean> {
         const norm = normalizeString(text);
+        const userId = ctx.from?.id;
 
-        if (await this.handlePredictiveCapabilitiesQuery(ctx, norm)) return true;
-
+        // PRIORITARIO: Mostrar eventos y ubicaciones específicas de predicción de riesgo
         const riskResponse = await this.riskQuestionsService.processRiskQuery(text);
         if (riskResponse) {
             await ctx.reply(riskResponse.respuesta, { parse_mode: 'Markdown' });
+            // Si la respuesta es el listado de capacidades, guardar estado para predicción
+            if (riskResponse.tipo === 'listado' && userId) {
+                this.userState.set(userId, { intent: 'predict_risk' });
+            }
             return true;
         }
+
+        // Solo si NO es consulta de riesgos, mostrar capacidades predictivas generales
+        if (await this.handlePredictiveCapabilitiesQuery(ctx, norm)) return true;
 
         const airQualityResponse = await this.airQualityQuestionsService.processAirQualityQuery(text);
         if (airQualityResponse?.tipo === 'listado') {
@@ -1274,6 +1257,9 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
 
     private async handlePredictiveCapabilitiesQuery(ctx: Context, norm: string): Promise<boolean> {
         if (
+            norm.includes('que riesgos se pueden predecir') ||
+            norm.includes('que eventos se pueden predecir') ||
+            norm.includes('que puedes predecir') ||
             norm.includes('que predicciones') ||
             norm.includes('que pronosticos') ||
             norm.includes('que alertas') ||
@@ -1357,6 +1343,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     ): Promise<boolean> {
         if (
             norm.includes('pronostico') ||
+            (norm.includes('prediccion') && !norm.includes('riesgo')) ||
+            (norm.includes('predecir') && !norm.includes('riesgo')) ||
             (norm.includes('prediccion avanzada')) ||
             (norm.includes('tendencia de') && norm.includes('en los proximos')) ||
             (norm.includes('proyeccion') && norm.includes('casos')) ||
@@ -1436,5 +1424,10 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             return true;
         }
         return false;
+    }
+
+    escapeMarkdown(text: string | undefined): string {
+        if (!text) return '';
+        return text.toString().replace(/[_*\[\]()~`>#+=|{}.!-]/g, '\\$&');
     }
 }

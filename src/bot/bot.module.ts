@@ -28,6 +28,7 @@ import { CaliHealthService } from './cali/cali-health.service';
 import { AntioquiaHealthService } from './antioquia/antioquia-health.service';
 import { SexualHealthService } from './sexual-health/sexual-health.service';
 import { PredictionService } from './prediction.service';
+import { DatasetBuilderService } from './dataset-builder.service';
 import { HealthDataService } from './health-data.service';
 import { HealthStatsService } from './stats/health-stats.service';
 import { EarlyWarningService } from './early-warning.service';
@@ -67,6 +68,7 @@ import { PredictiveQuestionsService } from './questions/predictive-questions.ser
     AntioquiaHealthService,
     SexualHealthService,
     PredictionService,
+    DatasetBuilderService,
     HealthDataService,
     HealthStatsService,
     EarlyWarningService,
