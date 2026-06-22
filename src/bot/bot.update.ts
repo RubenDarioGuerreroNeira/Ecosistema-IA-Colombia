@@ -316,10 +316,11 @@ Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales 
 
 El bot está diseñado para responder a consultas de alta precisión basadas en datos reales 
 (no solo lenguaje natural):
+
 ----------------------------------------------------------------
 🥼 **Salud Pública:**
 ----------------------------------------------------------------
-- Me Puedes preguntar:
+Me Puedes preguntar:
  "¿Qué info tienes de la salud pública en Colombia?" 
  (y te mostraré las preguntas que puedo responder)
  
@@ -583,37 +584,55 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         // PRIORIDAD 5: Saludos
         if (await this.handleGreeting(ctx, messageText)) return;
 
-        // PRIORIDAD 6: Búsqueda de prestadores
+        // PRIORIDAD 6: Cali (antes que búsqueda general de prestadores, ya que detecta urgencias y servicios específicos)
+        if (await this.handleServiceCali(ctx, messageText)) return;
+
+        // PRIORIDAD 7: Búsqueda de prestadores
         if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 7: Yopal específico
+        // PRIORIDAD 8: Yopal específico
         if (await this.handleYopalQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 8: Predicciones
+        // PRIORIDAD 9: Predicciones
         if (await this.handlePrediction(ctx, messageText)) return;
 
-        // PRIORIDAD 9: Calidad del aire
+        // PRIORIDAD 10: Calidad del aire
         if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 10: Estadísticas generales
+        // PRIORIDAD 11: Estadísticas generales
         const contextData = await this.statsService.getSummary(messageText);
         if (contextData && BYPASS_MARKERS.some(marker => contextData.includes(marker))) {
             await this.sendLongMessage(ctx, contextData);
             return;
         }
 
-        // PRIORIDAD 11: Salud sexual
+        // PRIORIDAD 12: Salud sexual
         if (await this.handleSexualHealthQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 12: Análisis de riesgo específico
+        // PRIORIDAD 13: Análisis de riesgo específico
         if (await this.handleRiskAnalysis(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 13: Salud pública (eventos por nombre)
+        // PRIORIDAD 14: Salud pública (eventos por nombre)
         if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 14: IA general
+        // PRIORIDAD 15: IA general (solo si nada más manejó la consulta)
         await this.handleGeneralQuery(ctx, messageText, contextData);
     }
+
+    // ─── Cali Health Service ────────────────────────────────────────────────────
+    private async handleServiceCali(ctx: Context, text: string): Promise<boolean> {
+        // Solo procesar si la consulta menciona Cali o es una consulta explícita de servicios de salud
+        const norm = normalizeString(text);
+        const mentionsCali = norm.includes('cali');
+        if (!mentionsCali) return false;
+
+        const result = await this.caliHealthService.processCaliQuery(text);
+        if (!result) return false;
+
+        await ctx.reply(result.respuesta, { parse_mode: 'Markdown' });
+        return true;
+    }
+
 
     // ─── Conversation Continuity ──────────────────────────────────────────────────
     private async handleConversationContinuity(
@@ -653,6 +672,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
                 return false;
         }
     }
+
 
 
     // ─── Sexual Health ────────────────────────────────────────────────────────────
@@ -815,19 +835,27 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
 ✨ **¿Qué preguntas soy capaz de responder?**
 El bot está diseñado para responder a consultas de alta precisión basadas en datos reales:
 
+---------------------------------------------------------------------------------------
 📍 **Búsqueda Geográfica y Logística:**
+---------------------------------------------------------------------------------------
 - "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 - "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
 
+---------------------------------------------------------------------------------------
 📊 **Estadísticas e Inteligencia Epidemiológica:**
+---------------------------------------------------------------------------------------
 - "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
 - "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
 
+---------------------------------------------------------------------------------------
 🛡️ **Análisis de Riesgo y Vacunación:**
+---------------------------------------------------------------------------------------
 - "Analizar riesgo de sarampión en Antioquia"
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
+---------------------------------------------------------------------------------------
 🧠 **Salud Mental y Sexual:**
+---------------------------------------------------------------------------------------
 - Te puedo responder preguntas sobre salud mental basadas en datos oficiales.
 Por ejemplo: "¿Qué información tienes sobre salud mental?"
 

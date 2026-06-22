@@ -31,7 +31,7 @@ export class ChartQueryService {
         const norm = normalizeString(text);
 
         // --- Helper para detectar si la consulta es explícitamente sobre aire/ambiente ---
-        const isAirQuery = ( norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
+        const isAirQuery = (norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
             (norm.includes('grafic') || norm.includes('visual') || norm.includes('indicador') || norm.includes('mostrar') || norm.includes('muestra'));
         const isAirQueryIn = (norm.includes('calidad del aire en') || norm.includes('calidad aire en'));
 
@@ -73,8 +73,8 @@ export class ChartQueryService {
         }
 
         // 2. Cali Health - Solo cuando se piden EXPRESAMENTE servicios de salud en Cali
-        const serviciosKeywords = ['servicios', 'clinicas', 'hospitales', 'prestadores', 'ips'];
-        const isCaliServicesQuery = norm.includes('servicios') ||
+        const serviciosKeywords = ['grafica servicios', 'graficar servicios ', 'clinicas', 'hospitales', 'prestadores', 'ips'];
+        const isCaliServicesQuery = norm.includes('grafica servicios') ||
             (region === 'CALI' && serviciosKeywords.some(k => norm.includes(k)));
         if (isCaliServicesQuery) {
             const stats = this.caliHealthService.getStatsByCategory();

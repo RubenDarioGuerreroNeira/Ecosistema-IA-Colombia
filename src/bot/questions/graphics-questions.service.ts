@@ -13,15 +13,17 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
 🍃 **Calidad del Aire**
 -------------------------------------------------------------------------
 Escribe: 
-• "¿Puedes graficar la calidad del aire?" (Te mostrare los municipios de los cuales poseo info)
-ejemplo:
-• "¿Puedes graficar la calidad del aire en Cali"
+• "¿Puedes graficar la calidad del aire?" 
+(Te mostrare los municipios de los cuales te puedo hacer los graficos de la calidad del aire)
+ Ejemplo:
+  • "¿Puedes graficar la calidad del aire en Cali"
 
 -------------------------------------------------------------------------
 🏥 **Servicios de Salud en Cali**
 -------------------------------------------------------------------------
-• "Gráfico de Servicios de salud en Cali"
+• "Gráficar de Servicios de salud en Cali"
 • "Distribución de clínicas y hospitales en Cali"
+
 -------------------------------------------------------------------------
 🧠 **Salud Mental**
 -------------------------------------------------------------------------
@@ -29,13 +31,17 @@ ejemplo:
 • "Gráfico de los diagnósticos de salud mental más frecuentes"
 • "Top 6 trastornos mentales en Colombia"
 
+-------------------------------------------------------------------------
 🔬 **Salud pública (SIVIGILA)**
+-------------------------------------------------------------------------
 • "Top eventos de salud pública en Colombia"
 • "Gráfico de dengue por sexo"
 • "Gráfico de Zika en zona rural vs urbana"
 • "Tendencia de tuberculosis en los últimos 6 meses"
 
+-------------------------------------------------------------------------
 💉 **Vacunación**
+-------------------------------------------------------------------------
 • "Graficar vacunas en Antioquia"
 • "Visualizar cobertura de vacunación en Santander"
 
