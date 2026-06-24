@@ -74,13 +74,14 @@ graph LR
 - **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, líneas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias y distribuciones demográficas.
-- **🏥 Búsqueda local de centros y prestadores**: Consultas en Antioquia, Boyacá, Yopal y Cali.
+- **🏥 Búsqueda local de centros y prestadores**: Consultas avanzadas y enrutamiento en Antioquia, Boyacá, Yopal y Cali.
+- **📍 Enrutamiento Regional Directo y Detección de Urgencias (Cali) (¡NUEVO!)**: Procesamiento de lenguaje natural ultra rápido para Cali que detecta automáticamente intenciones de urgencias, niveles de complejidad, sedes específicas o servicios puntuales (odontología, ginecología, farmacia, etc.), entregando respuestas formateadas directo de la base de datos XML sin pasar por la IA para garantizar un 0% de alucinación.
 - **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
 - **📈 Análisis Epidemiológico Avanzado**:
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
   - Filtrado de eventos.
-- **🤖 Predicción y Valor Preventivo (Machine Learning)**: Sistema avanzado que cruza indicadores de salud pública (SIVIGILA), **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)**. Incorpora **Random Forest** nativo y análisis de **Series Temporales (Holt-Winters)** para proyectar niveles de riesgo epidemiológico, calcular intervalos de confianza y emitir **Alertas Tempranas (Early Warnings)**.
+- **🤖 Predicción y Valor Preventivo (Machine Learning)**: Sistema avanzado potenciado por el nuevo `DatasetBuilderService` que cruza indicadores de salud pública (SIVIGILA), **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)** para expandir los factores del score de salud. Incorpora **Random Forest** nativo y análisis de **Series Temporales (Holt-Winters)** para proyectar niveles de riesgo epidemiológico, calcular intervalos de confianza y emitir **Alertas Tempranas (Early Warnings)**.
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
 
 ### 🏗️ Arquitectura del Sistema
@@ -147,7 +148,14 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 13. "¿Cuáles son los perfiles de riesgo en salud mental?"
 14. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
 15. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
-16. "¿Qué servicios de salud hay en Yopal?"
+
+### 📍 Servicios de Salud Locales y Urgencias (Cali, Yopal, Antioquia, Boyacá) (¡NUEVO!)
+
+16. "¿Dónde atienden urgencias en Cali?" (Detección de prioridad de urgencia)
+17. "Sedes de alta complejidad en Cali" (Filtro por nivel de complejidad)
+18. "Buscar servicio de odontología en Cali" (Filtro por servicio específico)
+19. "Sede Alfonso López Cali" (Filtro por sede exacta con su portafolio de servicios)
+20. "¿Qué servicios de salud hay en Yopal?" (Búsqueda local georreferenciada)
 
 ### 📊 Visualización Gráfica (¡NUEVO!)
 
