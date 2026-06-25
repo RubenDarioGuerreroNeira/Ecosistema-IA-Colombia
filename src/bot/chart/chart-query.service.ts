@@ -102,6 +102,10 @@ export class ChartQueryService {
         }
 
         // 5. Distribución por sexo/zona/tendencia para eventos específicos
+        // Si la consulta es de tipo "analizar riesgo" o "prediccion", NO generar gráfico aquí
+        if (norm.includes('riesgo') || norm.includes('prediccion') || norm.includes('pronostico')) {
+            return { success: false };
+        }
         const eventKeywords = ['tuberculosis', 'dengue', 'zika', 'malaria', 'sarampion', 'hepatitis', 'rabia'];
         const detectedEvent = eventKeywords.find(k => norm.includes(k));
         if (detectedEvent) {

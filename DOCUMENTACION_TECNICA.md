@@ -335,7 +335,8 @@ const openai = new OpenAI({
 });
 
 const response = await this.openai.chat.completions.create({
-  model: process.env.OPENROUTER_MODEL || 'meta-llama/Meta-Llama-3.1-70B-Instruct',
+  model:
+    process.env.OPENROUTER_MODEL || 'meta-llama/Meta-Llama-3.1-70B-Instruct',
   messages: [{ role: 'user', content: prompt }],
 });
 ```
@@ -380,7 +381,7 @@ detectRegion(text: string): string | undefined {
   const cleanText = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // 1. Búsqueda en listas estáticas
-  const found = staticLists.find(r => 
+  const found = staticLists.find(r =>
     new RegExp(`\\b${r.toLowerCase()}\\b`, 'i').test(cleanText)
   );
   if (found) return found;
@@ -425,13 +426,13 @@ detectRegion(text: string): string | undefined {
 
 ### 6.1 Limitaciones Actuales
 
-| Área                        | Limitación                                                | Impacto                           | Solución Planeada           |
-| --------------------------- | --------------------------------------------------------- | --------------------------------- | --------------------------- |
-| **Alcance Geográfico**      | Datos completos solo para Antioquia, Valle, Boyacá, Yopal | Restricción regional              | Expandir a todo el país     |
-| **Tiempo de Respuesta**     | 2-5 segundos en consultas complejas                       | UX en dispositivos lentos         | Optimizar cache y queries   |
-| **Cobertura de Vacunación** | Datos agregados por departamento                          | Falta granularidad municipal      | Integrar datos municipales  |
+| Área                        | Limitación                                                | Impacto                           | Solución Planeada                     |
+| --------------------------- | --------------------------------------------------------- | --------------------------------- | ------------------------------------- |
+| **Alcance Geográfico**      | Datos completos solo para Antioquia, Valle, Boyacá, Yopal | Restricción regional              | Expandir a todo el país               |
+| **Tiempo de Respuesta**     | 2-5 segundos en consultas complejas                       | UX en dispositivos lentos         | Optimizar cache y queries             |
+| **Cobertura de Vacunación** | Datos agregados por departamento                          | Falta granularidad municipal      | Integrar datos municipales            |
 | **Modelo IA**               | Dependencia de API Externa (OpenRouter)                   | Límite de latencia externa        | Implementar modelo local (ej. Ollama) |
-| **Visualización**           | QuickChart (servicio externo)                             | Depende de disponibilidad externa | Generar imágenes localmente |
+| **Visualización**           | QuickChart (servicio externo)                             | Depende de disponibilidad externa | Generar imágenes localmente           |
 
 ### 6.2 Roadmap de Mejoras
 
@@ -451,8 +452,13 @@ detectRegion(text: string): string | undefined {
 #### Fase 3: Inteligencia Predictiva (✅ Implementado)
 
 - [x] Implementar modelos de series temporales para predicción (Holt-Winters)
-- [x] Clasificación de riesgo con Random Forest
+- [x] Sistema de Scoring Compuesto Multidimensional para clasificación de riesgo
+  - Volumen de casos SIVIGILA (40%)
+  - Ruralidad (20%)
+  - Brecha de vacunación (25%)
+  - Población vulnerable (15%)
 - [x] Sistema de alertas tempranas por brotes
+- [x] Manejo robusto de errores con fallback automático entre servicios de predicción
 - [ ] Integrar datos históricos de 10 años
 - [ ] Dashboard web administrativo
 
@@ -479,15 +485,15 @@ detectRegion(text: string): string | undefined {
 
 ### 7.1 Casos de Prueba
 
-| Caso                | Input                                     | Esperado                            | Estado          |
-| ------------------- | ----------------------------------------- | ----------------------------------- | --------------- |
-| **Greeting**        | `/start`                                  | Mensaje de bienvenida personalizado | ✅ Implementado |
-| **Consultar casos** | "¿Cuántos casos de dengue hay en Cali?"   | Estadísticas SIVIGILA               | ✅ Implementado |
-| **Gráfico aire**    | "Graficar aire en Medellín"               | Imagen con calidad del aire         | ✅ Implementado |
-| **Gráfico dinámico**| "¿Puedes graficar aire en Andes?"         | Gráfico extraído dinámicamente      | ✅ Implementado |
-| **Comparativa**     | "Compara tuberculosis en Cali vs Tuluá"   | Tabla comparativa                   | ⚠️ Parcial      |
-| **Predicción**      | "Predecir riesgo de malaria en Antioquia" | Análisis de riesgo                  | ✅ Implementado |
-| **Provider search** | "Hospitales en Tunja"                     | Lista de hospitales                 | ✅ Implementado |
+| Caso                 | Input                                     | Esperado                            | Estado          |
+| -------------------- | ----------------------------------------- | ----------------------------------- | --------------- |
+| **Greeting**         | `/start`                                  | Mensaje de bienvenida personalizado | ✅ Implementado |
+| **Consultar casos**  | "¿Cuántos casos de dengue hay en Cali?"   | Estadísticas SIVIGILA               | ✅ Implementado |
+| **Gráfico aire**     | "Graficar aire en Medellín"               | Imagen con calidad del aire         | ✅ Implementado |
+| **Gráfico dinámico** | "¿Puedes graficar aire en Andes?"         | Gráfico extraído dinámicamente      | ✅ Implementado |
+| **Comparativa**      | "Compara tuberculosis en Cali vs Tuluá"   | Tabla comparativa                   | ⚠️ Parcial      |
+| **Predicción**       | "Predecir riesgo de malaria en Antioquia" | Análisis de riesgo                  | ✅ Implementado |
+| **Provider search**  | "Hospitales en Tunja"                     | Lista de hospitales                 | ✅ Implementado |
 
 ### 7.2 Pruebas de Stress
 

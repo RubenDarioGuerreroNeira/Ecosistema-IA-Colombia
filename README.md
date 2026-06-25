@@ -81,7 +81,14 @@ graph LR
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
   - Filtrado de eventos.
-- **🤖 Predicción y Valor Preventivo (Machine Learning)**: Sistema avanzado potenciado por el nuevo `DatasetBuilderService` que cruza indicadores de salud pública (SIVIGILA), **cobertura de vacunación** y **datos ambientales en tiempo real (calidad del aire)** para expandir los factores del score de salud. Incorpora **Random Forest** nativo y análisis de **Series Temporales (Holt-Winters)** para proyectar niveles de riesgo epidemiológico, calcular intervalos de confianza y emitir **Alertas Tempranas (Early Warnings)**.
+- **🤖 Sistema de Scoring Compuesto (NUEVO)**: Algoritmo multidimensional que cruza datos de SIVIGILA, cobertura de vacunación y factores ambientales para calcular el riesgo epidemiológico. Combina cuatro dimensiones ponderadas:
+  - Volumen de casos (40%)
+  - Ruralidad (20%)
+  - Brecha de vacunación (25%)
+  - Población vulnerable (15%)
+
+  Proporciona nivel de riesgo (BAJO, MEDIO, ALTO, CRÍTICO), desglose detallado de puntajes y recomendaciones específicas.
+
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
 
 ### 🏗️ Arquitectura del Sistema
@@ -93,7 +100,7 @@ title: Arquitectura General del Sistema
 flowchart TD
     classDef core fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold
     classDef logic fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#33691e
-    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100,stroke-dasharray: 5 5
+    classDef data fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100
     classDef user fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold
 
     User(("👤 Usuario Telegram")):::user <--> Telegram["💬 Telegram Bot API"]:::core
@@ -108,10 +115,11 @@ flowchart TD
     NLP --> SIVIGILA[("🏥 SIVIGILA")]:::data
     NLP --> Mental[("🧠 Salud Mental")]:::data
     NLP --> Sexual[("❤️ Salud Sexual")]:::data
-    
+
     Stats --> SIVIGILA
     Stats --> PAI[("💉 Vacunación")]:::data
-    
+    Stats --> AirQuality[("☁️ Calidad Aire")]:::data
+
     Charts --> Air["☁️ API Calidad Aire"]:::data
     Geo --> Local[("🏥 Prestadores Locales")]:::data
 ```
@@ -122,66 +130,68 @@ flowchart TD
 
 Aquí tienes ejemplos de cómo interactuar con el bot:
 
-### 🔬 Análisis Epidemiológico y Predicción
+### 🧠 Análisis de Riesgo con Scoring Compuesto
 
-1. "Predecir riesgo de tuberculosis en Antioquia"
-2. "¿Cómo es la calidad del aire en Antioquia?"
-3. "¿Cuáles son los eventos de salud pública más frecuentes en Colombia?"
-4. "¿Cuáles son los derechos en salud sexual para jóvenes?"
-5. "¿Cuántos casos de Dengue se han reportado en Cali?"
-6. "Compara los casos de malaria entre hombres y mujeres en Yopal."
+1. "Analizar riesgo de dengue en Cali"
+2. "Clasificar riesgo de tuberculosis en Antioquia"
+3. "Predecir riesgo de malaria en Boyacá"
+4. "Riesgo de zika en el Valle del Cauca"
 
-### 📊 Predicción de Casos
+### 📈 Predicciones y Alertas
 
-7. "¿Cómo se distribuyen los casos de tuberculosis por ciclo de vida en Bogotá?"
-8. "Predecir casos de dengue en Bogotá"
-9. "Analizar riesgo de dengue en Cali"
+5. "Alertas tempranas de salud pública"
+6. "Pronóstico de dengue en Antioquia"
+7. "Predecir casos de tuberculosis en Bogotá"
+8. "Tendencia de zika en los próximos meses en Cali"
+
+### 🔬 Análisis Epidemiológico
+
+9. "¿Cómo es la calidad del aire en Antioquia?"
+10. "¿Cuáles son los eventos de salud pública más frecuentes en Colombia?"
+11. "Compara los casos de malaria entre hombres y mujeres en Yopal."
+12. "¿Cuántos casos de Dengue se han reportado en Cali?"
+13. "¿Qué enfermedad afecta más a los adolescentes?"
 
 ### 🍃 Factores Ambientales
 
-10. "¿Cuál es la calidad del aire en Medellín?"
-11. "¿Qué indicadores ambientales hay actualmente en Valle del Cauca?"
-12. "¿Cómo es la calidad del aire en Santa Fé de Antioquia?"
+14. "¿Cuál es la calidad del aire en Medellín?"
+15. "¿Qué indicadores ambientales hay actualmente en Valle del Cauca?"
+16. "¿Cómo es la calidad del aire en Santa Fé de Antioquia?"
 
 ### 🧠 Salud Mental, Sexual y Emergencias
 
-13. "¿Cuáles son los perfiles de riesgo en salud mental?"
-14. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
-15. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
+17. "¿Cuáles son los perfiles de riesgo en salud mental?"
+18. "¿Qué hacer en caso de una urgencia por mordedura de serpiente?"
+19. "¿Cómo acceder a una ruta de atención en violencia de género en Cali?"
 
-### 📍 Servicios de Salud Locales y Urgencias (Cali, Yopal, Antioquia, Boyacá) (¡NUEVO!)
+### 📍 Servicios de Salud Locales y Urgencias (Cali, Yopal, Antioquia, Boyacá)
 
-16. "¿Dónde atienden urgencias en Cali?" (Detección de prioridad de urgencia)
-17. "Sedes de alta complejidad en Cali" (Filtro por nivel de complejidad)
-18. "Buscar servicio de odontología en Cali" (Filtro por servicio específico)
-19. "Sede Alfonso López Cali" (Filtro por sede exacta con su portafolio de servicios)
-20. "¿Qué servicios de salud hay en Yopal?" (Búsqueda local georreferenciada)
+20. "¿Dónde atienden urgencias en Cali?" (Detección de prioridad de urgencia)
+21. "Sedes de alta complejidad en Cali" (Filtro por nivel de complejidad)
+22. "Buscar servicio de odontología en Cali" (Filtro por servicio específico)
+23. "Sede Alfonso López Cali" (Filtro por sede exacta con su portafolio de servicios)
+24. "¿Qué servicios de salud hay en Yopal?" (Búsqueda local georreferenciada)
 
-### 📊 Visualización Gráfica (¡NUEVO!)
+### 📊 Visualización Gráfica
 
 **Calidad del Aire**
 
 - "¿Puedes graficar la calidad del aire en Andes?" (o cualquier otro municipio de Colombia)
-- "Graficar aire en Cali", "Muéstrame la calidad del aire en Bogotá", "Visualizar contaminación en Medellín"
-- "Ver indicadores ambientales de Yopal"
-- "Graficar datos ambientales" (El bot preguntará la ciudad si no se especifica)
+- "Graficar aire en Cali", "Muéstrame la calidad del aire en Bogotá"
 
 **Salud Mental**
 
 - "Graficar diagnósticos de salud mental", "Muéstrame un gráfico de depresión y ansiedad en Colombia"
-- "Visualizar estadísticas de psicología", "Ver gráfico de salud mental"
 
 **Servicios de Salud en Cali**
 
-- "Muéstrame un gráfico de los servicios en Cali", "Graficar servicios de salud en Cali", "Visualizar categorías de salud en Cali"
+- "Muéstrame un gráfico de los servicios en Cali", "Graficar servicios de salud en Cali"
 
 **Salud Pública (SIVIGILA)**
 
 - "Graficar eventos de salud pública", "Muéstrame las enfermedades más frecuentes en el país"
-- "Ver gráfico de eventos SIVIGILA", "Visualizar reporte de salud pública"
 - "Ver tendencia de tuberculosis" (Gráfico de líneas)
 - "Graficar sexo en casos de dengue" (Gráfico de torta/género)
-- "Ver zona de malaria" (Distribución urbana/rural)
 
 **Consultas de Inteligencia Epidemiológica (NLP)**
 
@@ -191,8 +201,6 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 - "¿Qué enfermedad afecta más a los adolescentes?"
 - "Proporción global por sexo"
 - "Eventos con mayor brecha de género"
-- "¿Qué eventos son más frecuentes en adultos jóvenes?"
-- "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
 
 **Vacunación**
 
@@ -210,13 +218,13 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 
 ## 🛠️ Stack Tecnológico
 
-| Componente           | Tecnología                                                                | Propósito                                        |
-| :------------------- | :------------------------------------------------------------------------ | :----------------------------------------------- |
-| **Framework**        | [NestJS](https://nestjs.com/)                                             | Arquitectura backend modular y escalable.        |
-| **IA Orchestration** | [OpenAI SDK / OpenRouter](https://openrouter.ai)          | Integración directa evitando _lock-in_ y permitiendo flexibilidad de modelos. |
-| **LLM**              | [Meta LLaMA 3.1 70B Instruct](https://ai.meta.com/llama/) | Generación de respuestas especializadas, fluidas y coherentes.             |
-| **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                                      | Comunicación con la API de Telegram.             |
-| **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser) | Procesamiento eficiente de fuentes XML locales.  |
+| Componente           | Tecnología                                                                | Propósito                                                                     |
+| :------------------- | :------------------------------------------------------------------------ | :---------------------------------------------------------------------------- |
+| **Framework**        | [NestJS](https://nestjs.com/)                                             | Arquitectura backend modular y escalable.                                     |
+| **IA Orchestration** | [OpenAI SDK / OpenRouter](https://openrouter.ai)                          | Integración directa evitando _lock-in_ y permitiendo flexibilidad de modelos. |
+| **LLM**              | [Meta LLaMA 3.1 70B Instruct](https://ai.meta.com/llama/)                 | Generación de respuestas especializadas, fluidas y coherentes.                |
+| **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                                      | Comunicación con la API de Telegram.                                          |
+| **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser) | Procesamiento eficiente de fuentes XML locales.                               |
 
 ---
 

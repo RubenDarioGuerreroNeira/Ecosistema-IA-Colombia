@@ -366,6 +366,7 @@ Puedes Escribirme:
 ----------------------------------------------------------------
 🛡️ **Análisis de Riesgo y Vacunación:**
 ----------------------------------------------------------------
+- "De que Eventos de Salud puedes hacer análisis de riesgo" (te mostrare los eventos y los departamentos).
 - "Analizar riesgo de sarampión en Antioquia" (revisaré casos vs. cobertura de vacuna TV).
 - "Analizar riesgo de dengue en Antioquia"
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
@@ -623,6 +624,12 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     private async handleServiceCali(ctx: Context, text: string): Promise<boolean> {
         // Solo procesar si la consulta menciona Cali o es una consulta explícita de servicios de salud
         const norm = normalizeString(text);
+
+        // Excluir consultas de análisis de riesgo para que sean manejadas por handleRiskAnalysis
+        if (norm.includes('analizar riesgo') || norm.includes('clasificar riesgo') || norm.includes('riesgo de')) {
+            return false;
+        }
+
         const mentionsCali = norm.includes('cali');
         if (!mentionsCali) return false;
 
@@ -764,11 +771,14 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                     return true;
                 }
 
-                // Usar PredictionService.predictRisk que combina SIVIGILA + vacunación + calidad del aire
-                const analysis = await this.riskQuestionsService.analizarRiesgo(event, detectedRegion);
+                // Usar PredictiveQuestionsService.clasificarRiesgo para obtener el formato de Scoring Compuesto
+                const analysis = await this.predictiveQuestionsService.clasificarRiesgo(event, detectedRegion);
                 if (userId) this.userState.delete(userId);
-                await this.sendLongMessage(ctx, analysis);
-                return true;
+                if (analysis) {
+                    await this.sendLongMessage(ctx, analysis, { parse_mode: 'Markdown' });
+                    return true;
+                }
+                return false;
             } catch (error) {
                 this.logger.error(`Error in handleRiskAnalysis: ${error.message}`);
             }
@@ -1051,6 +1061,16 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
 
         if (!region && !lowerText.includes(' en ')) {
             if (finalEventName) {
+                try {
+                    const clasificacion = await this.predictiveQuestionsService.clasificarRiesgo(finalEventName, departamento);
+                    if (clasificacion) {
+                        if (userId !== undefined) this.userState.delete(userId!);
+                        await this.sendLongMessage(ctx, clasificacion, { parse_mode: 'Markdown' });
+                        return true;
+                    }
+                } catch (error) {
+                    this.logger.warn(`Error en clasificarRiesgo para ${finalEventName} en ${departamento}: ${error.message}`);
+                }
                 const prediction = await this.predictionService.predictRisk(departamento, finalEventName);
                 if (userId !== undefined) this.userState.delete(userId!);
                 await this.sendLongMessage(ctx, prediction);
@@ -1059,6 +1079,17 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
             await ctx.reply(`🔮 ¿En qué **municipio o departamento** deseas realizar la predicción de riesgo para **${finalEventName}**?`, { parse_mode: 'Markdown' });
             if (userId) this.userState.set(userId, { intent: 'predict_risk', data: { event: finalEventName } });
             return true;
+        }
+
+        try {
+            const clasificacion = await this.predictiveQuestionsService.clasificarRiesgo(finalEventName, departamento);
+            if (clasificacion) {
+                if (userId !== undefined) this.userState.delete(userId!);
+                await this.sendLongMessage(ctx, clasificacion, { parse_mode: 'Markdown' });
+                return true;
+            }
+        } catch (error) {
+            this.logger.warn(`Error en clasificarRiesgo para ${finalEventName} en ${departamento}: ${error.message}`);
         }
 
         const prediction = await this.predictionService.predictRisk(departamento, finalEventName);
@@ -1418,6 +1449,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     ): Promise<boolean> {
         if (
             norm.includes('clasificar riesgo') ||
+            norm.includes('analizar riesgo de') ||
             norm.includes('analisis de riesgo con ia') ||
             norm.includes('random forest') ||
             norm.includes('machine learning') ||
@@ -1426,7 +1458,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         ) {
             const region = detectedRegion || 'Colombia';
 
-            const eventoMatch = norm.match(/(?:clasificar riesgo de|riesgo de|analisis de)\s+([a-z\s]+?)(?:\s+en\s+|$)/);
+            const eventoMatch = norm.match(/(?:clasificar riesgo de|analizar riesgo de|riesgo de|analisis de)\s+([a-z\s]+?)(?:\s+en\s+|$)/);
             const eventoEspecifico = eventoMatch?.[1]?.trim() || (pending?.data as { event?: string } | undefined)?.event;
 
             if (eventoEspecifico && !norm.includes('todos') && !norm.includes('completo')) {

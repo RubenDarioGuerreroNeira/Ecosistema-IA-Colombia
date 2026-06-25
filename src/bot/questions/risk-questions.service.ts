@@ -124,6 +124,8 @@ ${locationsList}
             norm.includes('que riesgos') ||
             norm.includes('que analisis de riesgo') ||
             norm.includes('que predicciones') ||
+            norm.includes('de que eventos') ||
+            norm.includes('de qué eventos') ||
             (norm.includes('que') && norm.includes('analizar riesgo')) ||
             (norm.includes('que') && norm.includes('riesgo') && norm.includes('enfermedades')) ||
             (norm.includes('que') && norm.includes('riesgo') && norm.includes('predecir')) ||

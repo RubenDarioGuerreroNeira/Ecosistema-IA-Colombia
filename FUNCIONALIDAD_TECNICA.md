@@ -1,6 +1,7 @@
 # FUNCIONALIDAD TÉCNICA - Módulo Salud Pública
 
 ## Descripción
+
 El servicio `SaludPublicaService` es un motor de análisis epidemiológico basado en datos estructurados (XML). Permite consultas analíticas, comparativas y estadísticas sin depender de modelos generativos (Genkit) para datos precisos, garantizando veracidad y evitando alucinaciones.
 
 ## Arquitectura del Servicio
@@ -19,19 +20,19 @@ graph TD
     User(("👤 Usuario Telegram")):::user --> Router{"🤖 BotUpdate.onText"}:::router
     Router -->|Ruta Directa| Publica["🏥 SaludPublicaService"]:::core
     Router -->|Ruta IA| RAG["🧠 Genkit RAG"]:::rag
-    
+
     subgraph Motor ["⚙️ Motor de Análisis (SaludPublicaService)"]
         direction TB
         Normalizer["🔤 Normalización de Texto"]:::core
         SearchEngine["🔍 Motor de Búsqueda<br/>Sinónimos"]:::core
         Analytics["📈 Análisis Estadístico<br/>Ranking, Zona, Sexo, Edad"]:::core
         NLG["💬 Generador de Respuestas<br/>NLG Estructurado"]:::core
-        
+
         Normalizer --> SearchEngine --> Analytics --> NLG
     end
-    
+
     Publica --> Normalizer
-    
+
     Analytics -->|Consulta O(1)| Data[("📂 XML SIVIGILA")]:::data
 ```
 
@@ -40,9 +41,9 @@ graph TD
 Se implementó un flujo de proximidad que detecta consultas tipo "cerca de mí" y solicita la ubicación al usuario mediante un teclado con `request_location: true`. El estado de conversación utiliza la clave `provider_search_location` en `userState` para continuar el flujo cuando se recibe la ubicación.
 
 - Funciones clave:
-    - `isNearbyLocationQuery(text: string): boolean` — detecta frases de proximidad.
-    - `requestLocationForNearbyProviders(ctx, userId?)` — envía un teclado de Telegram que solicita ubicación.
-    - `@On('location') onLocation(ctx)` — maneja la ubicación recibida y llama a `YopalHealthService.findNearby(lat, lon, radiusKm)`.
+  - `isNearbyLocationQuery(text: string): boolean` — detecta frases de proximidad.
+  - `requestLocationForNearbyProviders(ctx, userId?)` — envía un teclado de Telegram que solicita ubicación.
+  - `@On('location') onLocation(ctx)` — maneja la ubicación recibida y llama a `YopalHealthService.findNearby(lat, lon, radiusKm)`.
 
 ```mermaid
 ---
@@ -60,13 +61,13 @@ sequenceDiagram
     Bot->>Bot: Detecta intención de proximidad
     Bot->>Telegram: Envía teclado (request_location: true)
     Telegram-->>User: Botón "Compartir Ubicación"
-    
+
     User->>Telegram: Presiona botón (Comparte GPS)
     Telegram->>Bot: Webhook (@On('location'))
-    
+
     Bot->>Yopal: findNearby(lat, lon, radius)
     Yopal-->>Bot: Calcula distancias (Haversine)<br/>Retorna prestadores cercanos
-    
+
     Bot->>Telegram: Respuesta formateada con lista de centros
     Telegram-->>User: Visualiza opciones cercanas
 ```
@@ -84,7 +85,14 @@ sequenceDiagram
 
 El proyecto ha incorporado modelos predictivos y algoritmos nativos (sin dependencia exclusiva de LLMs) para calcular riesgos, proyecciones y alertas:
 
-1. **`MlPredictionService`**: Implementa el algoritmo de **Random Forest** (mediante `ml-random-forest`) para clasificación de riesgo (BAJO, MEDIO, ALTO, CRÍTICO). El modelo se entrena en tiempo real consolidando datos de SIVIGILA, tasas de vacunación departamental (`VaccinationService`) y promedios de calidad de aire (`AirQualityService`).
+1. **`MlPredictionService`**: Implementa el algoritmo de **Scoring Compuesto Multidimensional** que calcula el riesgo epidemiológico combinando cuatro dimensiones ponderadas:
+   - Volumen de casos SIVIGILA (40%)
+   - Ruralidad de la pandemia (20%)
+   - Brecha de vacunación (25%)
+   - Población vulnerable: primera infancia, infancia y adultos mayores (15%)
+
+   Proporciona clasificación de riesgo (BAJO, MEDIO, ALTO, CRÍTICO) con desglose detallado de puntajes por dimensión y recomendaciones específicas por nivel.
+
 2. **`AdvancedPredictionService`**: Aplica descomposición de **Series Temporales** (evaluando tendencia, estacionalidad y residuos, inspirados en Holt-Winters) para proyectar casos epidemiológicos con intervalos de confianza estadísticos.
 3. **`EarlyWarningService`**: Motor de alertas dinámicas que monitorea umbrales predefinidos (percentiles, cambios >20% mensual, o bajas coberturas vacunales <60%) para emitir avisos automatizados a los usuarios ante posibles brotes o riesgos en salud pública.
 4. **`DatasetBuilderService`**: Tubería de datos encargada de limpiar y normalizar las fuentes (XML, APIs externas) y convertirlas en tensores y vectores compatibles para la alimentación de los modelos de ML.

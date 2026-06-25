@@ -9,39 +9,34 @@ export class GraphicsQuestionsService {
     return `📊 **Capacidades de Generación de Gráficos:**
 
 Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colombia:
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 🍃 **Calidad del Aire**
--------------------------------------------------------------------------
-Escribe: 
-• "¿Puedes graficar la calidad del aire?" 
-(Te mostrare los municipios de los cuales te puedo hacer los graficos de la calidad del aire)
- Ejemplo:
-  • "¿Puedes graficar la calidad del aire en Cali"
+-----------------------------------------------------------------------
+Escribe:
+• "¿Puedes graficar la calidad del aire?"
+(Ejemplo: "¿Puedes graficar la calidad del aire en Cali")
 
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 🏥 **Servicios de Salud en Cali**
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 • "Gráficar de Servicios de salud en Cali"
-• "Distribución de clínicas y hospitales en Cali"
 
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 🧠 **Salud Mental**
--------------------------------------------------------------------------
-  "Te puedo mostrar:"
+-----------------------------------------------------------------------
 • "Gráfico de los diagnósticos de salud mental más frecuentes"
-• "Top 6 trastornos mentales en Colombia"
 
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 🔬 **Salud pública (SIVIGILA)**
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 • "Top eventos de salud pública en Colombia"
 • "Gráfico de dengue por sexo"
 • "Gráfico de Zika en zona rural vs urbana"
 • "Tendencia de tuberculosis en los últimos 6 meses"
 
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 💉 **Vacunación**
--------------------------------------------------------------------------
+-----------------------------------------------------------------------
 • "Graficar vacunas en Antioquia"
 • "Visualizar cobertura de vacunación en Santander"
 
@@ -52,7 +47,6 @@ Escribe:
     const norm = normalizeString(text);
 
     // Solo devolver la lista de capacidades si el usuario pregunta EXPLÍCITAMENTE
-    // qué gráficos puede hacer, no cuando menciona "grafico" + algo específico
     const explicitQuery =
       norm.includes('que graficos') ||
       norm.includes('que graficas') ||
