@@ -20,7 +20,7 @@ import { MentalHealthService } from './mental-health/mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
-import { RiskQuestionsService } from './questions/risk-questions.service';
+// Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 // Removed: import { ProviderQuestionsService } from './questions/provider-questions.service';
 import { YopalHealthService } from './yopal/yopal-health.service';
@@ -59,7 +59,7 @@ import { PredictiveQuestionsService } from './questions/predictive-questions.ser
     MentalHealthQuestionsService,
     SaludPublicaQuestionsService,
     YopalQuestionsService,
-    RiskQuestionsService,
+    // Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
     AirQualityQuestionsService,
     // Removed: ProviderQuestionsService,
     YopalHealthService,

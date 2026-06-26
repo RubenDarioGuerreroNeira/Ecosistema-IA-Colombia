@@ -112,6 +112,10 @@ Puedo ayudarte a resolver las siguientes consultas:
       return this.handleRiskProfile(text);
     }
 
+    if (norm.includes('riesgo de ') || norm.includes('analizar riesgo de') || norm.includes('predecir')) {
+      return null;
+    }
+
     if (norm.includes('ninos') || norm.includes('adolescentes') || norm.includes('adultos') || norm.includes('mayores')) {
       return this.handleLifeCycle(text);
     }

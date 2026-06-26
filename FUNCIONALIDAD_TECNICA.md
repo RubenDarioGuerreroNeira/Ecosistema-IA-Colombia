@@ -81,6 +81,26 @@ sequenceDiagram
 5. **`procesarPreguntaCompleja(texto)`**: Motor de análisis para comparativas directas (ej: Dengue vs Chikungunya).
 6. **`_formatearRespuesta(datos, tipo)`**: Motor de generación de lenguaje natural (NLG) que asegura salidas coherentes y con contexto (porcentajes, emojis, conclusiones).
 
+## Módulo Predictivo y de Riesgo
+
+El servicio `BotUpdate` enruta las consultas de riesgo y predicción a `PredictiveQuestionsService`, que actúa como orquestador para:
+
+- `MlPredictionService`: cálculo de riesgo con scoring compuesto multidimensional.
+- `AdvancedPredictionService`: pronósticos de series temporales y tendencias.
+- `EarlyWarningService`: detección de alertas tempranas y umbrales críticos.
+- `DatasetBuilderService`: tubería de datos que limpia y normaliza fuentes (XML, APIs externas) para alimentar los modelos.
+
+### Flujo de Consulta Predictiva
+
+1. Usuario solicita: `predecir riesgo`, `pronóstico`, `alertas tempranas` o `clasificar riesgo`.
+2. `BotUpdate` detecta intención y extrae evento y región.
+3. `PredictiveQuestionsService` coordina:
+   - `MlPredictionService` para clasificación de riesgo.
+   - `AdvancedPredictionService` para proyección de casos.
+   - `EarlyWarningService` para generación de alertas.
+   - `DatasetBuilderService` prepara tensores y vectores normalizados desde múltiples fuentes (SIVIGILA, vacunación, calidad del aire).
+4. Se devuelve una respuesta estructurada con puntajes, recomendaciones y contexto.
+
 ## Módulos de Inteligencia Predictiva (Machine Learning)
 
 El proyecto ha incorporado modelos predictivos y algoritmos nativos (sin dependencia exclusiva de LLMs) para calcular riesgos, proyecciones y alertas:
@@ -94,5 +114,7 @@ El proyecto ha incorporado modelos predictivos y algoritmos nativos (sin depende
    Proporciona clasificación de riesgo (BAJO, MEDIO, ALTO, CRÍTICO) con desglose detallado de puntajes por dimensión y recomendaciones específicas por nivel.
 
 2. **`AdvancedPredictionService`**: Aplica descomposición de **Series Temporales** (evaluando tendencia, estacionalidad y residuos, inspirados en Holt-Winters) para proyectar casos epidemiológicos con intervalos de confianza estadísticos.
+
 3. **`EarlyWarningService`**: Motor de alertas dinámicas que monitorea umbrales predefinidos (percentiles, cambios >20% mensual, o bajas coberturas vacunales <60%) para emitir avisos automatizados a los usuarios ante posibles brotes o riesgos en salud pública.
-4. **`DatasetBuilderService`**: Tubería de datos encargada de limpiar y normalizar las fuentes (XML, APIs externas) y convertirlas en tensores y vectores compatibles para la alimentación de los modelos de ML.
+
+4. **`DatasetBuilderService`**: Tubería de datos encargada de limpiar y normalizar las fuentes (XML, APIs externas) y convertirlas en tensores y vectores compatibles para la alimentación de los modelos de ML. Incluye caché de 24 horas para optimizar consultas repetitivas.

@@ -23,7 +23,7 @@ import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
 import { PredictiveQuestionsService } from './questions/predictive-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
-import { RiskQuestionsService } from './questions/risk-questions.service';
+// Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 import { EarlyWarningService } from './early-warning.service';
 import { AdvancedPredictionService } from './advanced-prediction.service';
@@ -151,11 +151,6 @@ const mockYopalQuestionsService = {
   processYopalQuery: jest.fn().mockResolvedValue(null),
 };
 
-const mockRiskQuestionsService = {
-  getAvailableQuestions: jest.fn().mockReturnValue(''),
-  processRiskQuery: jest.fn().mockResolvedValue(null),
-};
-
 const mockAirQualityQuestionsService = {
   getAvailableQuestions: jest.fn().mockReturnValue(''),
   processAirQualityQuery: jest.fn().mockResolvedValue(null),
@@ -178,13 +173,12 @@ describe('BotUpdate', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     // Reset defaults for persistent mocks
     mockSaludPublicaQuestionsService.processPublicHealthQuery.mockResolvedValue(null);
     mockSaludPublicaQuestionsService.handleStructuralDataQuery.mockResolvedValue({ handled: false });
     mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockResolvedValue({ handled: false });
     mockMentalHealthQuestionsService.handleMentalHealthQuery.mockResolvedValue(false);
-    mockRiskQuestionsService.processRiskQuery.mockResolvedValue(null);
     mockAirQualityQuestionsService.processAirQualityQuery.mockResolvedValue(null);
     mockPredictiveQuestionsService.obtenerAlertasTempranas.mockResolvedValue(null);
     mockGraphicsQuestionsService.processGraphicsQuery.mockResolvedValue(null);
@@ -218,7 +212,7 @@ describe('BotUpdate', () => {
         { provide: VaccinationService, useValue: mockVaccinationService },
         { provide: SaludPublicaQuestionsService, useValue: mockSaludPublicaQuestionsService },
         { provide: YopalQuestionsService, useValue: mockYopalQuestionsService },
-        { provide: RiskQuestionsService, useValue: mockRiskQuestionsService },
+        // Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
         { provide: AirQualityQuestionsService, useValue: mockAirQualityQuestionsService },
         { provide: ChartQueryService, useValue: mockChartQueryService },
         { provide: GraphicsQuestionsService, useValue: mockGraphicsQuestionsService },
@@ -262,354 +256,354 @@ describe('BotUpdate', () => {
       handled: true,
       response: `🔍 He encontrado estos resultados en mi base de datos:\n\n🏥 *HOSPITAL PRIMITIVO IGLESIAS*\n📍 CARRERA 16A 33D 20\n📌 SANTIAGO DE CALI\n📞 5551234\n*Fuente:* Cali`,
     });
-  mockCaliHealthService.searchProviders.mockReturnValue([]);
-  mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
-  mockBoyacaHealthService.searchProviders.mockReturnValue([]);
-  mockYopalHealthService.findByIdentifier.mockReturnValue([]);
-  mockYopalHealthService.searchProviders.mockReturnValue([]);
-  mockAntioquiaHealthService.searchProviders.mockReturnValue([]);
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
+    mockCaliHealthService.searchProviders.mockReturnValue([]);
+    mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
+    mockBoyacaHealthService.searchProviders.mockReturnValue([]);
+    mockYopalHealthService.findByIdentifier.mockReturnValue([]);
+    mockYopalHealthService.searchProviders.mockReturnValue([]);
+    mockAntioquiaHealthService.searchProviders.mockReturnValue([]);
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
 
-  await botUpdate.onText(mockCtx);
+    await botUpdate.onText(mockCtx);
 
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const message = mockCtx.reply.mock.calls[0][0];
-  expect(message).toContain('He encontrado estos resultados en mi base de datos:');
-  expect(message).toContain('HOSPITAL PRIMITIVO IGLESIAS');
-});
-
-it('should route Medellín hospital queries to Antioquia service and not global fallback', async () => {
-  const mockCtx: any = {
-    message: { text: 'Hospital primitivo iglesias en Medellín' },
-    reply: jest.fn(),
-  };
-
-  mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockResolvedValue({
-    handled: true,
-    response: `📍 Resultados encontrados en **Medellín (Antioquia)**:\n\n🏥 *HOSPITAL PRIMITIVO IGLESIAS*\n📍 CARRERA 16A 33D 20\n📞 4851717\n*Fuente:* Antioquia`,
-    provider: {
-      nombreprestador: 'HOSPITAL PRIMITIVO IGLESIAS', nombre_sede: 'HOSPITAL PRIMITIVO IGLESIAS',
-      direccion: 'CARRERA 16A 33D 20', telefono: '4851717', municipio: 'MEDELLÍN'
-    },
-    source: 'Antioquia'
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const message = mockCtx.reply.mock.calls[0][0];
+    expect(message).toContain('He encontrado estos resultados en mi base de datos:');
+    expect(message).toContain('HOSPITAL PRIMITIVO IGLESIAS');
   });
 
-  // Mock other services to ensure they don't interfere
-  mockCaliHealthService.findByIdentifier.mockReturnValue([]);
-  mockCaliHealthService.searchProviders.mockReturnValue([]);
-  mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
-  mockBoyacaHealthService.searchProviders.mockReturnValue([]);
-  mockYopalHealthService.findByIdentifier.mockReturnValue([]);
-  mockYopalHealthService.searchProviders.mockReturnValue([]);
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
+  it('should route Medellín hospital queries to Antioquia service and not global fallback', async () => {
+    const mockCtx: any = {
+      message: { text: 'Hospital primitivo iglesias en Medellín' },
+      reply: jest.fn(),
+    };
 
-  await botUpdate.onText(mockCtx);
+    mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockResolvedValue({
+      handled: true,
+      response: `📍 Resultados encontrados en **Medellín (Antioquia)**:\n\n🏥 *HOSPITAL PRIMITIVO IGLESIAS*\n📍 CARRERA 16A 33D 20\n📞 4851717\n*Fuente:* Antioquia`,
+      provider: {
+        nombreprestador: 'HOSPITAL PRIMITIVO IGLESIAS', nombre_sede: 'HOSPITAL PRIMITIVO IGLESIAS',
+        direccion: 'CARRERA 16A 33D 20', telefono: '4851717', municipio: 'MEDELLÍN'
+      },
+      source: 'Antioquia'
+    });
 
-  expect(mockSaludPublicaQuestionsService.handleProviderSearchQuery).toHaveBeenCalledWith('Hospital primitivo iglesias en Medellín', 'Medellín');
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const message = mockCtx.reply.mock.calls[0][0];
-  expect(message).toContain('Antioquia');
-  expect(message).toContain('HOSPITAL PRIMITIVO IGLESIAS');
-});
+    // Mock other services to ensure they don't interfere
+    mockCaliHealthService.findByIdentifier.mockReturnValue([]);
+    mockCaliHealthService.searchProviders.mockReturnValue([]);
+    mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
+    mockBoyacaHealthService.searchProviders.mockReturnValue([]);
+    mockYopalHealthService.findByIdentifier.mockReturnValue([]);
+    mockYopalHealthService.searchProviders.mockReturnValue([]);
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
 
-it('should reply no results when Medellín region search finds nothing', async () => {
-  const mockCtx: any = {
-    message: { text: 'Hospital primitivo iglesias en Medellín' },
-    reply: jest.fn(),
-  };
+    await botUpdate.onText(mockCtx);
 
-  mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockResolvedValue({
-    handled: true,
-    response: '⚠️ No encontré resultados de servicios de salud en **Medellín**.',
-  });
-
-  mockCaliHealthService.findByIdentifier.mockReturnValue([]);
-  mockCaliHealthService.searchProviders.mockReturnValue([]);
-  mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
-  mockBoyacaHealthService.searchProviders.mockReturnValue([]);
-  mockYopalHealthService.findByIdentifier.mockReturnValue([]);
-  mockYopalHealthService.searchProviders.mockReturnValue([]);
-  mockAntioquiaHealthService.searchProviders.mockReturnValue([]);
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
-
-  await botUpdate.onText(mockCtx);
-
-  expect(mockSaludPublicaQuestionsService.handleProviderSearchQuery).toHaveBeenCalledWith('Hospital primitivo iglesias en Medellín', 'Medellín');
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const message = mockCtx.reply.mock.calls[0][0];
-  expect(message).toContain('No encontré resultados');
-  expect(message).not.toContain('Resultados encontrados');
-});
-it('should remove Medellin from search term even without accent before querying Antioquia service', async () => {
-  const mockCtx: any = {
-    message: { text: 'Hospital primitivo iglesias en medellin' },
-    reply: jest.fn(),
-  };
-
-  mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockImplementation(async (text, region) => {
-     // Simulate the behavior of calling Antioquia service
-     await mockAntioquiaHealthService.searchProviders(text.replace(/medellin/gi, '').trim());
-     return { handled: true, response: '⚠️ No encontré resultados de servicios de salud en **Medellín**.' };
+    expect(mockSaludPublicaQuestionsService.handleProviderSearchQuery).toHaveBeenCalledWith('Hospital primitivo iglesias en Medellín', 'Medellín');
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const message = mockCtx.reply.mock.calls[0][0];
+    expect(message).toContain('Antioquia');
+    expect(message).toContain('HOSPITAL PRIMITIVO IGLESIAS');
   });
 
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
+  it('should reply no results when Medellín region search finds nothing', async () => {
+    const mockCtx: any = {
+      message: { text: 'Hospital primitivo iglesias en Medellín' },
+      reply: jest.fn(),
+    };
+
+    mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockResolvedValue({
+      handled: true,
+      response: '⚠️ No encontré resultados de servicios de salud en **Medellín**.',
+    });
+
+    mockCaliHealthService.findByIdentifier.mockReturnValue([]);
+    mockCaliHealthService.searchProviders.mockReturnValue([]);
+    mockBoyacaHealthService.findByIdentifier.mockReturnValue([]);
+    mockBoyacaHealthService.searchProviders.mockReturnValue([]);
+    mockYopalHealthService.findByIdentifier.mockReturnValue([]);
+    mockYopalHealthService.searchProviders.mockReturnValue([]);
+    mockAntioquiaHealthService.searchProviders.mockReturnValue([]);
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(mockSaludPublicaQuestionsService.handleProviderSearchQuery).toHaveBeenCalledWith('Hospital primitivo iglesias en Medellín', 'Medellín');
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const message = mockCtx.reply.mock.calls[0][0];
+    expect(message).toContain('No encontré resultados');
+    expect(message).not.toContain('Resultados encontrados');
   });
-  mockStatsService.getSummary.mockResolvedValue(null);
+  it('should remove Medellin from search term even without accent before querying Antioquia service', async () => {
+    const mockCtx: any = {
+      message: { text: 'Hospital primitivo iglesias en medellin' },
+      reply: jest.fn(),
+    };
 
-  await botUpdate.onText(mockCtx);
+    mockSaludPublicaQuestionsService.handleProviderSearchQuery.mockImplementation(async (text, region) => {
+      // Simulate the behavior of calling Antioquia service
+      await mockAntioquiaHealthService.searchProviders(text.replace(/medellin/gi, '').trim());
+      return { handled: true, response: '⚠️ No encontré resultados de servicios de salud en **Medellín**.' };
+    });
 
-  expect(mockAntioquiaHealthService.searchProviders).toHaveBeenCalled();
-  const [queryArg] =
-    mockAntioquiaHealthService.searchProviders.mock.calls[
-    mockAntioquiaHealthService.searchProviders.mock.calls.length - 1
-    ];
-  expect(queryArg.toLowerCase()).toContain('primitivo');
-  expect(queryArg.toLowerCase()).toContain('iglesias');
-  expect(queryArg.toLowerCase()).not.toContain('medellin');
-});
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
 
-it('should answer a mental health risk profile query when the diagnosis is specified', async () => {
-  const mockCtx: any = {
-    message: { text: '¿Cuál es el perfil de riesgo de depresión?' },
-    reply: jest.fn(),
-  };
+    await botUpdate.onText(mockCtx);
 
-  mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
-    if (text.toLowerCase().includes('perfil de riesgo')) {
+    expect(mockAntioquiaHealthService.searchProviders).toHaveBeenCalled();
+    const [queryArg] =
+      mockAntioquiaHealthService.searchProviders.mock.calls[
+      mockAntioquiaHealthService.searchProviders.mock.calls.length - 1
+      ];
+    expect(queryArg.toLowerCase()).toContain('primitivo');
+    expect(queryArg.toLowerCase()).toContain('iglesias');
+    expect(queryArg.toLowerCase()).not.toContain('medellin');
+  });
+
+  it('should answer a mental health risk profile query when the diagnosis is specified', async () => {
+    const mockCtx: any = {
+      message: { text: '¿Cuál es el perfil de riesgo de depresión?' },
+      reply: jest.fn(),
+    };
+
+    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+      if (text.toLowerCase().includes('perfil de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 32 casos');
         // Trigger the service call that the test expects
         await mockMentalHealthService.getRiskProfileByDiagnosis('depresion');
         return true;
-    }
-    return false;
+      }
+      return false;
+    });
+
+    mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
+      diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+      total: 32,
+      distribucion: {
+        niños: 0,
+        adolescentes: 5,
+        jovenes: 15,
+        adultos: 10,
+        mayores: 2,
+      },
+    });
+
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(
+      mockMentalHealthService.getRiskProfileByDiagnosis,
+    ).toHaveBeenCalled();
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const response = mockCtx.reply.mock.calls[0][0];
+    expect(response).toContain('Perfil de riesgo');
+    expect(response).toContain(
+      'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+    );
   });
 
-  mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
-    diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-    total: 32,
-    distribucion: {
-      niños: 0,
-      adolescentes: 5,
-      jovenes: 15,
-      adultos: 10,
-      mayores: 2,
-    },
-  });
+  it('should answer a risk profile query with a long diagnosis name', async () => {
+    const mockCtx: any = {
+      message: {
+        text: '¿Cuál es el factor de riesgo de EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS?',
+      },
+      reply: jest.fn(),
+    };
 
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
-
-  await botUpdate.onText(mockCtx);
-
-  expect(
-    mockMentalHealthService.getRiskProfileByDiagnosis,
-  ).toHaveBeenCalled();
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const response = mockCtx.reply.mock.calls[0][0];
-  expect(response).toContain('Perfil de riesgo');
-  expect(response).toContain(
-    'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-  );
-});
-
-it('should answer a risk profile query with a long diagnosis name', async () => {
-  const mockCtx: any = {
-    message: {
-      text: '¿Cuál es el factor de riesgo de EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS?',
-    },
-    reply: jest.fn(),
-  };
-
-  mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
-    if (text.toLowerCase().includes('factor de riesgo')) {
+    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+      if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 28 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
         await mockMentalHealthService.getRiskProfileByDiagnosis(text);
         return true;
-    }
-    return false;
+      }
+      return false;
+    });
+
+    mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
+      diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+      codigo_dx_ingreso: 'F321',
+      menor_a_1: 0,
+      de_1_a_4: 0,
+      de_5_a_9: 0,
+      de_10_a_14: 1,
+      de_15_a_19: 2,
+      de_20_a_49: 15,
+      de_50_a_64: 8,
+      _65_y_mas: 2,
+      total: 28,
+      a_o_diagn_stico: '2023',
+    });
+
+    mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
+      diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+      total: 28,
+      distribucion: {
+        niños: 0,
+        adolescentes: 3,
+        jovenes: 17,
+        adultos: 8,
+        mayores: 2,
+      },
+    });
+
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
+    expect(
+      mockMentalHealthService.getRiskProfileByDiagnosis,
+    ).toHaveBeenCalled();
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const response = mockCtx.reply.mock.calls[0][0];
+    expect(response).toContain('Perfil de riesgo');
+    expect(response).toContain(
+      'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+    );
   });
 
-  mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
-    diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-    codigo_dx_ingreso: 'F321',
-    menor_a_1: 0,
-    de_1_a_4: 0,
-    de_5_a_9: 0,
-    de_10_a_14: 1,
-    de_15_a_19: 2,
-    de_20_a_49: 15,
-    de_50_a_64: 8,
-    _65_y_mas: 2,
-    total: 28,
-    a_o_diagn_stico: '2023',
-  });
+  it('should answer a risk profile query for esquizofrenia no especificada', async () => {
+    const mockCtx: any = {
+      message: {
+        text: '¿Cuál es el factor de riesgo de esquizofrenia no especificada?',
+      },
+      reply: jest.fn(),
+    };
 
-  mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
-    diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-    total: 28,
-    distribucion: {
-      niños: 0,
-      adolescentes: 3,
-      jovenes: 17,
-      adultos: 8,
-      mayores: 2,
-    },
-  });
-
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
-
-  await botUpdate.onText(mockCtx);
-
-  expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
-  expect(
-    mockMentalHealthService.getRiskProfileByDiagnosis,
-  ).toHaveBeenCalled();
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const response = mockCtx.reply.mock.calls[0][0];
-  expect(response).toContain('Perfil de riesgo');
-  expect(response).toContain(
-    'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-  );
-});
-
-it('should answer a risk profile query for esquizofrenia no especificada', async () => {
-  const mockCtx: any = {
-    message: {
-      text: '¿Cuál es el factor de riesgo de esquizofrenia no especificada?',
-    },
-    reply: jest.fn(),
-  };
-
-  mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
-    if (text.toLowerCase().includes('factor de riesgo')) {
+    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+      if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: ESQUIZOFRENIA, NO ESPECIFICADA**\n\nTotal: 15 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
         await mockMentalHealthService.getRiskProfileByDiagnosis(text);
         return true;
-    }
-    return false;
+      }
+      return false;
+    });
+
+    mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
+      diagnostico_ingreso: 'ESQUIZOFRENIA, NO ESPECIFICADA',
+      codigo_dx_ingreso: 'F209',
+      menor_a_1: 0,
+      de_1_a_4: 1,
+      de_5_a_9: 0,
+      de_10_a_14: 1,
+      de_15_a_19: 0,
+      de_20_a_49: 14,
+      de_50_a_64: 0,
+      _65_y_mas: 0,
+      total: 15,
+      a_o_diagn_stico: '2023',
+    });
+    mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
+      diagnostico: 'ESQUIZOFRENIA, NO ESPECIFICADA',
+      total: 15,
+      distribucion: {
+        niños: 0,
+        adolescentes: 1,
+        jovenes: 14,
+        adultos: 14,
+        mayores: 0,
+      },
+    });
+
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
+    expect(
+      mockMentalHealthService.getRiskProfileByDiagnosis,
+    ).toHaveBeenCalled();
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const response = mockCtx.reply.mock.calls[0][0];
+    expect(response).toContain('Perfil de riesgo');
+    expect(response).toContain('ESQUIZOFRENIA, NO ESPECIFICADA');
   });
 
-  mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
-    diagnostico_ingreso: 'ESQUIZOFRENIA, NO ESPECIFICADA',
-    codigo_dx_ingreso: 'F209',
-    menor_a_1: 0,
-    de_1_a_4: 1,
-    de_5_a_9: 0,
-    de_10_a_14: 1,
-    de_15_a_19: 0,
-    de_20_a_49: 14,
-    de_50_a_64: 0,
-    _65_y_mas: 0,
-    total: 15,
-    a_o_diagn_stico: '2023',
-  });
-  mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
-    diagnostico: 'ESQUIZOFRENIA, NO ESPECIFICADA',
-    total: 15,
-    distribucion: {
-      niños: 0,
-      adolescentes: 1,
-      jovenes: 14,
-      adultos: 14,
-      mayores: 0,
-    },
-  });
+  it('should answer a risk profile query even with trailing explanatory text', async () => {
+    const mockCtx: any = {
+      message: {
+        text: '¿Cuál es el factor de riesgo de EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS, es decir responderme todos estos diagnósticos?',
+      },
+      reply: jest.fn(),
+    };
 
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
-
-  await botUpdate.onText(mockCtx);
-
-  expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
-  expect(
-    mockMentalHealthService.getRiskProfileByDiagnosis,
-  ).toHaveBeenCalled();
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const response = mockCtx.reply.mock.calls[0][0];
-  expect(response).toContain('Perfil de riesgo');
-  expect(response).toContain('ESQUIZOFRENIA, NO ESPECIFICADA');
-});
-
-it('should answer a risk profile query even with trailing explanatory text', async () => {
-  const mockCtx: any = {
-    message: {
-      text: '¿Cuál es el factor de riesgo de EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS, es decir responderme todos estos diagnósticos?',
-    },
-    reply: jest.fn(),
-  };
-
-  mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
-    if (text.toLowerCase().includes('factor de riesgo')) {
+    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+      if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 28 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
         await mockMentalHealthService.getRiskProfileByDiagnosis(text);
         return true;
-    }
-    return false;
+      }
+      return false;
+    });
+
+    mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
+      diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+      codigo_dx_ingreso: 'F321',
+      menor_a_1: 0,
+      de_1_a_4: 0,
+      de_5_a_9: 0,
+      de_10_a_14: 1,
+      de_15_a_19: 2,
+      de_20_a_49: 15,
+      de_50_a_64: 8,
+      _65_y_mas: 2,
+      total: 28,
+      a_o_diagn_stico: '2023',
+    });
+
+    mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
+      diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+      total: 28,
+      distribucion: {
+        niños: 0,
+        adolescentes: 3,
+        jovenes: 17,
+        adultos: 8,
+        mayores: 2,
+      },
+    });
+
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
+    expect(
+      mockMentalHealthService.getRiskProfileByDiagnosis,
+    ).toHaveBeenCalled();
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const response = mockCtx.reply.mock.calls[0][0];
+    expect(response).toContain('Perfil de riesgo');
+    expect(response).toContain(
+      'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
+    );
   });
-
-  mockMentalHealthService.getStatsForDiagnosis.mockResolvedValue({
-    diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-    codigo_dx_ingreso: 'F321',
-    menor_a_1: 0,
-    de_1_a_4: 0,
-    de_5_a_9: 0,
-    de_10_a_14: 1,
-    de_15_a_19: 2,
-    de_20_a_49: 15,
-    de_50_a_64: 8,
-    _65_y_mas: 2,
-    total: 28,
-    a_o_diagn_stico: '2023',
-  });
-
-  mockMentalHealthService.getRiskProfileByDiagnosis.mockResolvedValue({
-    diagnostico: 'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-    total: 28,
-    distribucion: {
-      niños: 0,
-      adolescentes: 3,
-      jovenes: 17,
-      adultos: 8,
-      mayores: 2,
-    },
-  });
-
-  mockSaludPublicaService.procesarPregunta.mockResolvedValue({
-    encontrado: false,
-  });
-  mockStatsService.getSummary.mockResolvedValue(null);
-
-  await botUpdate.onText(mockCtx);
-
-  expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
-  expect(
-    mockMentalHealthService.getRiskProfileByDiagnosis,
-  ).toHaveBeenCalled();
-  expect(mockCtx.reply).toHaveBeenCalled();
-  const response = mockCtx.reply.mock.calls[0][0];
-  expect(response).toContain('Perfil de riesgo');
-  expect(response).toContain(
-    'EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS',
-  );
-});
 });

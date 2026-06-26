@@ -19,10 +19,13 @@ import { VaccinationService } from './vaccination.service';
 import { MentalHealthService } from './mental-health/mental-health.service';
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
-import { RiskQuestionsService } from './questions/risk-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
+import { PredictiveQuestionsService } from './questions/predictive-questions.service';
+import { EarlyWarningService } from './early-warning.service';
+import { AdvancedPredictionService } from './advanced-prediction.service';
+import { MlPredictionService } from './ml-prediction.service';
 import { Context } from 'telegraf';
 
 describe('BotUpdate Geo-localization', () => {
@@ -140,10 +143,6 @@ describe('BotUpdate Geo-localization', () => {
           useValue: { processPublicHealthQuery: jest.fn() },
         },
         {
-          provide: RiskQuestionsService,
-          useValue: { processRiskQuery: jest.fn() },
-        },
-        {
           provide: YopalQuestionsService,
           useValue: { processYopalQuery: jest.fn() },
         },
@@ -154,6 +153,25 @@ describe('BotUpdate Geo-localization', () => {
         {
           provide: GraphicsQuestionsService,
           useValue: { processGraphicsQuery: jest.fn() },
+        },
+        {
+          provide: PredictiveQuestionsService,
+          useValue: {
+            processPredictiveQuery: jest.fn().mockResolvedValue(null),
+            getAvailableQuestions: jest.fn().mockReturnValue(''),
+          },
+        },
+        {
+          provide: EarlyWarningService,
+          useValue: { getEarlyWarnings: jest.fn() },
+        },
+        {
+          provide: AdvancedPredictionService,
+          useValue: { predictAdvanced: jest.fn() },
+        },
+        {
+          provide: MlPredictionService,
+          useValue: { predict: jest.fn() },
         },
       ],
     }).compile();

@@ -20,13 +20,13 @@ export class RiskQuestionsService {
 
     /**
      * Retorna la lista de eventos disponibles dinámicamente desde SIVIGILA.
+     * Usa listarEventos() que ya retorna string[] directamente desde el XML.
      */
     private async getAvailableEvents(): Promise<string[]> {
         try {
-            const eventos = await this.saludPublicaService.listarEventosCompletos();
+            const eventos = await this.saludPublicaService.listarEventos();
             if (!eventos || eventos.length === 0) return [];
             return eventos
-                .map(e => e.nombre_del_evento)
                 .filter(n => n && n.length > 0)
                 .slice(0, 20); // Limitar a 20 para no saturar
         } catch (error) {
@@ -65,48 +65,28 @@ export class RiskQuestionsService {
 
         const eventsList = events.length > 0
             ? events.map(e => `• ${e}`).join('\n')
-            : `• Dengue
-• Zika
-• Chikungunya
-• Malaria
-• Tuberculosis
-• Hepatitis A, B, C
-• Sarampión
-• Rubeola
-• Tos Ferina
-• Fiebre Amarilla
-• Leishmaniasis
-• Chagas
-• Intoxicación por alimentos
-• Accidente ofídico`;
+            : '_(No se pudieron cargar los eventos del sistema SIVIGILA)_';
 
         const locationsList = locations.length > 0
             ? locations.map(l => `• ${l}`).join('\n')
-            : `• Antioquia
-• Boyacá
-• Casanare (Yopal)
-• Cundinamarca
-• Meta
-• Norte de Santander
-• Valle del Cauca`;
+            : '_(No se pudieron cargar las ubicaciones del sistema)_';
 
         return `🔮 **Predicción de Riesgo Epidemiológico**
 
-Puedo predecir y analizar el riesgo de los siguientes eventos de salud pública en Colombia, combinando datos oficiales de SIVIGILA, cobertura de vacunación y calidad del aire:
+        Puedo predecir y analizar el riesgo de los siguientes eventos de salud pública en Colombia, combinando datos oficiales de SIVIGILA, cobertura de vacunación y calidad del aire:
 
-📋 **Eventos disponibles para predicción:**
-${eventsList}
+        📋 **Eventos disponibles para predicción:**
+        ${eventsList}
 
-📍 **Ubicaciones con datos disponibles:**
-${locationsList}
+        📍 **Ubicaciones con datos disponibles:**
+        ${locationsList}
 
-💡 **Ejemplos de uso:**
-• *"Predecir riesgo de dengue en Amazonas"*
-• *"Analizar riesgo de sarampión en Caldas"*
-• *"Riesgo de malaria en el Arauca"*
-• *"Predecir riesgo de tuberculosis en Boyacá"*
-
-¿Sobre qué evento y ubicación deseas realizar la predicción?`;
+        💡 **Ejemplos de uso:**
+        • *"Predecir riesgo de dengue en Amazonas"*
+        • *"Analizar riesgo de sarampión en Caldas"*
+        • *"Riesgo de malaria en el Arauca"*
+        • *"Predecir riesgo de tuberculosis en Boyacá"*
+        ¿Sobre qué evento y ubicación deseas realizar la predicción?`;
     }
 
     /**

@@ -71,6 +71,7 @@ export class SaludPublicaService implements OnModuleInit {
     }
   }
 
+  // mapea eventos de salud 
   private mapRowToEvent(row: any): HealthEvent {
     const toNumber = (val: any): number => {
       const num = Number(val);

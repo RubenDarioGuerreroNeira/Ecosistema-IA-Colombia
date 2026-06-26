@@ -81,6 +81,9 @@ graph LR
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
   - Filtrado de eventos.
+- **🔮 Predicción y alertas tempranas**: Servicio modular que procesa consultas de `predicción`, `pronóstico`, `alerta temprana` y `clasificación de riesgo`.
+  - Soporta análisis dinámico de `dengue`, `zika`, `malaria`, `tuberculosis` y otros eventos de salud pública.
+  - Genera listados de eventos y ubicaciones disponibles en tiempo real.
 - **🤖 Sistema de Scoring Compuesto (NUEVO)**: Algoritmo multidimensional que cruza datos de SIVIGILA, cobertura de vacunación y factores ambientales para calcular el riesgo epidemiológico. Combina cuatro dimensiones ponderadas:
   - Volumen de casos (40%)
   - Ruralidad (20%)
@@ -111,6 +114,7 @@ flowchart TD
     Bot --> Stats["📈 Analítica y Predicción"]:::logic
     Bot --> Charts["📊 Generación de Gráficos"]:::logic
     Bot --> Geo["📍 Búsqueda Local (Geo)"]:::logic
+    Bot --> Predictions["🔮 Predicción y Alertas"]:::logic
 
     NLP --> SIVIGILA[("🏥 SIVIGILA")]:::data
     NLP --> Mental[("🧠 Salud Mental")]:::data
@@ -119,6 +123,9 @@ flowchart TD
     Stats --> SIVIGILA
     Stats --> PAI[("💉 Vacunación")]:::data
     Stats --> AirQuality[("☁️ Calidad Aire")]:::data
+    Predictions --> SIVIGILA
+    Predictions --> PAI[("💉 Vacunación")]:::data
+    Predictions --> AirQuality[("☁️ Calidad Aire")]:::data
 
     Charts --> Air["☁️ API Calidad Aire"]:::data
     Geo --> Local[("🏥 Prestadores Locales")]:::data

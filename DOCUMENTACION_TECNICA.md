@@ -64,7 +64,7 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
 
 ### 3.0 Diagrama Arquitectónico General
 
-```mermaid
+````mermaid
 ---
 title: Diagrama Arquitectónico General
 ---
@@ -137,6 +137,53 @@ graph TD
     PredictiveServices --> XML_SIVIGILA
     PredictiveServices --> XML_Vacunacion
     PredictiveServices --> API_CalidadAire
+
+    PredictiveServices --> MLPredict["🤖 MlPredictionService"]:::service
+    PredictiveServices --> Advanced["📈 AdvancedPredictionService"]:::service
+    PredictiveServices --> EarlyWarning["🚨 EarlyWarningService"]:::service
+
+### 3.1 Flujo de Trabajo (Workflow)
+
+#### Flujo Predictivo y de Riesgo
+
+El bot ahora incluye un subsistema predictivo que detecta consultas de:
+- `predicción` / `pronóstico`
+- `alertas tempranas`
+- `clasificar riesgo`
+- `analizar riesgo`
+
+Estas consultas son enrutadas a `PredictiveQuestionsService`, que orquesta `MlPredictionService`, `AdvancedPredictionService` y `EarlyWarningService` para devolver respuestas estructuradas con:
+- clasificación de riesgo (BAJO / MEDIO / ALTO / CRÍTICO)
+- pronósticos de series temporales
+- alertas automáticas
+- listado dinámico de eventos y ubicaciones disponibles
+
+```mermaid
+---
+title: Flujo Predictivo y de Riesgo
+---
+sequenceDiagram
+    autonumber
+    actor User as 👤 Usuario
+    participant Telegram as 📱 Telegram API
+    participant Bot as 🤖 BotUpdate
+    participant Predictive as 🔮 PredictiveQuestionsService
+    participant ML as 🤖 MlPredictionService
+    participant Adv as 📈 AdvancedPredictionService
+    participant Early as 🚨 EarlyWarningService
+
+    User->>Telegram: Envía consulta de riesgo o predicción
+    Telegram->>Bot: Webhook
+    Bot->>Predictive: Detecta intención y extrae evento/región
+    Predictive->>ML: Clasificación de riesgo (scoring compuesto)
+    Predictive->>Adv: Pronóstico de series temporales
+    Predictive->>Early: Evaluación de alertas tempranas
+    Predictive-->>Bot: Redacción de respuesta estructurada
+    Bot->>Telegram: Envía respuesta al usuario
+
+    PredictiveServices --> MLPredict["🤖 MlPredictionService"]:::service
+    PredictiveServices --> Advanced["📈 AdvancedPredictionService"]:::service
+    PredictiveServices --> EarlyWarning["🚨 EarlyWarningService"]:::service
 ```
 
 ### 3.1 Flujo de Trabajo (Workflow)
@@ -192,7 +239,7 @@ sequenceDiagram
     end
 
     Telegram-->>User: Entrega respuesta final
-```
+````
 
 ### 3.2 Flujo de Procesamiento de Datos
 

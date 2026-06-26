@@ -265,6 +265,41 @@ export class MlPredictionService implements OnModuleInit {
         }
     }
 
+    /**
+     * Lista los nombres de eventos disponibles desde SIVIGILA (limitado a 20).
+     */
+    async listarEventosDisponibles(): Promise<string[]> {
+        try {
+            const eventos = await this.saludPublicaService.listarEventos();
+            if (!eventos || eventos.length === 0) return [];
+            return eventos
+                .filter(n => n && n.length > 0)
+                .slice(0, 20);
+        } catch (error) {
+            this.logger.warn(`Error obteniendo eventos disponibles: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * Lista las ubicaciones disponibles desde vacunación y calidad del aire (limitado a 12).
+     */
+    async listarUbicacionesDisponibles(): Promise<string[]> {
+        try {
+            const [vaccinationDeptos, airQualityMunis] = await Promise.all([
+                this.vaccinationService.getAllDepartament(),
+                this.airQualityService.getAllMunicipios(),
+            ]);
+            const combined = [...vaccinationDeptos, ...airQualityMunis];
+            const unique = Array.from(new Set(combined.map(l => l.trim())))
+                .filter(l => l.length > 2);
+            return unique.slice(0, 12);
+        } catch (error) {
+            this.logger.warn(`Error obteniendo ubicaciones disponibles: ${error.message}`);
+            return [];
+        }
+    }
+
     async obtenerAnalisisCompleto(departamento: string): Promise<string> {
         try {
             const eventos = await this.saludPublicaService.listarEventosCompletos();

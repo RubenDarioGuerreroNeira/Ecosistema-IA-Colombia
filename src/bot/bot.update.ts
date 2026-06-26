@@ -40,7 +40,6 @@ import {
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
-import { RiskQuestionsService } from './questions/risk-questions.service';
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
@@ -187,7 +186,6 @@ export class BotUpdate {
         private readonly vaccinationService: VaccinationService,
         private readonly saludPublicaQuestionsService: SaludPublicaQuestionsService,
         private readonly yopalQuestionsService: YopalQuestionsService,
-        private readonly riskQuestionsService: RiskQuestionsService,
         private readonly airQualityQuestionsService: AirQualityQuestionsService,
         private readonly chartQueryService: ChartQueryService,
         private readonly graphicsQuestionsService: GraphicsQuestionsService,
@@ -353,8 +351,7 @@ Te puedo responder preguntas sobre salud mental solo escribe:
 📈 **Predicciones:**
 ----------------------------------------------------------------
 Puedes Escribirme:
-- ¿Qué puedes predecir?" → (muestra las capacidades predictivas generales (alertas, pronósticos, ML, análisis completo)
-- ¿Qué riesgos se pueden predecir? → (muestra la lista de eventos y departamentos/municipios disponibles)
+- ¿Qué riesgos sanitarios pueden predecir? → (muestra la lista de eventos y departamentos/municipios disponibles)
 
 ----------------------------------------------------------------
 📊 **Estadísticas e Inteligencia Epidemiológica:**
@@ -374,7 +371,7 @@ Puedes Escribirme:
 ----------------------------------------------------------------
 🍃 **Monitoreo Ambiental:**
 ----------------------------------------------------------------
-- "¿Cómo está la calidad del aire hoy en Cali?"
+- "¿Cómo está la calidad del aire hoy en Cali?"  NO ESTA DESARROLLADA POR EL BOT
 - "Graficar contaminación ambiental en Medellín."
 
 💬 ¿Sobre qué tema te gustaría consultar hoy?`;
@@ -611,7 +608,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         if (await this.handleSexualHealthQuery(ctx, messageText)) return;
 
         // PRIORIDAD 13: Análisis de riesgo específico
-        if (await this.handleRiskAnalysis(ctx, messageText, detectedRegion)) return;
+        if (await this.handleMLClassification(ctx, messageText, contextData)) return;
 
         // PRIORIDAD 14: Salud pública (eventos por nombre)
         if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
@@ -891,7 +888,7 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
             cleanQuery.includes(keyword.replace(/k/g, 'c'))
         );
 
-        if (!isYopalQuery) return false;
+        if ((!isYopalQuery) || norm.includes('analizar riesgo') || norm.includes('analisis de riesgo')) return false;
 
         const respuesta = await this.yopalQuestionsService.processYopalQuery(text);
         if (!respuesta) return false;
@@ -948,6 +945,16 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
         detectedRegion?: string,
     ): Promise<boolean> {
         const userId = ctx.from?.id;
+        const norm = normalizeString(text);
+
+        // No interceptar consultas de análisis de riesgo, predicción o clasificación
+        if (
+            norm.includes('analizar riesgo') ||
+            norm.includes('analisis de riesgo') ||
+            norm.includes('analisis de riesgo') ||
+            norm.includes('clasificar riesgo') ||
+            norm.includes('riesgo de')
+        ) return false;
 
         const providerCapabilities = await this.saludPublicaQuestionsService.processProviderCapabilitiesQuery(text);
         if (providerCapabilities) {
@@ -989,11 +996,13 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
         if (
             lowerText.includes('prediccion') ||
             lowerText.includes('pronostico') ||
+            lowerText.includes('que puedes predecir') ||
             lowerText.includes('predecir') ||
             lowerText.includes('proyeccion') ||
             lowerText.includes('clasificar riesgo') ||
             lowerText.includes('puedes predecir riesgos') ||
             lowerText.includes('riesgos') ||
+
             lowerText.includes('alerta temprana')
         ) {
             await this.sendPredictiveOverview(ctx);
@@ -1003,6 +1012,8 @@ Por ejemplo: "¿Qué información tienes sobre salud mental?"
         return false;
     }
 
+
+    //Prediccion
     private async sendPredictiveOverview(ctx: Context): Promise<void> {
         const eventsList = RISK_EVENTS.slice(0, 8).map(e => `• ${e}`).join('\n');
 
@@ -1283,19 +1294,15 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         const norm = normalizeString(text);
         const userId = ctx.from?.id;
 
-        // PRIORITARIO: Mostrar eventos y ubicaciones específicas de predicción de riesgo
-        const riskResponse = await this.riskQuestionsService.processRiskQuery(text);
+        // Mostrar capacidades predictivas generales (incluye listado dinámico de eventos/ubicaciones)
+        const riskResponse = await this.predictiveQuestionsService.processPredictiveQuery(text);
         if (riskResponse) {
             await ctx.reply(riskResponse.respuesta, { parse_mode: 'Markdown' });
-            // Si la respuesta es el listado de capacidades, guardar estado para predicción
-            if (riskResponse.tipo === 'listado' && userId) {
+            if (riskResponse.tipo === 'listado_riesgos' && userId) {
                 this.userState.set(userId, { intent: 'predict_risk' });
             }
             return true;
         }
-
-        // Solo si NO es consulta de riesgos, mostrar capacidades predictivas generales
-        if (await this.handlePredictiveCapabilitiesQuery(ctx, norm)) return true;
 
         const airQualityResponse = await this.airQualityQuestionsService.processAirQualityQuery(text);
         if (airQualityResponse?.tipo === 'listado') {
