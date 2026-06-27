@@ -72,3 +72,9 @@ Para que una tarea se considere terminada, debe:
 ---
 
 _Última actualización: 21 de junio de 2026_
+
+---
+
+## ✍️ Autores
+
+**Maria G. Barrientos** y **Rubén D. Guerrero** — Colombia, 2026.

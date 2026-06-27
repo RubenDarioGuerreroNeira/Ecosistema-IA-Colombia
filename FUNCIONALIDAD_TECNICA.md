@@ -118,3 +118,9 @@ El proyecto ha incorporado modelos predictivos y algoritmos nativos (sin depende
 3. **`EarlyWarningService`**: Motor de alertas dinámicas que monitorea umbrales predefinidos (percentiles, cambios >20% mensual, o bajas coberturas vacunales <60%) para emitir avisos automatizados a los usuarios ante posibles brotes o riesgos en salud pública.
 
 4. **`DatasetBuilderService`**: Tubería de datos encargada de limpiar y normalizar las fuentes (XML, APIs externas) y convertirlas en tensores y vectores compatibles para la alimentación de los modelos de ML. Incluye caché de 24 horas para optimizar consultas repetitivas.
+
+---
+
+## ✍️ Autores
+
+**Maria G. Barrientos** y **Rubén D. Guerrero** — Colombia, 2026.

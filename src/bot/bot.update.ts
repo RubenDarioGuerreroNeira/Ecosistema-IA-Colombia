@@ -445,6 +445,8 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 - Métodos anticonceptivos y derechos reproductivos
 
 🍃 **Monitoreo Ambiental:**
+Preguntas como estas:
+-"¿Tienes info sobre la calidad del aire?"
 - "¿Cómo está la calidad del aire hoy en Cali?"
 - "Graficar contaminación ambiental en Medellín."
 
@@ -867,7 +869,7 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 Por ejemplo: "¿Qué información tienes sobre salud mental?"
 
 🍃 **Monitoreo Ambiental:**
-- "¿Cómo está la calidad del aire hoy en Cali?"
+- "¿Tienes info sobre la calidad del aire?"
 
 ¿Qué necesitas consultar hoy?`,
                 { parse_mode: 'Markdown' },
@@ -1159,7 +1161,12 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             return true;
         }
 
-        if (!norm.includes('calidad del aire') && !norm.includes('calidad aire') && pending?.intent !== 'air_quality') return false;
+        if (
+            !norm.includes('calidad del aire') &&
+            !norm.includes('calidad aire') &&
+            !norm.includes('aire') &&
+            pending?.intent !== 'air_quality'
+        ) return false;
 
         // Si no se detectó región por las listas, intentar extraerla del texto después de "calidad del aire en" o "calidad aire en"
         let region = detectedRegion;
@@ -1171,7 +1178,23 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         }
 
         if (!region) {
-            await ctx.reply('☁️ ¿De qué **municipio o departamento** deseas conocer la calidad del aire?', { parse_mode: 'Markdown' });
+            // Obtener y mostrar municipios disponibles
+            let municipiosDisponibles = 'Amazonas, Antioquia, Arauca, Atlántico, Bogotá, Bolívar, Boyacá, Caldas, Caquetá, Casanare, Cauca, Cesar, Chocó, Córdoba, Cundinamarca, Guainía, Guaviare, Huila, La Guajira, Magdalena, Meta, Nariño, Norte de Santander, Putumayo, Quindío, Risaralda, San Andrés, Santander, Sucre, Tolima, Valle del Cauca, Vaupés, Vichada';
+            try {
+                const munis = await this.airQualityService.getAllMunicipios();
+                if (munis && munis.length > 0) {
+                    municipiosDisponibles = munis.slice(0, 30).join(', ');
+                }
+            } catch (e) {
+                this.logger.warn(`Error obteniendo municipios: ${e.message}`);
+            }
+            await ctx.reply(
+                `☁️ **Consulta de Calidad del Aire**\n\n` +
+                `Puedo consultar la calidad del aire para los siguientes municipios y departamentos:\n\n` +
+                `${municipiosDisponibles}\n\n` +
+                `💬 *Por ejemplo:* "Calidad del aire en Bogotá" o "Indicadores ambientales en Medellín"`,
+                { parse_mode: 'Markdown' }
+            );
             if (userId) this.userState.set(userId, { intent: 'air_quality' });
             return true;
         }

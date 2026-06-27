@@ -617,4 +617,4 @@ npm run lint
 
 **Estado del Documento:** _Versión 1.1 - En desarrollo activo._
 
-**Autores:** Maria G. Barrientos- Rubén Guerrero - Colombia 2026
+**Autores:** Maria G. Barrientos y Rubén D. Guerrero — Colombia 2026

@@ -42,5 +42,19 @@ export class AirQualityService {
     }
   }
 
-
+  async getAllDepartamentos(): Promise<string[]> {
+    try {
+      const response = await axios.get(this.apiUrl, {
+        params: {
+          $select: 'DISTINCT nombre_del_departamento',
+          $limit: 100,
+        },
+      });
+      const deptos: string[] = response.data.map(m => m.nombre_del_departamento).filter(Boolean);
+      return [...new Set(deptos)].sort();
+    } catch (error) {
+      console.error(`Error fetching air quality for all departamentos:`, error);
+      return [];
+    }
+  }
 }

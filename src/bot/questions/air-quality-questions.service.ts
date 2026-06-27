@@ -8,10 +8,23 @@ export class AirQualityQuestionsService {
         private readonly airQualityService: AirQualityService,
     ) { }
 
-    getAvailableQuestions(): string {
+    async getAvailableQuestions(): Promise<string> {
+        const departamentos = await this.airQualityService.getAllDepartamentos();
+
+        let deptosList = '';
+        if (departamentos && departamentos.length > 0) {
+            deptosList = departamentos
+                .slice(0, 30)
+                .map(d => `• ${d}`)
+                .join('\n');
+        }
+
         return `🍃 **Consultas sobre Calidad del Aire**
 
 Puedo consultar indicadores de calidad del aire para cualquier municipio o departamento de Colombia.
+
+📋 **Departamentos disponibles:**
+${deptosList || '(No se pudieron cargar los departamentos)'}
 
 💡 **Ejemplos:**
 • *"¿Cómo está la calidad del aire en Bogotá?"*
@@ -32,15 +45,20 @@ Puedo consultar indicadores de calidad del aire para cualquier municipio o depar
     ): Promise<{ respuesta: string; tipo: string } | null> {
         const norm = normalizeString(text);
 
-        // Detectar si pregunta sobre capacidades del servicio
+        // Detectar si pregunta sobre capacidades del servicio (solo consultas EXPLÍCITAS)
         if (
             norm.includes('que calidad del aire') ||
             norm.includes('que info de aire') ||
             norm.includes('que datos de aire') ||
             norm.includes('que sabes de calidad del aire') ||
-            (norm.includes('que') && norm.includes('calidad del aire'))
+            norm.includes('tienes informacion de calidad del aire') ||
+            norm.includes('tienes info sobre calidad del aire') ||
+            norm.includes('tienes datos de calidad del aire') ||
+            norm.includes('que preguntas sobre calidad del aire') ||
+            (norm.includes('que') && norm.includes('calidad del aire')) ||
+            (norm.includes('que') && norm.includes('calidad aire'))
         ) {
-            return { respuesta: this.getAvailableQuestions(), tipo: 'listado' };
+            return { respuesta: await this.getAvailableQuestions(), tipo: 'listado' };
         }
 
         return null;

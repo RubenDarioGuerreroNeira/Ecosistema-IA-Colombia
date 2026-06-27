@@ -273,3 +273,11 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 
 Este proyecto ha sido desarrollado para el **Concurso IA Colombia**.
 © 2026 - Todos los derechos reservados.
+
+
+---
+
+## ✍️ Autores
+
+**Maria G. Barrientos** y **Rubén D. Guerrero** — Colombia, 2026.
+
