@@ -61,6 +61,7 @@ export class CaliHealthService implements OnModuleInit {
     }
   }
 
+
   private mapRow(row: any): CaliHealthProvider {
     return {
       complejidad: row.complejidad || row.complejidad_sede || undefined,
@@ -90,6 +91,52 @@ export class CaliHealthService implements OnModuleInit {
   private setCached<T>(key: string, data: T) {
     this.cache.set(key, { data, timestamp: Date.now() });
   }
+
+  // ---------------------------------------------------------------------------
+  // Menu
+  // ---------------------------------------------------------------------------
+  getAvailableQuestions(): string {
+    const stats = this.getServiceStats();
+    const grupos = this.getGruposDisponibles();
+    const sedesPrincipales = this.getUniqueSedes().slice(0, 5);
+
+    return `🏥 **Preguntas que puedo responder sobre la Red de Salud del Centro - Cali:**
+
+📂 **Categorías (Grupos) disponibles:**
+${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n')}
+• *y ${grupos.length - 8} categorías más...*
+
+🔍 **Búsqueda por servicio específico**
+"¿Dónde hay servicios de odontología en Cali?"
+"Centros con fisioterapia en Cali"
+"¿Qué sedes ofrecen laboratorio clínico?"
+"Rayos X o radiología en Cali"
+"Servicios de psicología en Cali"
+
+🆘 **Urgencias / Emergencias**
+"¿Qué hospitales tienen urgencias en Cali?"
+"Servicios de urgencias 24 horas en Cali"
+"Atención inmediata o emergencias en Cali"
+
+🏥 **Búsqueda por sede**
+"Detalles del Hospital Primitivo Iglesias"
+"¿Qué servicios ofrece la sede Centro?"
+"Teléfono y dirección de la sede Norte"
+
+📊 **Estadísticas y resúmenes**
+"¿Cuántos servicios de salud hay en Cali?"
+"Resumen de la red de salud de Cali"
+"¿Cuántas sedes tiene la Red de Salud del Centro?"
+
+📋 **Búsqueda general**
+"Buscar centros de salud en Cali"
+"Prestadores de salud en Cali"
+"Sedes con servicios de medicina general"
+"Categorias de servicios en Cali" te muestro -> (Total de Categorias de servicios en Cali)
+
+✨ *Puedes preguntar con lenguaje natural y te ayudaré a encontrar los servicios que necesitas.*`;
+  }
+
 
   // ---------------------------------------------------------------------------
   // Normalización (mejorada)
@@ -424,50 +471,7 @@ export class CaliHealthService implements OnModuleInit {
     return response;
   }
 
-  // ---------------------------------------------------------------------------
-  // NUEVO: Preguntas disponibles para el bot
-  // ---------------------------------------------------------------------------
-  getAvailableQuestions(): string {
-    const stats = this.getServiceStats();
-    const grupos = this.getGruposDisponibles();
-    const sedesPrincipales = this.getUniqueSedes().slice(0, 5);
 
-    return `🏥 **Preguntas que puedo responder sobre la Red de Salud del Centro - Cali:**
-
-📂 **Categorías (Grupos) disponibles:**
-${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n')}
-• *y ${grupos.length - 8} categorías más...*
-
-🔍 **Búsqueda por servicio específico**
-"¿Dónde hay servicios de odontología en Cali?"
-"Centros con fisioterapia en Cali"
-"¿Qué sedes ofrecen laboratorio clínico?"
-"Rayos X o radiología en Cali"
-"Servicios de psicología en Cali"
-
-🆘 **Urgencias / Emergencias**
-"¿Qué hospitales tienen urgencias en Cali?"
-"Servicios de urgencias 24 horas en Cali"
-"Atención inmediata o emergencias en Cali"
-
-🏥 **Búsqueda por sede**
-"Detalles del Hospital Primitivo Iglesias"
-"¿Qué servicios ofrece la sede Centro?"
-"Teléfono y dirección de la sede Norte"
-
-📊 **Estadísticas y resúmenes**
-"¿Cuántos servicios de salud hay en Cali?"
-"Resumen de la red de salud de Cali"
-"¿Cuántas sedes tiene la Red de Salud del Centro?"
-
-📋 **Búsqueda general**
-"Buscar centros de salud en Cali"
-"Prestadores de salud en Cali"
-"Sedes con servicios de medicina general"
-"Categorias de servicios en Cali" te muestro -> (Total de Categorias de servicios en Cali)
-
-✨ *Puedes preguntar con lenguaje natural y te ayudaré a encontrar los servicios que necesitas.*`;
-  }
 
   // ---------------------------------------------------------------------------
   // NUEVO: Detecta si la consulta es sobre qué sabe el bot de Cali
@@ -475,6 +479,7 @@ ${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n'
   isKnowledgeQuery(text: string): boolean {
     const q = this.normalizeString(text);
     const knowledgePatterns = [
+      'cali',
       'que sabes de cali',
       'que informacion tienes de cali',
       'que informacion hay sobre cali',

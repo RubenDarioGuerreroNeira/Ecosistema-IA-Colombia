@@ -1,10 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MentalHealthQuestionsService } from '../questions/mental-health-questions.service';
 import { MentalHealthService } from './mental-health.service';
+import { Context } from 'telegraf';
 
 describe('MentalHealthQuestionsService', () => {
   let service: MentalHealthQuestionsService;
   let mentalHealthService: MentalHealthService;
+
+  const mockCtx = {
+    reply: jest.fn(),
+    from: { id: 123, first_name: 'Test' },
+  } as unknown as Context;
 
   const mockMentalHealthEvent = {
     diagnostico_ingreso: 'DEPRESION',
@@ -34,12 +40,15 @@ describe('MentalHealthQuestionsService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MentalHealthQuestionsService,
         {
           provide: MentalHealthService,
           useValue: {
+            getAllDiagnoses: jest.fn().mockResolvedValue(['DEPRESION', 'ANSIEDAD', 'ESQUIZOFRENIA']),
             getAgeDistribution: jest.fn().mockResolvedValue(mockAgeDistribution),
             getTopDiagnoses: jest.fn().mockResolvedValue([mockMentalHealthEvent]),
             getComparisonBetweenDiagnoses: jest.fn().mockResolvedValue({
@@ -53,7 +62,6 @@ describe('MentalHealthQuestionsService', () => {
             }),
             getTopByLifeCycle: jest.fn().mockResolvedValue([{ ...mockMentalHealthEvent, total_en_ciclo: 60 }]),
             getStatsForDiagnosis: jest.fn().mockResolvedValue(mockMentalHealthEvent),
-            searchDiagnoses: jest.fn().mockResolvedValue([mockMentalHealthEvent]),
           },
         },
       ],
@@ -73,52 +81,77 @@ describe('MentalHealthQuestionsService', () => {
     expect(questions).toContain('Buscar diagnóstico');
   });
 
-  it('should handle age distribution query', async () => {
-    const response = await service.processMentalHealthQuery('distribucion de edades');
-    expect(response).toContain('Distribución Nacional de Casos por Edad');
-    expect(response).toContain('**Total Global Registrado:** 3.200');
+  it('should handle mental health capabilities query via handleMentalHealthQuery', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, 'que informacion tienes sobre salud mental');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalled();
   });
 
   it('should handle top diagnoses query', async () => {
-    const response = await service.processMentalHealthQuery('cuales son los top diagnosticos');
-    expect(response).toContain('Top 5 Diagnósticos más frecuentes');
-    expect(response).toContain('DEPRESION');
+    const result = await service.handleMentalHealthQuery(mockCtx, 'diagnosticos mas frecuentes en depresion');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Top diagnósticos de salud mental'),
+      expect.any(Object),
+    );
   });
 
-  it('should handle comparison query', async () => {
-    const response = await service.processMentalHealthQuery('compara depresion vs ansiedad');
-    expect(response).toContain('Comparativa de Salud Mental');
-    expect(response).toContain('*Diferencia:* 170');
-  });
-
-  it('should handle risk profile query', async () => {
-    const response = await service.processMentalHealthQuery('cual es el perfil de riesgo de depresion');
-    expect(response).toContain('Perfil de Riesgo: DEPRESION');
-    expect(response).toContain('**Adultos:** 150');
+  it('should handle age distribution query', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, 'distribucion por edad en depresion');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Distribución por edad'),
+      expect.any(Object),
+    );
   });
 
   it('should handle life cycle query for children', async () => {
-    const response = await service.processMentalHealthQuery('diagnosticos frecuentes en ninos');
-    expect(response).toContain('Top 5 Diagnósticos en niños');
-    expect(response).toContain('60 casos en este grupo');
+    const result = await service.handleMentalHealthQuery(mockCtx, 'diagnostico en ninos');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('niños'),
+      expect.any(Object),
+    );
   });
 
-  it('should handle specific diagnosis stats query', async () => {
-    const response = await service.processMentalHealthQuery('cuantos casos de depresion hay');
-    expect(response).toContain('Resultado de Búsqueda');
-    expect(response).toContain('**Diagnóstico:** DEPRESION');
-    expect(response).toContain('**Total de casos:** 320');
+  it('should handle risk profile query', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, 'perfil de riesgo de depresion');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Perfil de riesgo'),
+      expect.any(Object),
+    );
   });
 
-  it('should return null if no match found', async () => {
-    jest.spyOn(mentalHealthService, 'getStatsForDiagnosis').mockResolvedValue(null);
-    const response = await service.processMentalHealthQuery('algo que no existe');
-    expect(response).toBeNull();
+  it('should handle comparison query', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, 'compara depresion vs ansiedad');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Comparativa'),
+      expect.any(Object),
+    );
   });
 
-  it('should suggest diagnoses', async () => {
-    const suggestions = await service.suggestDiagnoses('depre');
-    expect(suggestions).toEqual(['DEPRESION']);
-    expect(mentalHealthService.searchDiagnoses).toHaveBeenCalledWith('depre');
+  it('should handle stats query for specific diagnosis', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, 'cuantos casos de depresion hay');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('DEPRESION'),
+      expect.any(Object),
+    );
+  });
+
+  it('should return false for non-mental health query', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, '¿Cómo está el clima hoy?');
+    expect(result).toBe(false);
+  });
+
+  it('should handle list all mental health diseases query', async () => {
+    const result = await service.handleMentalHealthQuery(mockCtx, '¿De qué enfermedades mentales tienes información?');
+    expect(result).toBe(true);
+    expect(mockCtx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Catálogo'),
+      expect.any(Object),
+    );
   });
 });

@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { HealthDataService } from '../health-data.service';
 import { MentalHealthService } from '../mental-health/mental-health.service';
 import { HealthStatsService } from './health-stats.service';
-import { MentalHealthStatsService } from './mental-health-stats.service';
-import { SexualHealthStatsService } from './sexual-health-stats.service';
 import { AntioquiaHealthService } from '../antioquia/antioquia-health.service';
 import { BoyacaHealthService } from '../boyaca/boyaca-health.service';
 import { CaliHealthService } from '../cali/cali-health.service';
@@ -16,8 +14,6 @@ export class StatsService {
     private readonly healthDataService: HealthDataService,
     private readonly mentalHealthService: MentalHealthService,
     private readonly healthStatsService: HealthStatsService,
-    private readonly mentalHealthStatsService: MentalHealthStatsService,
-    private readonly sexualHealthStatsService: SexualHealthStatsService,
     private readonly antioquiaHealthService: AntioquiaHealthService,
     private readonly boyacaHealthService: BoyacaHealthService,
     private readonly caliHealthService: CaliHealthService,
@@ -160,22 +156,6 @@ export class StatsService {
           return `La enfermedad de salud mental que más afecta a los registrados es: ${d.diagnostico_ingreso} con ${d.total} casos.`;
         }
       }
-    }
-
-    if (
-      mentalKeywords.some((kw) => queryLower.includes(kw)) &&
-      (queryLower.includes('edad') ||
-        queryLower.includes('años') ||
-        queryLower.includes('etapa'))
-    ) {
-      const mentalDiagnoses = await this.mentalHealthService.getAllDiagnoses();
-      const matchedMental = mentalDiagnoses.find((d) =>
-        queryLower.includes(d.toLowerCase()),
-      );
-      if (matchedMental)
-        return this.mentalHealthStatsService.getMentalHealthLifeCycleAnalysis(
-          matchedMental,
-        );
     }
 
     // 7. Detección de consultas sobre hospitales en Antioquia

@@ -161,10 +161,6 @@ export class MentalHealthService {
     return candidates.length ? candidates[0].event : null;
   }
 
-  async getAllDiagnoses(): Promise<string[]> {
-    return this.events.map((e) => e.diagnostico_ingreso);
-  }
-
   /**
    * Busca todos los diagnósticos que coincidan con el término
    */
@@ -180,6 +176,10 @@ export class MentalHealthService {
         normalizedQuery.includes(normalizedCode)
       );
     });
+  }
+
+  async getAllDiagnoses(): Promise<string[]> {
+    return this.events.map((e) => e.diagnostico_ingreso);
   }
 
   /**
@@ -236,34 +236,6 @@ export class MentalHealthService {
    */
   async getTopDiagnoses(limit: number = 5): Promise<MentalHealthEvent[]> {
     return [...this.events].sort((a, b) => b.total - a.total).slice(0, limit);
-  }
-
-  /**
-   * Obtiene los diagnósticos con mayor impacto en un rango de edad específico.
-   * Los rangos válidos son: menor_a_1, de_1_a_4, de_5_a_9, de_10_a_14, de_15_a_19, de_20_a_49, de_50_a_64, _65_y_mas
-   */
-  async getTopDiagnosisByAge(
-    ageGroup: string,
-    limit: number = 3,
-  ): Promise<MentalHealthEvent[]> {
-    const validFields = [
-      'menor_a_1',
-      'de_1_a_4',
-      'de_5_a_9',
-      'de_10_a_14',
-      'de_15_a_19',
-      'de_20_a_49',
-      'de_50_a_64',
-      '_65_y_mas',
-    ];
-
-    if (!validFields.includes(ageGroup)) return [];
-
-    const field = ageGroup as keyof MentalHealthEvent;
-
-    return [...this.events]
-      .sort((a, b) => (Number(b[field]) || 0) - (Number(a[field]) || 0))
-      .slice(0, limit);
   }
 
   /**
@@ -341,10 +313,5 @@ export class MentalHealthService {
         total_global: 0,
       },
     );
-  }
-
-  /** Obtiene un resumen simple de la cantidad de datos */
-  getKnowledgeSummary(): string {
-    return `Tengo registros de ${this.events.length} tipos de diagnósticos de salud mental en Colombia filtrados por rangos de edad.`;
   }
 }

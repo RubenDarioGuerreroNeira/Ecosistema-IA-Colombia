@@ -4,7 +4,7 @@ import { MentalHealthService, MentalHealthEvent, MentalHealthEventWithTotal } fr
 import { normalizeString } from '../../shared/health-utils';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
-const GENERIC_RISK_LIST = `🧠 **Salud Mental (CIE-10):**
+export const GENERIC_RISK_LIST = `🧠 **Salud Mental (CIE-10):**
 - Episodios depresivos (graves, moderados)
 - Trastornos de ansiedad (mixtos, fóbicos)
 - Trastorno Afectivo Bipolar
@@ -22,36 +22,13 @@ const GENERIC_RISK_LIST = `🧠 **Salud Mental (CIE-10):**
 - Cáncer de cuello uterino y mama (VPH)
 - Métodos anticonceptivos y derechos reproductivos`;
 
-const CYCLE_KEYWORDS = [
+export const CYCLE_KEYWORDS = [
   { keys: ['adolescente', 'adolescentes'], cycle: 'adolescentes' },
   { keys: ['jovenes', 'joven'], cycle: 'jovenes' },
   { keys: ['mayores', 'mayor'], cycle: 'mayores' },
   { keys: ['ninos', 'nino', 'nena'], cycle: 'niños' },
   { keys: ['adultos', 'adulto'], cycle: 'adultos' },
 ];
-
-interface RiskProfile {
-  diagnostico: string;
-  total: number;
-  distribucion: Record<string, number>;
-}
-
-interface MentalHealthComparison {
-  d1: { diagnostico_ingreso: string; total: number };
-  d2: { diagnostico_ingreso: string; total: number };
-}
-
-interface AgeDistribution {
-  menor_a_1: number;
-  de_1_a_4: number;
-  de_5_a_9: number;
-  de_10_a_14: number;
-  de_15_a_19: number;
-  de_20_a_49: number;
-  de_50_a_64: number;
-  _65_y_mas: number;
-  total_global: number;
-}
 
 @Injectable()
 export class MentalHealthQuestionsService {
@@ -78,148 +55,24 @@ Puedo ayudarte a resolver las siguientes consultas:
 8. 🔎 **Autocompletado de diagnósticos:** "Busca diagnósticos que contengan 'dep'"
 9. 🗂️ **Listar todos los diagnósticos:** "Lista todos los diagnósticos de salud mental" o "Catálogo CIE-10"
 10. ℹ️ **Ayuda general:** "¿Qué información tienes sobre salud mental?"
+11. 📋 **Listar todas las enfermedades:** "¿De qué enfermedades mentales tienes información?" o "Lista todas las enfermedades"
 
 **Ejemplos rápidos:**
 - "¿Cuántos casos de ansiedad hay?"
+- "¿Cuántos casos hay de trastorno afectivo bipolar?"
 - "Compara depresión vs trastorno bipolar"
 - "Perfil de riesgo de esquizofrenia"
 - "Diagnósticos frecuentes en adolescentes"
 - "Distribución de edades"
 - "Lista todos los diagnósticos"
+- "Listado de enfermedades mentales de las cuales tienes conocimientos"
+ ó 
+ - "De que enfermedades mentales tienes conocimientos" (te muestro el listado)
 
 ¿Sobre qué tema de salud mental te gustaría consultar?`;
   }
 
-  /**
-   * Procesa una consulta de texto y retorna una respuesta formateada.
-   */
-  async processMentalHealthQuery(text: string): Promise<string | null> {
-    const norm = normalizeString(text);
-
-    if (norm.includes('distribucion de edades') || norm.includes('distribucion general')) {
-      return this.handleAgeDistribution();
-    }
-
-    if (norm.includes('diagnosticos mas frecuentes') || norm.includes('top diagnosticos')) {
-      return this.handleTopDiagnoses();
-    }
-
-    if (norm.includes('compara') || norm.includes(' vs ')) {
-      return this.handleComparison(text);
-    }
-
-    if (norm.includes('perfil de riesgo')) {
-      return this.handleRiskProfile(text);
-    }
-
-    if (norm.includes('riesgo de ') || norm.includes('analizar riesgo de') || norm.includes('predecir')) {
-      return null;
-    }
-
-    if (norm.includes('ninos') || norm.includes('adolescentes') || norm.includes('adultos') || norm.includes('mayores')) {
-      return this.handleLifeCycle(text);
-    }
-
-    // Por defecto, intentar buscar estadísticas de un diagnóstico
-    return this.handleDiagnosisStats(text);
-  }
-
-  async handleAgeDistribution(): Promise<string> {
-    const dist = await this.mentalHealthService.getAgeDistribution();
-    return `🌐 **Distribución Nacional de Casos por Edad:**
-
-👶 **Niños (0-9):** ${(dist.menor_a_1 + dist.de_1_a_4 + dist.de_5_a_9).toLocaleString()}
-🧒 **Adolescentes (10-19):** ${(dist.de_10_a_14 + dist.de_15_a_19).toLocaleString()}
-🧑 **Adultos (20-64):** ${(dist.de_20_a_49 + dist.de_50_a_64).toLocaleString()}
-👴 **Mayores (65+):** ${dist._65_y_mas.toLocaleString()}
-
-📈 **Total Global Registrado:** ${dist.total_global.toLocaleString()} casos.`;
-  }
-
-  async handleTopDiagnoses(): Promise<string> {
-    const top = await this.mentalHealthService.getTopDiagnoses(5);
-    let resp = `📊 **Top 5 Diagnósticos más frecuentes:**\n\n`;
-    top.forEach((e, i) => {
-      resp += `${i + 1}. **${e.diagnostico_ingreso}**: ${e.total.toLocaleString()} casos\n`;
-    });
-    return resp;
-  }
-
-  async handleComparison(text: string): Promise<string | null> {
-    const parts = text.split(/compara| vs /i).filter(p => p.trim().length > 0);
-    if (parts.length < 2) return "Para comparar, usa el formato: 'Compara [diagnóstico 1] vs [diagnóstico 2]'";
-
-    const comp = await this.mentalHealthService.getComparisonBetweenDiagnoses(parts[0], parts[1]);
-    if (!comp) return "No pude encontrar uno o ambos diagnósticos para comparar. Intenta ser más específico.";
-
-    return `⚖️ **Comparativa de Salud Mental:**
-
-🔹 **${comp.d1.diagnostico_ingreso}**
-Total: ${comp.d1.total.toLocaleString()} casos
-
-🔸 **${comp.d2.diagnostico_ingreso}**
-Total: ${comp.d2.total.toLocaleString()} casos
-
-*Diferencia:* ${Math.abs(comp.d1.total - comp.d2.total).toLocaleString()} casos.`;
-  }
-
-  async handleRiskProfile(text: string): Promise<string | null> {
-    const diagName = text.replace(/perfil de riesgo|de|del/gi, '').trim();
-    const profile = await this.mentalHealthService.getRiskProfileByDiagnosis(diagName);
-    if (!profile) return "No encontré el diagnóstico para generar el perfil de riesgo.";
-
-    return `📈 **Perfil de Riesgo: ${profile.diagnostico}**
-
-La población más afectada según el ciclo de vida es:
-
-👶 **Niños:** ${profile.distribucion.niños.toLocaleString()}
-🧒 **Adolescentes:** ${profile.distribucion.adolescentes.toLocaleString()}
-🧑 **Adultos:** ${profile.distribucion.adultos.toLocaleString()}
-👴 **Mayores:** ${profile.distribucion.mayores.toLocaleString()}
-
-*Total casos analizados:* ${profile.total.toLocaleString()}`;
-  }
-
-  async handleLifeCycle(text: string): Promise<string | null> {
-    const norm = normalizeString(text);
-    let cycle = '';
-    if (norm.includes('ninos')) cycle = 'niños';
-    else if (norm.includes('adolescentes')) cycle = 'adolescentes';
-    else if (norm.includes('adultos')) cycle = 'adultos';
-    else if (norm.includes('mayores')) cycle = 'mayores';
-
-    if (!cycle) return null;
-
-    const top = await this.mentalHealthService.getTopByLifeCycle(cycle, 5);
-    let resp = `👶 **Top 5 Diagnósticos en ${cycle}:**\n\n`;
-    top.forEach((e, i) => {
-      resp += `${i + 1}. **${e.diagnostico_ingreso}**: ${e.total_en_ciclo.toLocaleString()} casos en este grupo\n`;
-    });
-    return resp;
-  }
-
-  async handleDiagnosisStats(text: string): Promise<string | null> {
-    const event = await this.mentalHealthService.getStatsForDiagnosis(text);
-    if (!event) return null;
-
-    return `🔍 **Resultado de Búsqueda:**
-
-📌 **Diagnóstico:** ${event.diagnostico_ingreso}
-🆔 **Código:** ${event.codigo_dx_ingreso}
-📊 **Total de casos:** ${event.total.toLocaleString()}
-
-¿Deseas ver el perfil de riesgo o compararlo con otro diagnóstico?`;
-  }
-
-  /**
-   * Sugiere diagnósticos basados en una búsqueda parcial (Autocompletado).
-   */
-  async suggestDiagnoses(partial: string): Promise<string[]> {
-    const matches = await this.mentalHealthService.searchDiagnoses(partial);
-    return matches.slice(0, 5).map(m => m.diagnostico_ingreso);
-  }
-
-  // ─── Nuevos métodos movidos desde BotUpdate ──────────────────────────────────
+  // ─── Métodos principales usados desde BotUpdate ──────────────────────────────
   async handleMentalHealthQuery(ctx: Context, text: string): Promise<boolean> {
     const norm = normalizeString(text);
 
@@ -245,7 +98,8 @@ La población más afectada según el ciclo de vida es:
       norm.includes('agorafobia') ||
       norm.includes('retraso') ||
       norm.includes('spa') ||
-      (norm.includes('diagnostico') && norm.includes('mental'));
+      (norm.includes('diagnostico') && norm.includes('mental')) ||
+      (norm.includes('enfermedade') && norm.includes('mental'));
 
     const isRiskProfileQuery =
       (norm.includes('perfil') && norm.includes('riesgo')) ||
@@ -306,6 +160,23 @@ La población más afectada según el ciclo de vida es:
       return true;
     }
 
+    // pregunta para mostrar lista de todas las enfermedades mentales
+    const isListAllQuery =
+      norm.includes('listado') ||
+      norm.includes('lista todos los diagnosticos') ||
+      norm.includes('listar') ||
+      norm.includes('catalogo') ||
+      norm.includes('todas las enfermedades') ||
+      norm.includes('de que enfermedades') ||
+      norm.includes('que enfermedades') ||
+      norm.includes('enfermedades mentales') ||
+      (norm.includes('enfermedade') && norm.includes('mental'));
+
+    // Listar enfermedades debe ir ANTES de capabilities, porque capabilities mata con "mental"/"salud mental"
+    if (isListAllQuery && isMentalHealth) {
+      return await this.handleMentalHealthListAll(ctx);
+    }
+
     const explicitDiagnosis = await this.mentalHealthService.getStatsForDiagnosis(text);
 
     if (await this.handleMentalHealthCapabilitiesQuery(ctx, norm)) return true;
@@ -320,14 +191,17 @@ La población más afectada según el ciclo de vida es:
   }
 
   async handleMentalHealthCapabilitiesQuery(ctx: Context, norm: string): Promise<boolean> {
-    if (
-      norm.includes('que informacion tienes sobre salud mental') ||
-      norm.includes('que información tienes sobre salud mental') ||
-      norm.includes('cuales preguntas puedes responder sobre salud mental') ||
-      norm.includes('salud mental') ||
-      norm.includes('mental') ||
-      norm.includes('ayuda sobre salud mental')
-    ) {
+    // Solo responder capacidades si la consulta es EXPLÍCITAMENTE sobre ayuda/información general
+    const isHelpQuery =
+      norm.includes('que informacion') ||
+      norm.includes('que información') ||
+      norm.includes('que sabes') ||
+      norm.includes('que puedes') ||
+      norm.includes('ayuda') ||
+      norm.includes('cuales preguntas') ||
+      norm.includes('capacidades');
+
+    if (isHelpQuery && (norm.includes('salud mental') || norm.includes('mental'))) {
       await ctx.reply(this.getAvailableQuestions(), {
         parse_mode: 'Markdown',
       });
@@ -492,5 +366,72 @@ La población más afectada según el ciclo de vida es:
       }
     }
     return false;
+  }
+
+  /**
+   * Lista todas las enfermedades mentales disponibles (Catálogo CIE-10).
+   */
+  async handleMentalHealthListAll(ctx: Context): Promise<boolean> {
+    const diagnoses = await this.mentalHealthService.getAllDiagnoses();
+    if (diagnoses.length === 0) {
+      await ctx.reply('No encontré registros de diagnósticos de salud mental en mi base de datos.');
+      return true;
+    }
+
+    const intro = `🧠 **Catálogo de Diagnósticos de Salud Mental (CIE-10)**
+Tengo información sobre **${diagnoses.length}** enfermedades y trastornos mentales:\n\n`;
+
+    // Agrupar por letra inicial para mejor legibilidad
+    const grouped = new Map<string, string[]>();
+    for (const diag of diagnoses) {
+      const firstLetter = diag.charAt(0).toUpperCase();
+      if (!grouped.has(firstLetter)) grouped.set(firstLetter, []);
+      grouped.get(firstLetter)!.push(diag);
+    }
+
+    const lines: string[] = [];
+    for (const [letter, items] of grouped) {
+      lines.push(`**${letter}:** ${items.join(', ')}`);
+    }
+
+    // Limpiar líneas demasiado largas o con caracteres inválidos para Markdown/Telegram
+    const sanitized = lines.map(l => l.replace(/[^\x00-\x7F]/g, '').substring(0, 200));
+
+    const footer = `\n¿Sobre cuál de estos diagnósticos te gustaría consultar?`;
+
+    // Enviar intro
+    await ctx.reply(intro, { parse_mode: 'Markdown' });
+
+    // Enviar chunks del listado
+    let chunk = '';
+    const CHUNK_MAX = 3000;
+    for (const line of sanitized) {
+      // Si una línea individual supera el límite, enviarla sola truncada
+      if (line.length + 2 > CHUNK_MAX) {
+        if (chunk.trim()) {
+          await ctx.reply(chunk, { parse_mode: 'Markdown' });
+          chunk = '';
+        }
+        await ctx.reply(line.substring(0, CHUNK_MAX - 2), { parse_mode: 'Markdown' });
+        continue;
+      }
+
+      if (chunk.length + line.length + 2 > CHUNK_MAX) {
+        if (chunk.trim()) {
+          await ctx.reply(chunk, { parse_mode: 'Markdown' });
+        }
+        chunk = '';
+      }
+      chunk += line + '\n\n';
+    }
+
+    if (chunk.trim()) {
+      await ctx.reply(chunk, { parse_mode: 'Markdown' });
+    }
+
+    // Enviar footer solo si hay contenido previo
+    await ctx.reply(footer, { parse_mode: 'Markdown' });
+
+    return true;
   }
 }

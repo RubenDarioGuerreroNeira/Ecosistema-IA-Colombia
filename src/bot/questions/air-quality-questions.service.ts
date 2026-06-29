@@ -47,6 +47,7 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
 
         // Detectar si pregunta sobre capacidades del servicio (solo consultas EXPLÍCITAS)
         if (
+            norm.includes('aire') ||
             norm.includes('que calidad del aire') ||
             norm.includes('que info de aire') ||
             norm.includes('que datos de aire') ||
