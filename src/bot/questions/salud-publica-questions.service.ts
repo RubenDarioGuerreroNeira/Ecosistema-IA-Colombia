@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SaludPublicaService } from '../public-health/salud-publica.service';
 import { normalizeString } from '../../shared/health-utils';
-import { escapeMarkdown } from '../utils/text-normalizer';
+import { escapeMarkdown } from '../utils/text-normalizer.js';
 
 import { CaliHealthService } from '../cali/cali-health.service';
 import { BoyacaHealthService } from '../boyaca/boyaca-health.service';

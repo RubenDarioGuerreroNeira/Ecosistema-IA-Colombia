@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { XMLParser } from 'fast-xml-parser';
 import { VaccinationCoverage } from './types/vaccination-coverage.interface';
-import { Departamento, DEPARTAMENTOS_LIST } from '../interfaces/departamentos';
+import { Departamento, DEPARTAMENTOS_LIST } from '../interfaces/departamentos.js';
 
 @Injectable()
 export class VaccinationService {

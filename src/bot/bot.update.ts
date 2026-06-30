@@ -18,7 +18,7 @@ import { PredictionService } from './prediction.service';
 import { ChartService } from './chart/chart.service';
 import { VaccinationService } from './vaccination.service';
 import { normalizeString } from '../shared/health-utils';
-import { escapeMarkdown, normalizeText } from './utils/text-normalizer';
+import { escapeMarkdown, normalizeText } from './utils/text-normalizer.js';
 import {
     YOPAL_KEYWORDS,
     RISK_ANALYSIS_KEYWORDS,
@@ -31,7 +31,7 @@ import {
     OTHER_REGION_NAMES,
     BYPASS_MARKERS,
     GREETING_REGEX,
-} from './constants/keywords';
+} from './constants/keywords.js';
 import {
     MentalHealthService,
     MentalHealthEvent,
