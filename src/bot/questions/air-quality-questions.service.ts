@@ -45,9 +45,8 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
     ): Promise<{ respuesta: string; tipo: string } | null> {
         const norm = normalizeString(text);
 
-        // Detectar si pregunta sobre capacidades del servicio (solo consultas EXPLÍCITAS)
+        // Detectar solo consultas EXPLÍCITAS sobre capacidades del servicio (no consultas de datos reales)
         if (
-            norm.includes('aire') ||
             norm.includes('que calidad del aire') ||
             norm.includes('que info de aire') ||
             norm.includes('que datos de aire') ||
@@ -56,7 +55,7 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
             norm.includes('tienes info sobre calidad del aire') ||
             norm.includes('tienes datos de calidad del aire') ||
             norm.includes('que preguntas sobre calidad del aire') ||
-            (norm.includes('que') && norm.includes('calidad del aire')) ||
+            (norm.includes('que') && norm.includes('calidad del aire') && !norm.includes(' en ')) ||
             (norm.includes('que') && norm.includes('calidad aire'))
         ) {
             return { respuesta: await this.getAvailableQuestions(), tipo: 'listado' };

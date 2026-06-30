@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
 import * as Joi from 'joi';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
@@ -20,13 +21,31 @@ import { BotModule } from './bot/bot.module';
           'https://openrouter.ai/api/v1',
         ),
         PORT: Joi.number().default(3000),
+        TELEGRAM_PROXY_URL: Joi.string().optional().allow(''),
+        TELEGRAM_API_TIMEOUT: Joi.number().default(30000),
       }),
     }),
     TelegrafModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        token: configService.get<string>('TELEGRAM_BOT_TOKEN')!,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const token = configService.get<string>('TELEGRAM_BOT_TOKEN')!;
+        const proxyUrl = configService.get<string>('TELEGRAM_PROXY_URL');
+        const timeout = configService.get<number>('TELEGRAM_API_TIMEOUT')!;
+
+        const telegrafConfig: any = {
+          token,
+          handlerTimeout: timeout,
+        };
+
+        // Si se configuró un proxy, usarlo para la conexión a Telegram
+        if (proxyUrl) {
+          telegrafConfig.telegram = {
+            agent: new HttpsProxyAgent(proxyUrl),
+          };
+        }
+
+        return telegrafConfig;
+      },
       inject: [ConfigService],
     }),
     BotModule,
@@ -34,4 +53,4 @@ import { BotModule } from './bot/bot.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
