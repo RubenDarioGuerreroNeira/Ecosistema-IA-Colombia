@@ -1,233 +1,109 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as xml2js from 'xml2js';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Like } from 'typeorm';
+import { BoyacaProvider } from '../../entities/boyaca-provider.entity';
 import { normalizeString, normalizeNit, STOPWORDS } from '../../shared/health-utils';
 
-export interface BoyacaHealthProvider {
-  municipio?: string;
-  codigo_prestador?: string;
-  razon_social?: string;
-  codigo_habilitacion?: string;
-  codigo_municipio?: string;
-  nombre_de_sede?: string;
-  direccion?: string;
-  telefono?: string;
-  fax?: string;
-  email?: string;
-  fecha_apertura?: string;
-  nit?: string;
-  dv?: string;
-  ese?: string;
-  sede_principal?: string;
-  horario_lunes?: string;
-  horario_martes?: string;
-  horario_miercoles?: string;
-  horario_jueves?: string;
-  horario_viernes?: string;
-  horario_sabado?: string;
-  horario_domingo?: string;
-  nivel?: string;
-  caracter?: string;
-  barrio?: string;
-  gerente?: string;
-  // Internal fields for optimization
-  _normalized?: string[];
-}
-
 @Injectable()
-export class BoyacaHealthService implements OnModuleInit {
+export class BoyacaHealthService {
   private readonly logger = new Logger(BoyacaHealthService.name);
-  private providers: BoyacaHealthProvider[] = [];
-  private providersByMunicipio = new Map<string, BoyacaHealthProvider[]>();
-  private providersByNit = new Map<string, BoyacaHealthProvider[]>();
-  private providersByCodigo = new Map<string, BoyacaHealthProvider[]>();
-  private municipioDisplayNames = new Map<string, string>();
-  private hospitalCount = 0;
 
-  async onModuleInit() {
-    await this.loadData();
+  constructor(
+    @InjectRepository(BoyacaProvider)
+    private readonly boyacaRepo: Repository<BoyacaProvider>,
+  ) {
+    this.logger.log('BoyacaHealthService initialized (SQLite mode)');
   }
 
-  private async loadData() {
-    try {
-      const filePath = path.join(
-        process.cwd(),
-        'data',
-        'servicios_salud_boyaca.xml',
-      );
-      this.logger.log(`Attempting to load XML from: ${filePath}`);
-      const xmlData = await fs.promises.readFile(filePath, 'utf-8');
-
-      const parser = new xml2js.Parser({ explicitArray: false });
-      const result = await parser.parseStringPromise(xmlData);
-
-      if (!result?.response?.rows) {
-        throw new Error('Estructura XML inesperada: falta response.rows');
-      }
-
-      const rawRows = result.response.rows.row;
-      this.providers = Array.isArray(rawRows) ? rawRows : rawRows ? [rawRows] : [];
-      this.logger.log(`Loaded ${this.providers.length} providers from Boyacá XML.`);
-
-      // Build indexes and pre-compute fields
-      this.providersByMunicipio.clear();
-      this.providersByNit.clear();
-      this.providersByCodigo.clear();
-      this.municipioDisplayNames.clear();
-      let tempHospitalCount = 0;
-
-      for (const provider of this.providers) {
-        // Pre-compute normalized fields for search
-        provider._normalized = [
-          provider.municipio,
-          provider.razon_social,
-          provider.nombre_de_sede,
-          provider.gerente
-        ]
-          .filter(Boolean)
-          .map(f => normalizeString(f!));
-
-        if (provider.municipio) {
-          const normMun = normalizeString(provider.municipio);
-          if (normMun) {
-            if (!this.providersByMunicipio.has(normMun)) {
-              this.providersByMunicipio.set(normMun, []);
-              this.municipioDisplayNames.set(normMun, provider.municipio);
-            }
-            this.providersByMunicipio.get(normMun)!.push(provider);
-          }
-        }
-
-        if (provider.nit) {
-          const normNit = normalizeNit(provider.nit);
-          if (normNit) {
-            if (!this.providersByNit.has(normNit)) {
-              this.providersByNit.set(normNit, []);
-            }
-            this.providersByNit.get(normNit)!.push(provider);
-          }
-        }
-
-        const codigo = provider.codigo_prestador || provider.codigo_habilitacion;
-        if (codigo) {
-          const normCodigo = codigo.toString().trim().toLowerCase();
-          if (!this.providersByCodigo.has(normCodigo)) {
-            this.providersByCodigo.set(normCodigo, []);
-          }
-          this.providersByCodigo.get(normCodigo)!.push(provider);
-        }
-
-        if (
-          provider.razon_social?.toUpperCase().includes('HOSPITAL') ||
-          provider.nombre_de_sede?.toUpperCase().includes('HOSPITAL')
-        ) {
-          tempHospitalCount++;
-        }
-      }
-      this.hospitalCount = tempHospitalCount;
-    } catch (error) {
-      this.logger.error('Failed to load Boyacá health providers data', error);
-      this.providers = [];
-      this.providersByMunicipio.clear();
-      this.providersByNit.clear();
-      this.providersByCodigo.clear();
-      this.municipioDisplayNames.clear();
-      this.hospitalCount = 0;
-    }
-  }
-
-  /** Search providers by normalized query with an optional limit */
-  searchProviders(query: string, limit = 100): BoyacaHealthProvider[] {
+  /** Search providers by query with an optional limit */
+  async searchProviders(query: string, limit = 100): Promise<BoyacaProvider[]> {
     const safeLimit = Math.min(Math.max(1, limit), 500);
     const rawTokens = this.getSignificantTokens(query);
     if (rawTokens.length === 0) return [];
 
-    // Improve token matching for health terms (common plurals)
     const tokens = rawTokens.map(t => {
       if (t.endsWith('es') && t.length > 5) return t.substring(0, t.length - 2);
       if (t.endsWith('s') && t.length > 4) return t.substring(0, t.length - 1);
       return t;
     });
 
-    // Exact NIT match using index
-    for (const token of tokens) {
-      const nitResults = this.providersByNit.get(normalizeNit(token));
-      if (nitResults && nitResults.length > 0) {
-        return nitResults.slice(0, safeLimit);
+    const queryBuilder = this.boyacaRepo.createQueryBuilder('p');
+    tokens.forEach((tok, i) => {
+      if (i === 0) {
+        queryBuilder.where(
+          `(LOWER(p.municipio) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.razon_social) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.nombre_de_sede) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.gerente) LIKE '%' || LOWER(:tok${i}) || '%')`,
+          { [`tok${i}`]: tok }
+        );
+      } else {
+        queryBuilder.andWhere(
+          `(LOWER(p.municipio) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.razon_social) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.nombre_de_sede) LIKE '%' || LOWER(:tok${i}) || '%' OR LOWER(p.gerente) LIKE '%' || LOWER(:tok${i}) || '%')`,
+          { [`tok${i}`]: tok }
+        );
       }
-    }
+    });
 
-    // Exact Code match using index
-    for (const token of tokens) {
-      const codeResults = this.providersByCodigo.get(token);
-      if (codeResults && codeResults.length > 0) {
-        return codeResults.slice(0, safeLimit);
-      }
-    }
-
-    // Multi-token optimization: try to find by municipio first
-    for (const token of tokens) {
-      if (this.providersByMunicipio.has(token)) {
-        const municipioResults = this.providersByMunicipio.get(token)!;
-        if (tokens.length > 1) {
-          const otherTokens = tokens.filter(t => t !== token);
-          const filtered = municipioResults.filter(p =>
-            otherTokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
-          );
-          if (filtered.length > 0) return filtered.slice(0, safeLimit);
-        }
-        return municipioResults.slice(0, safeLimit);
-      }
-    }
-
-    // Full-scan with pre-computed normalized fields and 'every' logic
-    const results = this.providers.filter(p =>
-      tokens.every(tok => p._normalized?.some(fld => fld.includes(tok)))
-    );
-
-    return results.slice(0, safeLimit);
+    return queryBuilder.limit(safeLimit).getMany();
   }
 
   /**
    * Busca prestadores por un identificador libre: puede ser código de prestador,
    * NIT, o fragmento de nombre/sede/razón social.
    */
-  findByIdentifier(query: string): BoyacaHealthProvider[] {
+  async findByIdentifier(query: string): Promise<BoyacaProvider[]> {
     const q = query.toString().trim().toLowerCase();
 
-    // 1. Try Code index
-    if (this.providersByCodigo.has(q)) {
-      return this.providersByCodigo.get(q)!;
-    }
+    // 1. Try Code index via SQL
+    const byCode = await this.boyacaRepo.find({
+      where: [
+        { codigo_prestador: q },
+        { codigo_habilitacion: q },
+      ],
+      take: 10,
+    });
+    if (byCode.length > 0) return byCode;
 
-    // 2. Try NIT index
+    // 2. Try NIT
     const normNit = normalizeNit(q);
-    if (normNit && this.providersByNit.has(normNit)) {
-      return this.providersByNit.get(normNit)!;
+    if (normNit) {
+      const byNit = await this.boyacaRepo.find({
+        where: { nit: Like(`%${normNit}%`) },
+        take: 10,
+      });
+      if (byNit.length > 0) return byNit;
     }
 
-    // 3. Fallback to searchProviders for text search
+    // 3. Fallback to text search
     return this.searchProviders(query, 10);
   }
 
-  getMunicipios(): string[] {
-    return Array.from(this.providersByMunicipio.keys())
-      .filter(m => m.length >= 3 && !STOPWORDS.has(m))
-      .map(key => this.municipioDisplayNames.get(key) ?? key)
-      .sort();
+  async getMunicipios(): Promise<string[]> {
+    const result = await this.boyacaRepo
+      .createQueryBuilder('p')
+      .select('DISTINCT p.municipio')
+      .where('p.municipio IS NOT NULL')
+      .andWhere('LENGTH(p.municipio) >= 3')
+      .orderBy('p.municipio', 'ASC')
+      .getRawMany();
+
+    return result
+      .map(r => r.p_municipio)
+      .filter((m: string) => m && !STOPWORDS.has(m.toLowerCase()));
   }
 
   getKnowledgeSummary(): string {
-    return `He encontrado ${this.providers.length} prestadores y centros de salud en Boyacá registrados en mi base local. Si deseas consultar alguno, especifica el municipio o nombre.`;
+    return `He encontrado prestadores y centros de salud en Boyacá registrados en mi base local. Si deseas consultar alguno, especifica el municipio o nombre.`;
   }
 
-  /** Número de hospitales en Boyacá (determinado durante la carga de datos) */
-  getHospitalCount(): number {
-    return this.hospitalCount;
+  async getHospitalCount(): Promise<number> {
+    return this.boyacaRepo.count({
+      where: [
+        { razon_social: Like('%HOSPITAL%') },
+        { nombre_de_sede: Like('%HOSPITAL%') },
+      ],
+    });
   }
 
-  /** Extract significant tokens from query. Exposed as protected for testing. */
+  /** Extract significant tokens from query. */
   protected getSignificantTokens(query: string, maxTokens = 10): string[] {
     return normalizeString(query)
       .split(/\s+/)

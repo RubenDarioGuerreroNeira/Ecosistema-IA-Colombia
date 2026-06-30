@@ -161,7 +161,7 @@ export class StatsService {
     // 7. Detección de consultas sobre hospitales en Antioquia
     const hospitalKeywords = ['hospital', 'hospitales'];
     if (hospitalKeywords.some((kw) => queryLower.includes(kw)) && queryLower.includes('antioquia')) {
-      const allProviders = this.antioquiaHealthService.searchProviders('');
+      const allProviders = await this.antioquiaHealthService.searchProviders('');
       const hospitalProviders = allProviders.filter((p) =>
         (p.claseprestador || '').toLowerCase().includes('hospital'),
       );
@@ -187,7 +187,7 @@ export class StatsService {
 
       const resultsMap = new Map<string, any>();
       for (const m of municipios) {
-        const found = this.antioquiaHealthService.searchProviders(m);
+        const found = await this.antioquiaHealthService.searchProviders(m);
         for (const p of found) {
           const key = `${p.nombre_sede}-${p.municipio}-${p.nombreprestador}`;
           if (!resultsMap.has(key)) resultsMap.set(key, p);
@@ -225,12 +225,12 @@ export class StatsService {
         .replace(/[ -\u036f]/g, '')
         .toLowerCase();
 
-    const municipiosList = this.antioquiaHealthService.getMunicipios();
+    const municipiosList = await this.antioquiaHealthService.getMunicipios();
     const normalizedQuery = normalize(queryLower);
 
     // Boyacá: detección de municipio o departamento en la consulta
     const boyacaKeywords = ['boyaca', 'boyacá'];
-    const boyacaMunicipios = this.boyacaHealthService.getMunicipios();
+    const boyacaMunicipios = await this.boyacaHealthService.getMunicipios();
     const matchedBoyacaMunicipios = boyacaMunicipios.filter((m) =>
       normalizedQuery.includes(normalize(m)),
     );
@@ -240,16 +240,14 @@ export class StatsService {
 
     if (isBoyacaQuery) {
       if (matchedBoyacaMunicipios.length > 0) {
-        return this.buildProviderResponse(
+        return await this.buildProviderResponse(
           matchedBoyacaMunicipios,
-          this.boyacaHealthService.searchProviders.bind(
-            this.boyacaHealthService,
-          ),
+          async (municipio: string) => this.boyacaHealthService.searchProviders(municipio),
           'Boyacá',
         );
       }
 
-      const allBoyacaProviders = this.boyacaHealthService.searchProviders('');
+      const allBoyacaProviders = await this.boyacaHealthService.searchProviders('');
       if (allBoyacaProviders.length > 0) {
         const lines = allBoyacaProviders.slice(0, 50).map((p) => {
           const provider = p as any;
@@ -272,7 +270,7 @@ export class StatsService {
 
     // Yopal: detección de municipio o departamento (Casanare) en la consulta
     const yopalKeywords = ['yopal', 'casanare'];
-    const yopalMunicipios = this.yopalHealthService.getMunicipios();
+    const yopalMunicipios = await this.yopalHealthService.getMunicipios();
     // Buscar la palabra 'yopal' o 'casanare' en la consulta, sin importar el contexto
     const isYopalQuery = yopalKeywords.some((kw) => queryLower.includes(kw));
 
@@ -282,14 +280,14 @@ export class StatsService {
       );
 
       if (matchedYopalMunicipios.length > 0) {
-        return this.buildProviderResponse(
+        return await this.buildProviderResponse(
           matchedYopalMunicipios,
-          this.yopalHealthService.searchProviders.bind(this.yopalHealthService),
+          async (municipio: string) => this.yopalHealthService.searchProviders(municipio),
           'Yopal',
         );
       }
 
-      const allYopalProviders = this.yopalHealthService.searchProviders('');
+      const allYopalProviders = await this.yopalHealthService.searchProviders('');
       if (allYopalProviders.length > 0) {
         const lines = allYopalProviders.slice(0, 50).map((p) => {
           const provider = p as any;
@@ -312,7 +310,7 @@ export class StatsService {
     if (matchedMunicipios.length > 0) {
       const resultsMap = new Map<string, any>();
       for (const m of matchedMunicipios) {
-        const found = this.antioquiaHealthService.searchProviders(m);
+        const found = await this.antioquiaHealthService.searchProviders(m);
         for (const p of found) {
           const key = `${p.nombre_sede}-${p.municipio}-${p.nombreprestador}`;
           if (!resultsMap.has(key)) resultsMap.set(key, p);
@@ -354,14 +352,14 @@ export class StatsService {
     return `[INFO] El sistema de estadísticas para '${query}' está en desarrollo. Pronto podrás obtener tendencias, comparativas y promedios detallados.`;
   }
 
-  private buildProviderResponse(
+  private async buildProviderResponse(
     municipios: string[],
-    searchFn: (municipio: string) => any[],
+    searchFn: (municipio: string) => Promise<any[]>,
     regionName: string,
-  ): string {
+  ): Promise<string> {
     const resultsMap = new Map<string, any>();
     for (const m of municipios) {
-      const found = searchFn(m);
+      const found = await searchFn(m);
       for (const p of found) {
         const provider = p as any;
         const key = `${provider.nombre_sede || provider.nombre_de_sede || provider.entidad_2}-${provider.municipio}-${provider.nombreprestador || provider.razon_social || provider.nombre_de_sede || provider.entidad_2}`;
@@ -428,19 +426,24 @@ export class StatsService {
 
     // Priorizar búsqueda según la región detectada en la consulta
     if (qLower.includes('yopal') || qLower.includes('casanare')) {
-      matches = this.yopalHealthService.findByIdentifier(q) || [];
+      matches = await this.yopalHealthService.findByIdentifier(q) || [];
     } else if (qLower.includes('cali')) {
-      matches = this.caliHealthService.findByIdentifier(q) || [];
+      matches = await this.caliHealthService.findByIdentifier(q) || [];
     } else if (qLower.includes('antioquia') || qLower.includes('medellin') || qLower.includes('medellín')) {
-      matches = this.antioquiaHealthService.searchProviders(q) || [];
+      matches = await this.antioquiaHealthService.searchProviders(q) || [];
     } else if (qLower.includes('boyaca') || qLower.includes('boyacá')) {
-      matches = this.boyacaHealthService.findByIdentifier(q) || [];
+      matches = await this.boyacaHealthService.findByIdentifier(q) || [];
     } else {
       // Búsqueda global si no hay región explícita
+      const [boyacaResults, antioquiaResults, yopalResults] = await Promise.all([
+        this.boyacaHealthService.findByIdentifier(q),
+        this.antioquiaHealthService.searchProviders(q),
+        this.yopalHealthService.findByIdentifier(q),
+      ]);
       matches = [
-        ...(this.boyacaHealthService.findByIdentifier(q) || []),
-        ...(this.antioquiaHealthService.searchProviders(q) || []),
-        ...(this.yopalHealthService.findByIdentifier(q) || []),
+        ...(boyacaResults || []),
+        ...(antioquiaResults || []),
+        ...(yopalResults || []),
       ];
     }
 

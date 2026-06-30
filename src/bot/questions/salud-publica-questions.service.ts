@@ -760,11 +760,11 @@ ${edad.join('\n')}
     const region = detectedRegion.toLowerCase();
     if (isCountQuery) {
       if (region.includes('boyac')) {
-        const count = this.boyacaHealthService.getHospitalCount();
+        const count = await this.boyacaHealthService.getHospitalCount();
         return { handled: true, response: `📊 En **Boyacá** he encontrado **${count}** hospitales y centros de salud registrados.` };
       } else if (region.includes('antioquia')) {
-        const count = this.antioquiaHealthService.searchProviders('hospital', 1000).length;
-        return { handled: true, response: `📊 En **Antioquia** he encontrado aproximadamente **${count}** hospitales registrados.` };
+        const providers = await this.antioquiaHealthService.searchProviders('hospital', 1000);
+        return { handled: true, response: `📊 En **Antioquia** he encontrado aproximadamente **${providers.length}** hospitales registrados.` };
       } else if (region.includes('yopal')) {
         return { handled: true, response: `📊 En **Yopal** tengo registros de diversos prestadores de salud.` };
       }
@@ -775,10 +775,10 @@ ${edad.join('\n')}
         let municipios: string[] = [];
         let regionName = '';
         if (region.includes('antioquia')) {
-          municipios = this.antioquiaHealthService.getMunicipios();
+          municipios = await this.antioquiaHealthService.getMunicipios();
           regionName = 'Antioquia';
         } else if (region.includes('boyac')) {
-          municipios = this.boyacaHealthService.getMunicipios();
+          municipios = await this.boyacaHealthService.getMunicipios();
           regionName = 'Boyacá';
         }
         if (municipios.length > 0) {
@@ -793,12 +793,10 @@ ${edad.join('\n')}
 
       if (norm.includes('prestador')) {
         if (region.includes('boyac')) {
-          const summary = this.boyacaHealthService.getKnowledgeSummary();
-          return { handled: true, response: `🏢 **Boyacá:** ${summary}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*` };
+          return { handled: true, response: `🏢 **Boyacá:** ${this.boyacaHealthService.getKnowledgeSummary()}\n\n💡 *Tip: Para ver prestadores específicos, busca por nombre de municipio o código.*` };
         }
         if (region.includes('antioquia')) {
-          const summary = this.antioquiaHealthService.getKnowledgeSummary();
-          return { handled: true, response: `🏢 **Antioquia:** ${summary}` };
+          return { handled: true, response: `🏢 **Antioquia:** ${this.antioquiaHealthService.getKnowledgeSummary()}` };
         }
       }
     }
@@ -867,13 +865,15 @@ ${edad.join('\n')}
   async buscarPrestadores(query: string, region: string | undefined, searchTerm: string): Promise<Array<{ source: string; provider: any }>> {
     const results: Array<{ source: string; provider: any }> = [];
 
-    const caliMatches = this.caliHealthService.findByIdentifier(searchTerm);
-    const caliSearchMatches = this.caliHealthService.searchProviders(searchTerm);
-    const boyacaMatches = this.boyacaHealthService.findByIdentifier(searchTerm);
-    const boyacaSearchMatches = this.boyacaHealthService.searchProviders(searchTerm);
-    const antioquiaMatches = this.antioquiaHealthService.searchProviders(searchTerm, 10);
-    const yopalMatches = this.yopalHealthService.findByIdentifier?.(searchTerm) || [];
-    const yopalSearchMatches = this.yopalHealthService.searchProviders(searchTerm);
+    const [caliMatches, caliSearchMatches, boyacaMatches, boyacaSearchMatches, antioquiaMatches, yopalMatches, yopalSearchMatches] = await Promise.all([
+      this.caliHealthService.findByIdentifier(searchTerm),
+      this.caliHealthService.searchProviders(searchTerm),
+      this.boyacaHealthService.findByIdentifier(searchTerm),
+      this.boyacaHealthService.searchProviders(searchTerm),
+      this.antioquiaHealthService.searchProviders(searchTerm, 10),
+      this.yopalHealthService.findByIdentifier?.(searchTerm) || Promise.resolve([]),
+      this.yopalHealthService.searchProviders(searchTerm),
+    ]);
 
     const pushUnique = (service: string, providers: any[], keyFn: (provider: any) => string) => {
       for (const provider of providers) {
@@ -951,23 +951,23 @@ ${edad.join('\n')}
 
     switch (serviceType) {
       case 'cali':
-        providers = this.caliHealthService.searchProviders(searchTerm);
+        providers = await this.caliHealthService.searchProviders(searchTerm);
         regionName = 'Cali';
         break;
       case 'boyaca':
-        providers = this.boyacaHealthService.findByIdentifier(searchTerm);
+        providers = await this.boyacaHealthService.findByIdentifier(searchTerm);
         regionName = 'Boyacá';
         break;
       case 'medellin':
-        providers = this.antioquiaHealthService.searchProviders(searchTerm, 10);
+        providers = await this.antioquiaHealthService.searchProviders(searchTerm, 10);
         regionName = 'Medellín (Antioquia)';
         break;
       case 'antioquia':
-        providers = this.antioquiaHealthService.searchProviders(searchTerm, 10);
+        providers = await this.antioquiaHealthService.searchProviders(searchTerm, 10);
         regionName = 'Antioquia';
         break;
       case 'yopal':
-        providers = this.yopalHealthService.searchProviders(searchTerm);
+        providers = await this.yopalHealthService.searchProviders(searchTerm);
         regionName = 'Yopal';
         break;
     }

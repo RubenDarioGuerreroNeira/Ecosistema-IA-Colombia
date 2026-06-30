@@ -6,6 +6,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
+import { DatabaseModule } from './database.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { BotModule } from './bot/bot.module';
       },
       inject: [ConfigService],
     }),
+    DatabaseModule,
     BotModule,
   ],
   controllers: [AppController],

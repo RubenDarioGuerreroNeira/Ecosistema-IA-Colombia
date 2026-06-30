@@ -30,7 +30,8 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
   - `Eventos_de_Interés_en_Salud_Pública_20260514.xml`: Microdatos del SIVIGILA sobre enfermedades transmisibles.
   - `Salud_sexual_-_preguntas.xml`: Base de conocimientos sobre derechos y métodos anticonceptivos.
   - `Salud_Mental.xml`: Registros de atención y diagnósticos basados en CIE-10.
-- **Análisis de Datos:** Los datos se cargan en memoria mediante servicios especializados que realizan mapeo de tipos numéricos para garantizar la precisión en los cálculos de porcentajes y promedios.
+- **Persistencia:** Mediante migraciones standalone (`scripts/seed-*.ts` y `scripts/import-data.ts`) se importan los XML a **SQLite** (`data/salud-ia-bot.db`), reduciendo la huella de memoria y eliminando el parseo en caliente.
+- **Análisis de Datos:** Los datos se consultan vía TypeORM sobre SQLite; para datasets medianos (vacunación y Antioquia) esto evita cargar árboles XML completos en RAM.
 - **Procesamiento RAG:** El bot utiliza una estrategia de _Retrieval-Augmented Generation_ para inyectar datos reales y estadísticas analíticas en el prompt enviado al LLM.
 
 ### 2.3 Data Preparation (Preparación de Datos y Prompting)
@@ -329,30 +330,40 @@ graph TD
 
 ```mermaid
 ---
-title: Flujo de Procesamiento y Estructura de Datos XML
+title: Flujo de Procesamiento y Estructura de Datos
 ---
 graph LR
     classDef source fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#b71c1c
     classDef parser fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#e65100,font-weight:bold
     classDef interface fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
     classDef service fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+    classDef db fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
 
     subgraph Sources ["📂 Fuentes XML (Raw)"]
         direction TB
         XML1["📄 Eventos SIVIGILA"]:::source
         XML2["📄 Salud Mental"]:::source
         XML3["📄 Salud Sexual"]:::source
+        XML4["📄 Prestadores (Antioquia/Yopal/Cali/Boyacá)"]:::source
+        XML5["📄 Vacunación"]:::source
     end
 
-    subgraph Processing ["⚙️ Procesamiento"]
-        Parser{{"🔧 fast-xml-parser"}}:::parser
+    subgraph Processing ["⚙️ Migración única"]
+        Parser1{{"🔧 fast-xml-parser / xml2js"}}:::parser
+        Script["🚀 scripts/seed-*.ts / import-data.ts"]:::parser
     end
 
-    subgraph Interfaces ["💻 Modelos de Datos (TypeScript)"]
+    subgraph DB ["🗄️ Persistencia"]
+        SQLite[("💾 SQLite (salud-ia-bot.db)")]:::db
+    end
+
+    subgraph Interfaces ["💻 Modelos de Datos"]
         direction TB
-        Data1["📊 HealthEvent[ ]"]:::interface
-        Data2["🧠 Diagnosis[ ]"]:::interface
-        Data3["💬 QA[ ]"]:::interface
+        Data1["📊 HealthEvent"]:::interface
+        Data2["🧠 Diagnosis"]:::interface
+        Data3["💬 QA"]:::interface
+        Data4["📍 Provider"]:::interface
+        Data5["💉 Vaccination"]:::interface
     end
 
     subgraph Services ["🚀 Servicios de Negocio"]
@@ -360,16 +371,15 @@ graph LR
         Service1["🏥 SaludPublicaService"]:::service
         Service2["🧠 MentalHealthService"]:::service
         Service3["❤️ SexualHealthService"]:::service
+        Service4["📍 *HealthService"]:::service
+        Service5["💉 VaccinationService"]:::service
     end
 
-    %% Conexiones
-    XML1 & XML2 & XML3 --> Parser
-
-    Parser --> Data1 & Data2 & Data3
-
-    Data1 --> Service1
-    Data2 --> Service2
-    Data3 --> Service3
+    XML1 & XML2 & XML3 & XML4 & XML5 --> Parser1
+    Parser1 --> Script
+    Script --> SQLite
+    SQLite --> Interfaces
+    Interfaces --> Services
 ```
 
 ### 4.2 Configuración de OpenRouter
@@ -397,30 +407,54 @@ estadísticas SIVIGILA, calidad del aire y servicios de salud.
 Si no tienes información en tus datos, indícalo claramente.`;
 ```
 
-### 4.3 Estructura de Archivos XML y Procesamiento
+### 4.3 Estructura de Archivos XML y Migración a SQLite
 
-| Archivo XML              | Fuente           | Contenido                  | Procesamiento         |
-| ------------------------ | ---------------- | -------------------------- | --------------------- |
-| `Eventos_de_Interés.xml` | SIVIGILA         | Enfermedades transmisibles | `SaludPublicaService` |
-| `Salud_Mental.xml`       | Ministerio Salud | Diagnósticos CIE-10        | `MentalHealthService` |
-| `Salud_sexual.xml`       | Base interna     | Preguntas frecuentes       | `SexualHealthService` |
-| `Centros_de_salud_*.xml` | Regiones         | Prestadores locales        | ProviderSearch        |
-| `Coberturas_*.xml`       | PAI              | Vacunación departamental   | `VaccinationService`  |
-| `Calidad_del_Aire.xml`   | API externa      | Indicadores ambientales    | `AirQualityService`   |
+| Archivo XML                                                              | Fuente           | Contenido                  | Migración / Service                                  |
+| ------------------------------------------------------------------------ | ---------------- | -------------------------- | ---------------------------------------------------- |
+| `Eventos_de_Interés_en_Salud_Pública_20260514.xml`                       | SIVIGILA         | Enfermedades transmisibles | `scripts/import-data.ts` + `HealthDataService`       |
+| `Salud_Mental.xml`                                                       | Ministerio Salud | Diagnósticos CIE-10        | `scripts/import-data.ts` + `MentalHealthService`     |
+| `Salud_sexual_-_preguntas.xml`                                           | Base interna     | Preguntas frecuentes       | `scripts/import-data.ts` + `SexualHealthService`     |
+| `Prestadores_de_Salud_Departamento_de_Antioquia.xml`                     | Regiones         | Prestadores Antioquia      | `scripts/seed-antioquia.ts`                          |
+| `Centros_de_salud_Yopal._.xml`                                           | Regiones         | Prestadores Yopal          | `scripts/import-data.ts` + `YopalHealthService`      |
+| `SERVICIOS_OFERTADOS_RED_DE_SALUD_DEL_CENTRO_ESE_POR_SEDE_CALI.xml`      | Regiones         | Prestadores Cali           | `scripts/import-data.ts` + `CaliHealthService`       |
+| `servicios_salud_boyaca.xml`                                             | Regiones         | Prestadores Boyacá         | `scripts/import-data.ts` + `BoyacaHealthService`     |
+| `Coberturas_administrativas_de_vacunación_por_departamento_20260528.xml` | PAI              | Vacunación por depto       | `scripts/seed-vaccination.ts` + `VaccinationService` |
+| `Cobertura_de_Vacunación_PAI_en_el_Valle_del_Cauca.xml`                  | PAI              | Vacunación Valle del Cauca | `scripts/seed-vaccination.ts` + `VaccinationService` |
+| `DATOS_DE_VACUNACIÓN_EN_NIÑOS_Y_NIÑAS.xml`                               | PAI              | Vacunación infantil        | `scripts/seed-vaccination.ts` + `VaccinationService` |
+| `Calidad_del_Aire_en_Colombia_(Promedio_Anual)_20260528.xml`             | API externa      | Indicadores ambientales    | `AirQualityService`                                  |
 
-**Ejemplo de procesamiento XML:**
+**Resumen del flujo:**
+
+1. **Migración (una sola vez en local):** Los XML se parsean con `fast-xml-parser` o `xml2js` y se insertan en `data/salud-ia-bot.db` usando TypeORM.
+2. **Producción:** Los servicios consultan SQLite (mejor-sqlite3) sin volver a parsear XML.
+3. **Beneficio:** Reducción drástica de memoria y tiempo de arranque.
+
+**Ejemplo de migración (seed):**
 
 ```typescript
 const parser = new XMLParser();
 const data = parser.parse(xmlContent);
-const processed = data.Eventos.map((e) => ({
-  nombre: e.nombre_del_evento,
-  total: parseInt(e.total_de_eventos),
-  fecha: new Date(e.fecha_notificaci_n),
-}));
+const entities = rows.map(mapper);
+await repo.save(entities, { chunk: 100 });
 ```
 
-### 4.4 Sistema de Detección de Regiones
+### 4.4 Persistencia y Configuración de Base de Datos
+
+```typescript
+// database.module.ts
+TypeOrmModule.forRoot({
+  type: 'better-sqlite3',
+  database: process.cwd() + '/data/salud-ia-bot.db',
+  entities: entities,
+  synchronize: false, // schema creado por scripts de seed/migración
+  logging: false,
+});
+```
+
+- **Modo producción:** `synchronize: false` garantiza que el schema no se modifique en caliente.
+- **Dataset especial:** `VaccinationService` y `AntioquiaHealthService` usan repositorios TypeORM en lugar de cargar arrays en memoria.
+
+### 4.5 Sistema de Detección de Regiones
 
 ```typescript
 detectRegion(text: string): string | undefined {

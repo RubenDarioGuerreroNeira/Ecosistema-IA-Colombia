@@ -75,7 +75,7 @@ graph LR
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, líneas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias y distribuciones demográficas.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas avanzadas y enrutamiento en Antioquia, Boyacá, Yopal y Cali.
-- **📍 Enrutamiento Regional Directo y Detección de Urgencias (Cali) (¡NUEVO!)**: Procesamiento de lenguaje natural ultra rápido para Cali que detecta automáticamente intenciones de urgencias, niveles de complejidad, sedes específicas o servicios puntuales (odontología, ginecología, farmacia, etc.), entregando respuestas formateadas directo de la base de datos XML sin pasar por la IA para garantizar un 0% de alucinación.
+- **📍 Enrutamiento Regional Directo y Detección de Urgencias (Cali) (¡NUEVO!)**: Procesamiento de lenguaje natural ultra rápido para Cali que detecta automáticamente intenciones de urgencias, niveles de complejidad, sedes específicas o servicios puntuales (odontología, ginecología, farmacia, etc.), entregando respuestas formateadas directo de la base de datos SQLite sin pasar por la IA para garantizar un 0% de alucinación.
 - **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
 - **📈 Análisis Epidemiológico Avanzado**:
   - Rankings de incidencia.
@@ -221,17 +221,23 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 
 👉 **[Consulta la Memoria Técnica Completa aquí](./DOCUMENTACION_TECNICA.md)**
 
+### 🧾 Datos offline y modo producción
+
+- **Origen:** Los datos se importan desde XML usando scripts standalone (`scripts/*.ts`). El resultado se guarda en `data/salud-ia-bot.db`.
+- **Producción:** En Render/producción el arranque solo abre SQLite; no se parsea XML, lo que reduce drásticamente el consumo de RAM.
+
 ---
 
 ## 🛠️ Stack Tecnológico
 
-| Componente           | Tecnología                                                                | Propósito                                                                     |
-| :------------------- | :------------------------------------------------------------------------ | :---------------------------------------------------------------------------- |
-| **Framework**        | [NestJS](https://nestjs.com/)                                             | Arquitectura backend modular y escalable.                                     |
-| **IA Orchestration** | [OpenAI SDK / OpenRouter](https://openrouter.ai)                          | Integración directa evitando _lock-in_ y permitiendo flexibilidad de modelos. |
-| **LLM**              | [Meta LLaMA 3.1 70B Instruct](https://ai.meta.com/llama/)                 | Generación de respuestas especializadas, fluidas y coherentes.                |
-| **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                                      | Comunicación con la API de Telegram.                                          |
-| **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser) | Procesamiento eficiente de fuentes XML locales.                               |
+| Componente           | Tecnología                                                                                    | Propósito                                                                         |
+| :------------------- | :-------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------- |
+| **Framework**        | [NestJS](https://nestjs.com/)                                                                 | Arquitectura backend modular y escalable.                                         |
+| **IA Orchestration** | [OpenAI SDK / OpenRouter](https://openrouter.ai)                                              | Integración directa evitando _lock-in_ y permitiendo flexibilidad de modelos.     |
+| **LLM**              | [Meta LLaMA 3.1 70B Instruct](https://ai.meta.com/llama/)                                     | Generación de respuestas especializadas, fluidas y coherentes.                    |
+| **Bot Framework**    | [Telegraf](https://telegraf.js.org/)                                                          | Comunicación con la API de Telegram.                                              |
+| **Data Processing**  | [Fast-XML-Parser](https://github.com/NaturalIntelligence/fast-xml-parser)                     | Procesamiento eficiente de fuentes XML locales.                                   |
+| **ORM / DB**         | [TypeORM](https://typeorm.io/) + [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | Persistencia local en SQLite para datasets mayores, reduciendo huella de memoria. |
 
 ---
 
@@ -262,10 +268,21 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
    PORT=3000
    ```
 
-4. **Iniciar el servidor:**
+4. **(Opcional) Poblar datos locales en SQLite:**
+
+   ```bash
+   npm run seed:antioquia
+   npm run seed:vaccination
+   # o para cargar todos los datasets:
+   npm run import:data
+   ```
+
+5. **Iniciar el servidor:**
    ```bash
    npm run start:dev
    ```
+
+> **Nota:** La aplicación ya no carga XML en memoria durante el arranque. Los servicios de Antioquia y Vacunación leen desde `data/salud-ia-bot.db`.
 
 ---
 
@@ -274,10 +291,8 @@ Este proyecto sigue un proceso de ingeniería de IA riguroso, utilizando arquite
 Este proyecto ha sido desarrollado para el **Concurso IA Colombia**.
 © 2026 - Todos los derechos reservados.
 
-
 ---
 
 ## ✍️ Autores
 
 **Maria G. Barrientos** y **Rubén D. Guerrero** — Colombia, 2026.
-
