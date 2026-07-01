@@ -40,6 +40,7 @@ import {
 import { MentalHealthQuestionsService } from './questions/mental-health-questions.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
+import { AntioquiaQuestionsService } from './antioquia/antioquia-questions.service';
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
@@ -186,6 +187,7 @@ export class BotUpdate {
         private readonly vaccinationService: VaccinationService,
         private readonly saludPublicaQuestionsService: SaludPublicaQuestionsService,
         private readonly yopalQuestionsService: YopalQuestionsService,
+        private readonly antioquiaQuestionsService: AntioquiaQuestionsService,
         private readonly airQualityQuestionsService: AirQualityQuestionsService,
         private readonly chartQueryService: ChartQueryService,
         private readonly graphicsQuestionsService: GraphicsQuestionsService,
@@ -304,13 +306,8 @@ export class BotUpdate {
         return 'Buenas noches';
     }
 
-    private getWelcomeMessage(firstName: string): string {
-        const greeting = this.getTimeGreeting();
-        return `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud pública con **cobertura nacional**.
-
-Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales y fuentes ambientales para ofrecerte información, análisis y recomendaciones.
-
-✨ **¿Qué preguntas soy capaz de responder?: **
+    private getCommonQuestionMenu(): string {
+        return `✨ **¿Qué preguntas soy capaz de responder?: **
 
 El bot está diseñado para responder a consultas de alta precisión basadas en datos reales 
 (no solo lenguaje natural):
@@ -333,13 +330,21 @@ Me Puedes preguntar:
 📍 **Información sobre Yopal:**
 ------------------------------------------------------------------
 Puedes hacerme esta pregunta:
- ¿que informacion tienes de yopal?
-- "Usuarios en Yopal pueden hacer esta consulta -> ¿Qué hospitales hay cerca de mi?"
-- "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
-- "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
+
+-"Usuarios en Yopal pueden hacer esta consulta -> ¿Qué hospitales hay cerca de mi?"
+-"¿Qué hospitales tienen urgencias 24 horas en Yopal?"
+
    ó simplemente me preguntas: 
   ¿tienes alguna información sobre Yopal?
    y te mostrare los datos que tengo disponibles.
+
+------------------------------------------------------------------
+📍 **Información sobre Antioquia:**
+------------------------------------------------------------------
+Puedes hacerme esta pregunta:
+
+-"¿Tienes alguna información sobre Antioquia?
+   y te mostrare Todas las preguntas que puedo responderte sobre Antioquia"
 
 ------------------------------------------------------------------
   🧠 **Salud Mental y Sexual (CIE-10 y Protocolos):**
@@ -375,6 +380,15 @@ Puedes Escribirme:
 - "Graficar contaminación ambiental en Medellín."
 
 💬 ¿Sobre qué tema te gustaría consultar hoy?`;
+    }
+
+    private getWelcomeMessage(firstName: string): string {
+        const greeting = this.getTimeGreeting();
+        return `¡${greeting}, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud pública con **cobertura nacional**.
+
+Ahora cuento con acceso a datos oficiales (SIVIGILA nacional), archivos locales y fuentes ambientales para ofrecerte información, análisis y recomendaciones.
+
+${this.getCommonQuestionMenu()}`;
     }
 
     private async sendPersonalizedGreeting(ctx: Context): Promise<void> {
@@ -587,6 +601,9 @@ Preguntas como estas:
         // PRIORIDAD 6: Cali (antes que búsqueda general de prestadores, ya que detecta urgencias y servicios específicos)
         if (await this.handleServiceCali(ctx, messageText)) return;
 
+        // PRIORIDAD 6.5: Antioquia (procesamiento específico de Antioquia)
+        if (await this.handleAntioquiaQuery(ctx, messageText)) return;
+
         // PRIORIDAD 7: Búsqueda de prestadores
         if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
 
@@ -617,6 +634,26 @@ Preguntas como estas:
 
         // PRIORIDAD 15: IA general (solo si nada más manejó la consulta)
         await this.handleGeneralQuery(ctx, messageText, contextData);
+    }
+
+    // ─── Antioquia Health Service ─────────────────────────────────────────────
+    private async handleAntioquiaQuery(ctx: Context, text: string): Promise<boolean> {
+        const norm = normalizeString(text);
+
+        // Excluir consultas de análisis de riesgo para que sean manejadas por handleRiskAnalysis
+        if (norm.includes('analizar riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')) {
+            return false;
+        }
+
+        // Solo procesar si la consulta menciona Antioquia
+        const mentionsAntioquia = norm.includes('antioquia');
+        if (!mentionsAntioquia) return false;
+
+        const result = await this.antioquiaQuestionsService.processAntioquiaQuery(text);
+        if (!result) return false;
+
+        await this.sendLongMessage(ctx, result, { parse_mode: 'Markdown' });
+        return true;
     }
 
     // ─── Cali Health Service ────────────────────────────────────────────────────
@@ -841,37 +878,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
             await ctx.reply(
                 `¡Hola, ${firstName}! 👋 Soy **Salud IA**, tu asistente de salud respaldado por datos oficiales.
 
-✨ **¿Qué preguntas soy capaz de responder?**
-El bot está diseñado para responder a consultas de alta precisión basadas en datos reales:
-
----------------------------------------------------------------------------------------
-📍 **Búsqueda Geográfica y Logística:**
----------------------------------------------------------------------------------------
-- "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
-- "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
-
----------------------------------------------------------------------------------------
-📊 **Estadísticas e Inteligencia Epidemiológica:**
----------------------------------------------------------------------------------------
-- "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
-- "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
-
----------------------------------------------------------------------------------------
-🛡️ **Análisis de Riesgo y Vacunación:**
----------------------------------------------------------------------------------------
-- "Analizar riesgo de sarampión en Antioquia"
-- "¿Cuál es la cobertura de vacunación de BCG en Santander?"
-
----------------------------------------------------------------------------------------
-🧠 **Salud Mental y Sexual:**
----------------------------------------------------------------------------------------
-- Te puedo responder preguntas sobre salud mental basadas en datos oficiales.
-Por ejemplo: "¿Qué información tienes sobre salud mental?"
-
-🍃 **Monitoreo Ambiental:**
-- "¿Tienes info sobre la calidad del aire?"
-
-¿Qué necesitas consultar hoy?`,
+${this.getCommonQuestionMenu()}`,
                 { parse_mode: 'Markdown' },
             );
             return true;

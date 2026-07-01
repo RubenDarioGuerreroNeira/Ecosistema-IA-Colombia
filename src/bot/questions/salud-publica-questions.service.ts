@@ -822,47 +822,34 @@ ${edad.join('\n')}
       };
     }
 
-    let searchTerm = text;
-    if (detectedRegion) {
-      searchTerm = text.replace(new RegExp(detectedRegion, 'gi'), '').trim();
-      if (searchTerm.length < 3) searchTerm = text;
+    const searchTerm = this.extractSearchTerm(text, detectedRegion);
+    const effectiveRegion = detectedRegion || await this.detectAntioquiaMunicipio(text);
+    const serviceType = this.mapRegionToServiceType(effectiveRegion);
+
+    if (serviceType) {
+      return await this.buscarEnRegion(serviceType, searchTerm);
     }
 
-    if (!detectedRegion) {
-      const allMatches = await this.buscarPrestadores(text, undefined, searchTerm);
-      if (allMatches.length > 0) {
-        const uniqueMatches = this.aggregateProviderResults(allMatches);
-        const response = uniqueMatches.slice(0, 5).map((item) => this.formatProviderResult(item.provider, item.source)).join('\n\n');
-        return { handled: true, response: `🔍 He encontrado estos resultados en mi base de datos:\n\n${response}` };
-      }
-      if (norm.split(' ').length < 3) {
-        return {
-          handled: true,
-          response: '🏢 ¿En qué **municipio o departamento** deseas buscar servicios de salud?',
-          intent: 'provider_search'
-        };
-      }
-    }
-
-    const regionStr = detectedRegion?.toLowerCase() || '';
-    if (regionStr.includes('cali') || regionStr.includes('valle')) return await this.buscarEnRegion('cali', searchTerm);
-    if (regionStr.includes('boyac')) return await this.buscarEnRegion('boyaca', searchTerm);
-    if (regionStr.includes('medell')) return await this.buscarEnRegion('medellin', searchTerm);
-    if (regionStr.includes('antioquia')) return await this.buscarEnRegion('antioquia', searchTerm);
-    if (regionStr.includes('yopal')) return await this.buscarEnRegion('yopal', searchTerm);
-
-    const finalMatches = await this.buscarPrestadores(text, detectedRegion, searchTerm);
+    const finalMatches = await this.buscarPrestadores(searchTerm);
     if (finalMatches.length > 0) {
       const uniqueMatches = this.aggregateProviderResults(finalMatches);
       const response = uniqueMatches.slice(0, 5).map(item => this.formatProviderResult(item.provider, item.source)).join('\n\n');
-      const regionName = detectedRegion ? ` para **${detectedRegion}**` : '';
+      const regionName = effectiveRegion ? ` para **${effectiveRegion}**` : '';
       return { handled: true, response: `🔍 Resultados encontrados${regionName}:\n\n${response}` };
+    }
+
+    if (!effectiveRegion && norm.split(' ').length < 3) {
+      return {
+        handled: true,
+        response: '🏢 ¿En qué **municipio o departamento** deseas buscar servicios de salud?',
+        intent: 'provider_search'
+      };
     }
 
     return { handled: false };
   }
 
-  async buscarPrestadores(query: string, region: string | undefined, searchTerm: string): Promise<Array<{ source: string; provider: any }>> {
+  async buscarPrestadores(searchTerm: string): Promise<Array<{ source: string; provider: any }>> {
     const results: Array<{ source: string; provider: any }> = [];
 
     const [caliMatches, caliSearchMatches, boyacaMatches, boyacaSearchMatches, antioquiaMatches, yopalMatches, yopalSearchMatches] = await Promise.all([
@@ -943,6 +930,40 @@ ${edad.join('\n')}
       if (!uniqueMatches.has(key)) uniqueMatches.set(key, item);
     }
     return Array.from(uniqueMatches.values());
+  }
+
+  private extractSearchTerm(text: string, detectedRegion?: string): string {
+    if (!detectedRegion) return text;
+    const cleaned = text.replace(new RegExp(detectedRegion, 'gi'), '').trim();
+    return cleaned.length >= 3 ? cleaned : text;
+  }
+
+  private mapRegionToServiceType(region?: string): 'cali' | 'boyaca' | 'antioquia' | 'medellin' | 'yopal' | undefined {
+    if (!region) return undefined;
+    const normalized = normalizeString(region);
+    if (normalized.includes('cali') || normalized.includes('valle')) return 'cali';
+    if (normalized.includes('boyac')) return 'boyaca';
+    if (normalized.includes('medell')) return 'medellin';
+    if (normalized.includes('antioqui')) return 'antioquia';
+    if (normalized.includes('yopal')) return 'yopal';
+    return undefined;
+  }
+
+  private async detectAntioquiaMunicipio(text: string): Promise<string | undefined> {
+    const normalizedText = normalizeString(text);
+    const municipios = await this.antioquiaHealthService.getMunicipios();
+
+    for (const municipio of municipios) {
+      const normalizedMunicipio = normalizeString(municipio);
+      if (!normalizedMunicipio) continue;
+      const escaped = normalizedMunicipio.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+      if (regex.test(normalizedText)) {
+        return 'Antioquia';
+      }
+    }
+
+    return undefined;
   }
 
   async buscarEnRegion(serviceType: 'cali' | 'boyaca' | 'antioquia' | 'medellin' | 'yopal', searchTerm: string): Promise<ServiceQueryResult> {

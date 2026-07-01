@@ -2,8 +2,8 @@
 
 > **Asistente inteligente de salud pública impulsado por IA Generativa para la prevención y monitoreo de enfermedades en Colombia.**
 
-<p align="center">
-  <img src="./images/Imagen_bot.jpg" alt="Salud IA Bot - Logo" width="400"/>
+<p align="right">
+  <img src="./images/QR Bot.jpg" alt="Salud IA Bot - Logo" width="300"/>
 </p>
 
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
