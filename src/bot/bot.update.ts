@@ -316,13 +316,15 @@ El bot está diseñado para responder a consultas de alta precisión basadas en 
 🥼 **Salud Pública:**
 ----------------------------------------------------------------
 Me Puedes preguntar:
- "¿Qué info tienes de la salud pública en Colombia?" 
+ 
+"¿Qué info tienes de la salud pública en Colombia?" 
  (y te mostraré las preguntas que puedo responder)
  
 ----------------------------------------------------------------
 📊 **Gráficos:**
 ----------------------------------------------------------------
  Puedes preguntarme:
+
  "¿Qué puedes Graficar?" 
  (te mostraré la lista de gráficos que puedo hacer para ti)
 
@@ -335,7 +337,8 @@ Puedes hacerme esta pregunta:
 -"¿Qué hospitales tienen urgencias 24 horas en Yopal?"
 
    ó simplemente me preguntas: 
-  ¿tienes alguna información sobre Yopal?
+
+   ¿tienes alguna información sobre Yopal?
    y te mostrare los datos que tengo disponibles.
 
 ------------------------------------------------------------------
@@ -362,22 +365,32 @@ Puedes Escribirme:
 📊 **Estadísticas e Inteligencia Epidemiológica:**
 ----------------------------------------------------------------
 - "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
+
 - "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
+
 - "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
 
 ----------------------------------------------------------------
 🛡️ **Análisis de Riesgo y Vacunación:**
 ----------------------------------------------------------------
 - "De que Eventos de Salud puedes hacer análisis de riesgo" (te mostrare los eventos y los departamentos).
+
 - "Analizar riesgo de sarampión en Antioquia" (revisaré casos vs. cobertura de vacuna TV).
+
 - "Analizar riesgo de dengue en Antioquia"
+
 - "¿Cuál es la cobertura de vacunación de BCG en Santander?"
 
 ----------------------------------------------------------------
 🍃 **Monitoreo Ambiental:**
 ----------------------------------------------------------------
-- "¿Cómo está la calidad del aire hoy en Cali?"  NO ESTA DESARROLLADA POR EL BOT
-- "Graficar contaminación ambiental en Medellín."
+• "¿Qué información tienes sobre calidad del aire?"
+ (Te mostrare el listado de municipios y departamentos)
+
+ ejemplo :
+ 
+• "Calidad del aire en Bogotá"
+•"Indicadores ambientales en Medellín"
 
 💬 ¿Sobre qué tema te gustaría consultar hoy?`;
     }
@@ -409,64 +422,147 @@ ${this.getCommonQuestionMenu()}`;
 
     @Help()
     async help(@Ctx() ctx: Context): Promise<void> {
-        await ctx.reply(
-            `🤖 **Menú de Ayuda - Salud IA**
+        const helpText = `🤖 **Menú de Ayuda - Salud IA**
 
 ✨ **¿Qué preguntas soy capaz de responder?**
-Estoy diseñado para responder a consultas de alta precisión basadas en datos oficiales:
+Estoy diseñado para responder a consultas de alta precisión basadas en datos oficiales.
 
-🔬 Salud Pública (SIVIGILA):
-• Enfermedades Transmisibles: Dengue, Zika, Chikungunya, Malaria, Tuberculosis, Varicela, Hepatitis A, B y C
-• Eventos de Violencia: Violencia de género e intrafamiliar, agresiones por animales (rabia)
-• Otros: Desnutrición aguda, intento de suicidio, defectos congénitos, intoxicaciones, accidentes ofídicos
-• Dame un resumen de salud pública
-• ¿Qué enfermedad es más rural?
-• Comparar dengue vs zika
-• ¿Qué enfermedad afecta más a los adolescentes?
-• Proporción global por sexo
-• Eventos con mayor brecha de género
-• ¿Qué eventos son más frecuentes en adultos jóvenes?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔬 **SALUD PÚBLICA (SIVIGILA)**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Enfermedades Transmisibles:**
+• Dengue, Zika, Chikungunya, Malaria
+• Tuberculosis, Varicela, Hepatitis A, B y C
+• Tos Ferina, Sarampión, Rubeola
+• Leishmaniasis, Chagas, Fiebre Amarilla
 
-📍 **Búsqueda Geográfica y Logística:**
-- "¿Qué hospitales tienen urgencias 24 horas en Yopal?"
-- "¿Dónde queda el Hospital Primitivo Iglesias en Cali?"
-- "¿Qué hospitales hay en Medellín?"
-- "Lista de municipios de Boyacá con centros de salud."
+**Eventos de Violencia:**
+• Violencia de género e intrafamiliar
+• Agresiones por animales (rabia)
+• Accidentes ofídicos
 
-📊 **Estadísticas e Inteligencia Epidemiológica:**
-- "¿Cómo está el dengue en Risaralda comparado con el Valle del Cauca?"
-- "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
-- "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
+**Otros eventos:**
+• Desnutrición aguda, Intento de suicidio
+• Defectos congénitos, Intoxicaciones
 
-🛡️ **Análisis de Riesgo y Vacunación:**
-- "Analizar riesgo de sarampión en Antioquia"
-- "Analizar riesgo de dengue en Antioquia"
-- "¿Cuál es la cobertura de vacunación de BCG en Santander?"
+**Preguntas:**
+• "Dame un resumen de salud pública"
+• "¿Qué enfermedad es más rural/urbana?"
+• "Comparar dengue vs zika"
+• "¿Qué afecta más a adolescentes?"
+• "Eventos más frecuentes en niños"
+• "Proporción global por sexo"
+• "Brecha de género"
+• "Eventos en adultos jóvenes"
+• "Top 5 eventos más reportados"
+• "Eventos que más afectan mujeres/hombres"
+• "Categorías de eventos de salud pública"`;
 
-🧠 **Salud Mental y Sexual:**
-- "¿Cuál es el diagnóstico de salud mental más común en niños?"
-- Episodios depresivos (graves, moderados)
-- Trastornos de ansiedad (mixtos, fóbicos)
-- Trastorno Afectivo Bipolar
-- Esquizofrenia y trastornos psicóticos
-- Consumo de sustancias psicoactivas (SPA)
+        const mentalHealthText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧠 **SALUD MENTAL (CIE-10)**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Diagnósticos disponibles:**
+• Episodios depresivos (graves, moderados)
+• Trastornos de ansiedad (mixtos, fóbicos)
+• Trastorno Afectivo Bipolar
+• Esquizofrenia y trastornos psicóticos
+• Consumo de sustancias psicoactivas (SPA)
 
-❤️ Salud Sexual y Reproductiva:
-- "¿Qué derechos tengo para la prevención del VIH?"
-- Prevención y derechos en VIH/SIDA
-- Sífilis (incluyendo gestacional y congénita)
-- Cáncer de cuello uterino y mama (VPH)
-- Métodos anticonceptivos y derechos reproductivos
+**Preguntas:**
+• "¿Cuántos casos hay de depresión?"
+• "¿Diagnósticos más frecuentes?"
+• "Compara depresión vs ansiedad"
+• "Perfil de riesgo de esquizofrenia"
+• "Diagnósticos en niños/adolescentes/adultos/mayores"
+• "Distribución de edades en salud mental"
+• "Lista todos los diagnósticos"`;
 
-🍃 **Monitoreo Ambiental:**
-Preguntas como estas:
--"¿Tienes info sobre la calidad del aire?"
-- "¿Cómo está la calidad del aire hoy en Cali?"
-- "Graficar contaminación ambiental en Medellín."
+        const sexualHealthText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❤️ **SALUD SEXUAL Y REPRODUCTIVA**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Prevención y derechos en VIH/SIDA
+• Sífilis (gestacional y congénita)
+• Cáncer de cuello uterino y mama (VPH)
+• Métodos anticonceptivos y derechos reproductivos`;
 
-💬 *Tip: Puedes preguntar por cualquier municipio de Colombia para estadísticas SIVIGILA o por regiones específicas (Cali, Antioquia, Boyacá, Yopal) para servicios de salud.*`,
-            { parse_mode: 'Markdown' },
-        );
+        const providersText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 **BÚSQUEDA DE PRESTADORES**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Yopal:**
+• "Hospitales cerca de mi" (comparte ubicación)
+• "Urgencias 24 horas en Yopal"
+• "Buscar MEDIMAS en Yopal"
+
+**Cali / Valle del Cauca:**
+• "¿Dónde queda Hospital Primitivo Iglesias?"
+• "Hospitales en Cali"
+
+**Antioquia:**
+• "Hospitales en Medellín"
+• "Clínicas en Envigado"
+• "Municipios con centros de salud"
+
+**Boyacá:**
+• "Hospitales en Tunja"
+• "Centros de salud en Boyacá"`;
+
+        const predictionsText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 **PREDICCIONES Y RIESGO**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Alertas:**
+• "Alertas tempranas de salud pública"
+
+**Pronósticos:**
+• "Pronóstico de dengue en Antioquia"
+• "Tendencia de tuberculosis"
+• "Proyección de casos de malaria"
+
+**Clasificación IA:**
+• "Clasificar riesgo de dengue en Cali"
+• "Analizar riesgo de sarampión"`;
+
+        const chartsText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📈 **GRÁFICOS Y VISUALIZACIONES**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• "Top eventos de salud pública"
+• "Gráfico de dengue por sexo"
+• "Zika en rural vs urbano"
+• "Tendencia de tuberculosis"
+• "Gráfico de salud mental"
+• "Graficar vacunas en Antioquia"
+• "Gráfico de servicios en Cali"`;
+
+        const airQualityText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🍃 **CALIDAD DEL AIRE**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• "Calidad del aire en Bogotá"
+• "Indicadores ambientales en Medellín"
+• "¿Qué información tienes sobre calidad del aire?"`;
+
+        const vaccinationText = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💉 **VACUNACIÓN**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• "Cobertura de vacunación en Antioquia"
+• "Cobertura de BCG en Santander"
+
+💬 *Tip: Pregunta por cualquier municipio o departamento para estadísticas SIVIGILA.*`;
+
+        // Enviar mensajes en partes usando sendLongMessage
+        await this.sendLongMessage(ctx, helpText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, mentalHealthText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, sexualHealthText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, providersText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, predictionsText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, chartsText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, airQualityText, { parse_mode: 'Markdown' });
+        await this.sendLongMessage(ctx, vaccinationText, { parse_mode: 'Markdown' });
     }
 
     // ─── Long Message Handler ────────────────────────────────────────────────────
