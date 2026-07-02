@@ -203,6 +203,7 @@ export class BotUpdate {
 
         const isPublicHealthQuery =
             norm.includes('eventos') ||
+            norm.includes('evento') ||  // Agregado: detectar también singular "evento"
             norm.includes('salud publica') ||
             norm.includes('qué info tienes de salud publica') ||
             norm.includes('que info tienes de salud publica') ||
@@ -245,6 +246,12 @@ export class BotUpdate {
             (norm.includes('cual es el ranking') && norm.includes('categorias')) ||
             norm.includes('mayor incidencia') ||
             norm.includes('las categorias con mayor incidencia') ||
+
+            // eventos
+            norm.includes('eventos que mas afectan a las mujeres ') ||
+            norm.includes('eventos de salud en mujeres ') ||
+            norm.includes('enfermedades que mas afectan a las mujeres') ||
+
 
             norm.includes('adultos jovenes');
 
@@ -854,9 +861,40 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                 norm.includes('que informacion tienes') &&
                 norm.includes('salud mental')
             ) {
-                await ctx.reply(this.mentalHealthQuestionsService.getAvailableQuestions(), {
+                await ctx.reply(await this.mentalHealthQuestionsService.getAvailableQuestions(), {
                     parse_mode: 'Markdown',
                 });
+                return;
+            }
+
+            if (norm.includes('que informacion tienes') && norm.includes('salud mental')) {
+                await ctx.reply(await this.mentalHealthQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                return;
+            }
+            if (norm.includes('que informacion tienes') && norm.includes('salud pública')) {
+                await ctx.reply(await this.saludPublicaQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                return;
+            }
+
+
+            if (norm.includes('que informacion tienes') && norm.includes('análisis de riesgo')) {
+                await ctx.reply(await this.predictiveQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                return;
+            }
+            if (norm.includes('que informacion tienes') && norm.includes('calidad del aire')) {
+                await ctx.reply(await this.airQualityQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                return;
+            }
+            if (norm.includes('que informacion tienes') && norm.includes('gráficos')) {
+                await ctx.reply(await this.graphicsQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                return;
+            }
+
+            if (norm.includes('que enfermedad es mas ') && (norm.includes('urbana') || norm.includes('rural'))) {
+                const respuesta = await this.saludPublicaQuestionsService.processPublicHealthQuery(text);
+                if (respuesta) {
+                    await ctx.reply(respuesta, { parse_mode: 'Markdown' });
+                }
                 return;
             }
 

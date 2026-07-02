@@ -32,24 +32,28 @@ export class SaludPublicaQuestionsService {
     return `💊 **Preguntas que puedo responder sobre Datos de Salud Pública:**
 
 📊 **Generales:**
+|
+• "Puedes mostrarme las categorias de eventos de salud publica" 
 • "Puedes mostrarme el ranking de eventos de salud en colombia"
 • "Dame un resumen de salud pública"
 • "¿Qué enfermedad es más rural?" / "¿Cuál es la más urbana?"
 • "Comparar dengue vs zika"
 • "Proporción global por sexo"
 • "Eventos con mayor brecha de género"
-• "¿Qué evento es el más urbano en Colombia?"
-  "¿Cual es el evento más rural en Colombia?" 
-• "Top 5 eventos más urbanos" (muestra la gráfica de barras)
+• "¿Cual es el evento de salud mas rural?"
+• "¿Cual es el evento de salud mas urbano?"
+• "Top 5 eventos más urbanos" 
 • "¿Cuales son los eventos más rurales?" (muestra los 5 eventos de salud con mayor proporción rural)
 • "¿Cuales son los eventos más urbanos?" (muestra los 5 eventos de salud con mayor proporción urbana)
 
 👥 **Por grupo etario:**
+
 • "Eventos más comunes en niños"
 • "Eventos más frecuentes en adultos mayores"
 • "¿Qué eventos afectan más a los adolescentes?" (ranking)
 
 📂 **Por categoría:**
+
 • "Eventos infecciosos más comunes"
 • "Eventos maternos frecuentes"
 • "Eventos de salud que más afectan a las mujeres" 
@@ -59,6 +63,7 @@ export class SaludPublicaQuestionsService {
 • "¿Cual es el ranking de categorías de Eventos de salud en colombia"?"
 
 🔍 **Consulta específica:**
+
 • puedes escribir 
   "¿Quiero ver el total de categorias de eventos de salud publica?" 
   (te dare el listado completo de eventos con sus casos)
@@ -95,25 +100,39 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
   async processPublicHealthQuery(text: string): Promise<string | null> {
     const norm = normalizeString(text);
 
-    // Consulta de capacidades
-    if (
-      norm.includes('que info') ||
-      norm.includes('que sabes') ||
-      norm.includes('que informacion') ||
-      norm.includes('que preguntas') ||
-      norm.includes('que datos') ||
-      norm.includes('que consultas') ||
-      norm.includes('que me puedes') ||
-      (norm.includes('salud publica') && norm.includes('info')) ||
-      (norm.includes('salud publica') && norm.includes('informacion'))
-    ) {
-      return this.getAvailableQuestions();
-    }
-
     // Si contiene palabras clave de gráficos, redirigir a processGraphicsQuery
     if (norm.includes('grafico') || norm.includes('grafica') || norm.includes('graficos') || norm.includes('graficas') || norm.includes('visualizar')) {
       return null; // Dejo que el ChartQueryService maneje esta consulta específica de gráfico para evitar solapamientos y mantener la lógica de gráficos centralizada.
     };
+
+    // Consulta de capacidades (solo si NO es una consulta específica de evento rural/urbano)
+    const isSpecificQuery =
+      norm.includes('cual es el evento mas rural') ||
+      norm.includes('cual es el evento de salud mas rural') ||
+      norm.includes('enfermedad mas rural') ||
+      norm.includes('mayor concentracion rural') ||
+      norm.includes('cual es el evento mas urbano') ||
+      norm.includes('enfermedad mas urbana') ||
+      norm.includes('mayor concentracion urbano') ||
+      norm.includes('top eventos') ||
+      norm.includes('eventos mas reportados') ||
+      norm.includes('ranking') ||
+      norm.includes('resumen');
+
+    if (
+      !isSpecificQuery &&
+      (norm.includes('que info') ||
+        norm.includes('que sabes') ||
+        norm.includes('que informacion') ||
+        norm.includes('que preguntas') ||
+        norm.includes('que datos') ||
+        norm.includes('que consultas') ||
+        norm.includes('que me puedes') ||
+        (norm.includes('salud publica') && norm.includes('info')) ||
+        (norm.includes('salud publica') && norm.includes('informacion')))
+    ) {
+      return this.getAvailableQuestions();
+    }
 
     // ===Top eventos===
     if (
@@ -158,6 +177,7 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     // Evento más rural (único) - solo para consultas SINGULARES
     if (
       norm.includes('cual es el evento mas rural') ||
+      norm.includes('cual es el evento de salud mas rural') ||
       norm.includes('enfermedad mas rural') ||
       norm.includes('mayor concentracion rural') ||
       (norm.includes('mas rural') && !norm.includes('eventos') && !norm.includes('los') && !norm.includes('top'))
@@ -168,6 +188,8 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     // Evento más urbano (único) - solo para consultas SINGULARES
     if (
       norm.includes('cual es el evento mas urbano') ||
+      norm.includes('cual es el evento de salud mas urbano') ||
+      norm.includes('que enfermedad mas urbana') || norm.includes('mayor concentracion urbano') ||
       norm.includes('enfermedad mas urbana') ||
       norm.includes('mayor concentracion urbano') ||
       (norm.includes('mas urbano') && !norm.includes('eventos') && !norm.includes('los') && !norm.includes('top'))
@@ -191,7 +213,12 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     }
 
     // Eventos que más afecta a las mujeres
-    if (norm.includes('eventos que mas afectan a las mujeres') || (norm.includes('eventos') && norm.includes('afectan') && norm.includes('mujeres'))) {
+    if (
+      norm.includes('enfermedades que mas afectan a las mujeres') ||
+      norm.includes('eventos que mas afectan a las mujeres') ||
+      (norm.includes('enfermedades') && norm.includes('afectan') && norm.includes('mujeres')) ||
+      (norm.includes('eventos') && norm.includes('afectan') && norm.includes('mujeres'))
+    ) {
       return this.handleTopEventosMujeres()
     }
 
@@ -233,10 +260,40 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     if (norm.match(/(?:que me dices del|informacion de|detalles de|resumen de)\s+([a-z\s]+)/i)) {
       return this.handleEventDetails(text);
     }
+    // Eventos -Infecciosos mas comunes 
+    if (
+      (norm.includes('eventos') || norm.includes('enfermedades')) &&
+      norm.includes('infecciosos') &&
+      norm.includes('mas comunes')
+    ) {
+      return this.handleEventosInfecciososMasComunes();
+    }
+    // Eventos maternos
+    if (
+      (norm.includes('eventos') && norm.includes('maternos')) ||
+      norm.includes('eventos maternos') ||
+      norm.includes('eventos materno')
+    ) {
+      return this.handleEventosMasMaternos();
+    }
+
 
     return null;
   }
 
+  // Casos Maternos
+  private async handleEventosMasMaternos(): Promise<string> {
+    const eventos = await this.saludPublicaService.eventosMasAfectanMujeres();
+    if (eventos.length === 0) return 'No se encontraron eventos maternos.';
+    const list = eventos.map((e, i) => {
+      const pctTotal = (e.total_de_eventos / eventos.reduce((sum, ev) => sum + ev.total_de_eventos, 0)) * 100;
+      return `${i + 1}. ${e.nombre_del_evento}: ${e.total_de_eventos.toLocaleString()} casos (${pctTotal.toFixed(1)}% del top ${5})`;
+    })
+      .join('\n');
+    return `👨‍👩‍👧‍👧 **Eventos maternos (Top 5):**
+    ${list}
+    ℹ️ *Eventos con mayor número de casos reportados.*`;
+  }
 
   // CASOS QUE MAS AFECTAN A LOS ADULTOS MAYORES (ranking)
   private async handleRankingAdultosMayores(text: string): Promise<string> {
@@ -499,13 +556,9 @@ ${porCategoria}
     ${topList}
     ℹ️ *Se muestran los eventos con mayor número absoluto de casos en este grupo etario.*`;
   }
-  // ============================================================
-  // NUEVOS POR SECTORES
-  // ============================================================
-
   /**
-   * Ranking de eventos más rurales (mayor porcentaje rural)
-   */
+ * Ranking de eventos más rurales (mayor porcentaje rural)
+ */
   private async handleTopRuralEvents(n: number = 5): Promise<string> {
     const events = await this.saludPublicaService.listarEventosCompletos();
     const withPct = events
@@ -1000,4 +1053,22 @@ ${edad.join('\n')}
 
     return { handled: false, response: `⚠️ No encontré resultados de servicios de salud en **${regionName}**.` };
   }
+
+  // Eventos infecciosos mas comunes
+  private async handleEventosInfecciososMasComunes(): Promise<string> {
+    const eventos = await this.saludPublicaService.eventosInfecciososMasComunes();
+    if (eventos.length === 0) return 'No se encontraron eventos infecciosos mas comunes.';
+
+    const list = eventos.map((e, i) => {
+      const pctTotal = (e.total_de_eventos / eventos.reduce((sum, ev) => sum + ev.total_de_eventos, 0)) * 100;
+      return `${i + 1}. ${e.nombre_del_evento}: ${e.total_de_eventos.toLocaleString()} casos (${pctTotal.toFixed(1)}% del top ${5})`;
+    }).join('\n');
+
+    return `🧒 **Eventos infecciosos mas comunes (Top 5):**
+    ${list}
+    ℹ️ *Eventos con mayor número de casos reportados.*`;
+  }
+
+
+
 }

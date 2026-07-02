@@ -776,6 +776,15 @@ export class SaludPublicaService implements OnModuleInit {
     return { encontrado: false };
   }
 
+  // obtiene más eventos de la categoria infecciosos ordenados por total de casos descendente
+  public async eventosInfecciososMasComunes(n = 5): Promise<HealthEvent[]> {
+    await this.ensureReady();
+    const infecciosos = await this.eventosPorCategoria('infecciosos');
+    return [...infecciosos]
+      .sort((a, b) => b.total_de_eventos - a.total_de_eventos)
+      .slice(0, n);
+  }
+
   // obtiene más Eventos de Salud que afectana a ls mujeres 
   async eventosMasAfectanMujeres(n = 3): Promise<HealthEvent[]> {
     await this.ensureReady();

@@ -543,6 +543,31 @@ describe('BotUpdate', () => {
     expect(response).toContain('ESQUIZOFRENIA, NO ESPECIFICADA');
   });
 
+  it('should answer a public health query via SaludPublicaQuestionsService', async () => {
+    const mockCtx: any = {
+      message: { text: 'cual es el evento mas rural' },
+      reply: jest.fn(),
+    };
+
+    mockSaludPublicaQuestionsService.processPublicHealthQuery.mockResolvedValue(
+      '🌾 **Evento con mayor concentración rural:**\n\n**DENGUE**\n- Casos rurales: 1,234 (65.3%)\n- Casos urbanos: 654 (34.7%)\n- Total de casos: 1,888\n\n📌 *Este evento tiene la proporción más alta de casos en zona rural.*'
+    );
+
+    mockSaludPublicaService.procesarPregunta.mockResolvedValue({
+      encontrado: false,
+    });
+    mockStatsService.getSummary.mockResolvedValue(null);
+
+    await botUpdate.onText(mockCtx);
+
+    expect(mockSaludPublicaQuestionsService.processPublicHealthQuery).toHaveBeenCalledWith('cual es el evento mas rural');
+    expect(mockCtx.reply).toHaveBeenCalled();
+    const message = mockCtx.reply.mock.calls[0][0];
+    expect(message).toContain('Evento con mayor concentración rural');
+    expect(message).toContain('DENGUE');
+    expect(mockCtx.reply.mock.calls[0][1]).toEqual({ parse_mode: 'Markdown' });
+  });
+
   it('should answer a risk profile query even with trailing explanatory text', async () => {
     const mockCtx: any = {
       message: {
