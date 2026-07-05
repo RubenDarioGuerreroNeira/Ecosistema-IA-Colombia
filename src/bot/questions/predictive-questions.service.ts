@@ -18,9 +18,6 @@ export class PredictiveQuestionsService {
 
     // ─── Listado de Capacidades ───────────────────────────────────────────────────
 
-    /**
-     * Retorna el mensaje de ayuda general sobre los servicios predictivos disponibles.
-     */
     getAvailableQuestions(): string {
         return `🤖 **Servicios Predictivos y de Clasificación de Riesgo**
 
@@ -60,10 +57,11 @@ Puedo ayudarte a resolver las siguientes consultas:
 ¿Sobre qué servicio predictivo deseas consultar?`;
     }
 
-    /**
-     * Retorna el mensaje con la lista dinámica de eventos y ubicaciones disponibles para predicción de riesgo.
-     * Reemplaza la funcionalidad de RiskQuestionsService.getAvailableQuestions().
-     */
+    /*
+     Predicción de Riesgo Epidemiológico
+        Puedo predecir y analizar el riesgo de los siguientes eventos de salud pública en Colombia, 
+        combinando datos oficiales de SIVIGILA, cobertura de vacunación y calidad del aire:   
+    */
     async getAvailableRiskQuestions(): Promise<string> {
         const [events, locations] = await Promise.all([
             this.mlPredictionService.listarEventosDisponibles(),
@@ -96,39 +94,51 @@ Puedo ayudarte a resolver las siguientes consultas:
         ¿Sobre qué evento y ubicación deseas realizar la predicción?`;
     }
 
-    // ─── Orquestación Principal ──────────────────────────────────────────────────
 
-    /**
-     * Procesa cualquier consulta relacionada con predicción/riesgo/clasificación.
-     * Retorna la respuesta formateada, o null si la consulta no es de este dominio.
-     */
+    /* Prediccion de Riesgos(Alertas tempranas, atención inmediata,panoramas de riesgos) y 
+    Riesgos Epidemiologicos
+    • DENGUE
+    • VARICELA INDIVIDUAL
+    • AGRESIONES POR ANIMALES POTENCIALMENTE TRANSMISORES DE RABIA */
     async processPredictiveQuery(
         text: string,
         region?: string,
     ): Promise<{ respuesta: string; tipo: string } | null> {
         const norm = normalizeString(text);
 
-        // ── Consultas de capacidades ──────────────────────────────────────────────
+
+        // Servicios predictivos y clasificación de riesgos
         if (this.isCapabilitiesQuery(norm)) {
             return { respuesta: this.getAvailableQuestions(), tipo: 'listado' };
         }
 
-        // Consulta específica de "qué riesgos se pueden predecir" (lista eventos + ubicaciones)
+        // Prediccion de Riesgos Epidemiologicos
         if (this.isRiskEventsListQuery(norm)) {
             const respuesta = await this.getAvailableRiskQuestions();
             return { respuesta, tipo: 'listado_riesgos' };
         }
 
-        // ── Alertas Tempranas ──────────────────────────────────────────────────────
+        // ── 3 preguntas diferentes → 3 métodos diferentes ─────────────────────────
+        // Pregunta 1: "Alertas tempranas de salud pública" → resumen general
         if (
             norm.includes('alertas tempranas') ||
             norm.includes('alerta temprana') ||
-            norm.includes('alertas de salud') ||
-            norm.includes('panorama de riesgo') ||
-            norm.includes('que eventos requieren atencion')
+            norm.includes('alertas de salud')
         ) {
             const resumen = await this.earlyWarningService.obtenerResumenAlertas();
             return { respuesta: resumen, tipo: 'alertas' };
+        }
+
+        // Pregunta 2: "¿Qué eventos requieren atención inmediata?" → solo EMERGENCIA + ALERTA
+        if (norm.includes('que eventos requieren atencion')) {
+            const respuesta = await this.earlyWarningService.obtenerEventosAtencionInmediata();
+            return { respuesta, tipo: 'atencion_inmediata' };
+        }
+
+        // Pregunta 3: "Panorama de riesgo epidemiológico" → distribución geográfica y factores
+        if (norm.includes('panorama de riesgo')) {
+            const respuesta = await this.earlyWarningService.obtenerPanoramaRiesgoEpidemiologico();
+            return { respuesta, tipo: 'panorama_riesgo' };
         }
 
         // ── Pronósticos / Predicciones Avanzadas ──────────────────────────────────
@@ -142,7 +152,10 @@ Puedo ayudarte a resolver las siguientes consultas:
             const departamento = region || this.extraerRegion(norm) || 'Colombia';
 
             if (evento) {
-                const prediccion = await this.advancedPredictionService.predecirEvento(evento, departamento);
+                const prediccion = await this.advancedPredictionService.predecirEvento(
+                    evento,
+                    departamento,
+                );
                 if (prediccion) {
                     const respuesta = this.formatearPrediccionAvanzada(prediccion);
                     return { respuesta, tipo: 'prediccion' };
@@ -153,14 +166,17 @@ Puedo ayudarte a resolver las siguientes consultas:
                 };
             }
 
-            // Sin evento específico → pronósticos múltiples
             if (!region) {
                 return {
-                    respuesta: '📊 ¿De qué **departamento** deseas ver los pronósticos de salud pública?',
+                    respuesta:
+                        '📊 ¿De qué **departamento** deseas ver los pronósticos de salud pública?',
                     tipo: 'pedir_region',
                 };
             }
-            const multiples = await this.advancedPredictionService.obtenerPronosticosMultiples(departamento);
+            const multiples =
+                await this.advancedPredictionService.obtenerPronosticosMultiples(
+                    departamento,
+                );
             return { respuesta: multiples, tipo: 'pronosticos_multiples' };
         }
 
@@ -170,19 +186,24 @@ Puedo ayudarte a resolver las siguientes consultas:
             norm.includes('analizar riesgo de') ||
             norm.includes('analisis de riesgo') ||
             norm.includes('riesgo de') ||
-            (norm.includes('riesgo') && (
-                norm.includes('inteligencia artificial') ||
-                norm.includes('random forest') ||
-                norm.includes('machine learning')
-            ))
+            (norm.includes('riesgo') &&
+                (norm.includes('inteligencia artificial') ||
+                    norm.includes('random forest') ||
+                    norm.includes('machine learning')))
         ) {
             const evento = this.extraerEvento(norm);
-            const departamento = region || this.extraerRegion(norm) || 'Colombia';
+            const departamento =
+                region || this.extraerRegion(norm) || 'Colombia';
 
             if (evento && !norm.includes('todos') && !norm.includes('completo')) {
-                const clasificacion = await this.mlPredictionService.clasificarRiesgo(evento, departamento);
+                const clasificacion =
+                    await this.mlPredictionService.clasificarRiesgo(
+                        evento,
+                        departamento,
+                    );
                 if (clasificacion) {
-                    const respuesta = this.formatearClasificacionRiesgo(clasificacion);
+                    const respuesta =
+                        this.formatearClasificacionRiesgo(clasificacion);
                     return { respuesta, tipo: 'clasificacion' };
                 }
                 const eventosList = await this.listarEventosComoTexto();
@@ -194,70 +215,122 @@ Puedo ayudarte a resolver las siguientes consultas:
                 };
             }
 
-            // Análisis completo (todos los eventos)
-            const analisisCompleto = await this.mlPredictionService.obtenerAnalisisCompleto(departamento);
-            return { respuesta: analisisCompleto, tipo: 'analisis_completo' };
+            const analisisCompleto =
+                await this.mlPredictionService.obtenerAnalisisCompleto(
+                    departamento,
+                );
+            return {
+                respuesta: analisisCompleto,
+                tipo: 'analisis_completo',
+            };
         }
 
         return null;
     }
 
-    // ─── Utilitarios de detección ─────────────────────────────────────────────────
+    // valida que pregunta que pregunten por prediccion de riesgos y no Riesgos epidemilogicos
 
     private isCapabilitiesQuery(norm: string): boolean {
+        // Valido que no pregunten por riesgos epidemiologicos
+        if (norm.includes('epidemia') || norm.includes('epidemiologico') || norm.includes('prediccion de riesgos epidemiologicos')
+            || norm.includes('prediccion de riesgos epidemiologicos') || norm.includes('prediccion de riesgos epidemiologicos')
+            || norm.includes('prediccion de riesgos epidemiologicos') || norm.includes('prediccion de riesgos epidemiologicos') ||
+            norm.includes('epidemilogia') || norm.includes('riesgos epidemiologicos') || norm.includes('epidemias') ||
+            (norm.includes('prediccion') && norm.includes('epidemiologicos')) ||
+            (norm.includes('prediccion') && norm.includes('epidemiologico')) ||
+            (norm.includes('riesgo') && norm.includes('epidemilogicos')) ||
+            (norm.includes('riesgos') && norm.includes('epidemias'))
+        ) {
+            return false;
+        }
+
         return (
             (norm.includes('que') && norm.includes('prediccion')) ||
             (norm.includes('que') && norm.includes('pronostico')) ||
             (norm.includes('que') && norm.includes('alerta temprana')) ||
             (norm.includes('que') && norm.includes('clasificar riesgo')) ||
             norm.includes('que sabes de predicciones') ||
+            norm.includes('clasificacion de riesgos') ||
+            norm.includes('alertas tempranas') ||
             norm.includes('que puedes responder sobre predicciones') ||
             norm.includes('que info tienes de predicciones') ||
-            (norm.includes('ayuda') && (
-                norm.includes('prediccion') ||
-                norm.includes('pronostico') ||
-                norm.includes('alerta')
-            ))
+            (norm.includes('ayuda') &&
+                (norm.includes('prediccion') ||
+                    norm.includes('pronostico') ||
+                    norm.includes('alerta')))
         );
     }
-
+    // Preguntas que devuelve lista de eventos epidemiologicos y departamentos
     private isRiskEventsListQuery(norm: string): boolean {
         return (
-            norm.includes('que riesgos') ||
-            norm.includes('que analisis de riesgo') ||
-            norm.includes('de que eventos') ||
-            norm.includes('de qué eventos') ||
-            (norm.includes('que') && norm.includes('analizar riesgo')) ||
+            norm.includes('epidemilogica') ||
+            norm.includes('epidemia') ||
+            norm.includes('epidemiologico') ||
+            norm.includes('epidemiologicos') ||
+            norm.includes('prediccion de riesgos epidemiologicos') ||
+            (norm.includes('que') && norm.includes('analizar riesgo') && norm.includes('epidemiologicos')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemiologicos')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemiologico')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemilogicos')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemilogico')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemias')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemia')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemias')) ||
+            (norm.includes('que') && norm.includes('prediccion') && norm.includes('epidemias')) ||
             (norm.includes('que') && norm.includes('riesgo') && norm.includes('enfermedades')) ||
             (norm.includes('que') && norm.includes('riesgo') && norm.includes('predecir')) ||
-            (norm.includes('riesgos') && norm.includes('puedes predecir')) ||
-            (norm.includes('puedes predecir') && norm.includes('riesgo'))
+
+            (norm.includes('puedes predecir') && norm.includes('riesgo') && norm.includes('epidemia'))
+
         );
+
     }
 
-    /**
-     * Extrae el nombre del evento de un texto normalizado.
-     * Busca patrones como "riesgo de DENGUE en Caldas", "analizar riesgo de SARAMPION en..."
-     */
     private extraerEvento(norm: string): string | null {
-        // Buscar en patrones conocidos
+        // Mejorado: ahora también soporta "tendencia de" y maneja "proyección de casos de"
         const match = norm.match(
-            /(?:clasificar riesgo de|analizar riesgo de|riesgo de|pronostico de|prediccion de|proyeccion de|analisis de)\s+([a-záéíóúñ\s]+?)(?:\s+en\s+|$)/
+            /(?:clasificar riesgo de|analizar riesgo de|riesgo de|pronostico de|prediccion de|proyeccion de|analisis de|tendencia de)\s+([a-záéíóúñ\s]+?)(?:\s+en\s+|$)/,
         );
         if (match && match[1]) {
-            return match[1].trim();
+            let evento = match[1].trim();
+
+            // Caso especial: "proyeccion de casos de X" - el evento es el último término
+            if (evento.includes('casos') && !evento.includes('en')) {
+                // Extraer el evento después de "de"
+                const eventoMatch = norm.match(/(?:proyeccion de casos de)\s+([a-záéíóúñ]+)/);
+                if (eventoMatch && eventoMatch[1]) {
+                    evento = eventoMatch[1].trim();
+                }
+            }
+            // Si el evento contiene "proximos" o "meses", significa que no se extrajo bien (frase compleja)
+            else if (evento.includes('proximos') || evento.includes('meses')) {
+                // Intentar una extracción alternativa: buscar evento antes del primer "en"
+                const eventoMatch = norm.match(/(?:tendencia de|pronostico de|prediccion de)\s+([a-záéíóúñ]+)/);
+                if (eventoMatch && eventoMatch[1]) {
+                    evento = eventoMatch[1].trim();
+                }
+            }
+            return evento.length > 1 ? evento : null;
         }
         return null;
     }
 
-    /**
-     * Extrae el nombre de una región de un texto normalizado.
-     */
     private extraerRegion(norm: string): string | null {
-        const match = norm.match(/\s+en\s+([a-záéíóúñ\s]+?)$/);
-        if (match && match[1]) {
-            const region = match[1].trim();
-            if (region.length > 1) return region;
+        // Caso especial para frases como "tendencia de zika en los proximos meses en Cali"
+        // Buscar el último " en " de la cadena
+        const matches = [...norm.matchAll(/\s+en\s+([a-záéíóúñ\s]+?)(?=\s+en\s+|\s*$)/g)];
+        if (matches.length > 0) {
+            const lastMatch = matches[matches.length - 1];
+            const region = lastMatch[1].trim();
+            // Filtrar palabras que no son regiones
+            const palabrasFiltradas = region.split(/\s+/).filter(p =>
+                !p.includes('proximos') &&
+                !p.includes('meses') &&
+                !p.includes('semanas') &&
+                !p.includes('dias') &&
+                !p.includes('casos')
+            ).join(' ');
+            if (palabrasFiltradas.length > 1) return palabrasFiltradas;
         }
         return null;
     }
@@ -265,20 +338,20 @@ Puedo ayudarte a resolver las siguientes consultas:
     // ─── Formateo de respuestas ──────────────────────────────────────────────────
 
     private formatearPrediccionAvanzada(prediccion: any): string {
-        return `📈 **PREDICCIÓN AVANZADA: ${prediccion.evento}**\n\n` +
+        return (
+            `📈 **PREDICCIÓN AVANZADA: ${prediccion.evento}**\n\n` +
             `📍 Departamento: ${prediccion.departamento}\n` +
             `📊 Valor proyectado: **${prediccion.valor_proyectado.toLocaleString()} casos**\n` +
             `📉 IC 95%: [${prediccion.intervalo_confianza_bajo.toLocaleString()} - ${prediccion.intervalo_confianza_alto.toLocaleString()}]\n` +
             `📈 Tendencia: ${prediccion.tendencia}\n` +
             `🔄 Estacionalidad: ${prediccion.estacionalidad_detectada.join(', ')}\n` +
             `🔍 Factores: ${prediccion.factor_influencia}\n\n` +
-            `💡 ${prediccion.recomendacion}`;
+            `💡 ${prediccion.recomendacion}`
+        );
     }
 
     private formatearClasificacionRiesgo(clasificacion: any): string {
-        const emoji = clasificacion.nivel_riesgo === 'CRÍTICO' ? '🔴' :
-            clasificacion.nivel_riesgo === 'ALTO' ? '⚠️' :
-                clasificacion.nivel_riesgo === 'MEDIO' ? '📋' : '✅';
+        const emoji = this.getRiskEmoji(clasificacion.nivel_riesgo);
 
         let respuesta = `${emoji} CLASIFICACIÓN DE RIESGO (SCORING COMPUESTO)\n\n`;
         respuesta += `${clasificacion.evento} en ${clasificacion.departamento}\n\n`;
@@ -297,42 +370,75 @@ Puedo ayudarte a resolver las siguientes consultas:
         return respuesta;
     }
 
+    /**
+     * Returns emoji based on risk level for better maintainability
+     */
+    private getRiskEmoji(nivelRiesgo: string): string {
+        const emojiMap: Record<string, string> = {
+            CRÍTICO: '🔴',
+            ALTO: '⚠️',
+            MEDIO: '📋',
+        };
+        return emojiMap[nivelRiesgo] || '✅';
+    }
+
     private async listarEventosComoTexto(): Promise<string> {
         const eventos = await this.saludPublicaService.listarEventos();
         return eventos
-            .filter(e => e !== null && e !== undefined)
+            .filter((e): e is string => e !== null && e !== undefined)
             .slice(0, 15)
-            .map(e => `• ${e}`)
+            .map((e) => `• ${e}`)
             .join('\n');
     }
 
-    // ─── Métodos legacy delegados (mantenidos para compatibilidad) ────────────────
+    // ─── Métodos delegados ────────────────────────────────────────────────────────
 
     async obtenerAlertasTempranas(): Promise<string> {
-        return await this.earlyWarningService.obtenerResumenAlertas();
+        return this.earlyWarningService.obtenerResumenAlertas();
     }
 
-    async predecirEvento(evento: string, region: string): Promise<string | null> {
-        const prediccion = await this.advancedPredictionService.predecirEvento(evento, region);
+    async obtenerEventosAtencionInmediata(): Promise<string> {
+        return this.earlyWarningService.obtenerEventosAtencionInmediata();
+    }
+
+    async obtenerPanoramaRiesgoEpidemiologico(): Promise<string> {
+        return this.earlyWarningService.obtenerPanoramaRiesgoEpidemiologico();
+    }
+
+    async predecirEvento(
+        evento: string,
+        region: string,
+    ): Promise<string | null> {
+        const prediccion =
+            await this.advancedPredictionService.predecirEvento(evento, region);
         if (!prediccion) return null;
         return this.formatearPrediccionAvanzada(prediccion);
     }
 
-    async clasificarRiesgo(evento: string, region: string): Promise<string | null> {
-        const clasificacion = await this.mlPredictionService.clasificarRiesgo(evento, region);
+    async clasificarRiesgo(
+        evento: string,
+        region: string,
+    ): Promise<string | null> {
+        const clasificacion =
+            await this.mlPredictionService.clasificarRiesgo(evento, region);
         if (!clasificacion) return null;
         return this.formatearClasificacionRiesgo(clasificacion);
     }
 
     async obtenerAnalisisCompleto(departamento: string): Promise<string> {
-        return await this.mlPredictionService.obtenerAnalisisCompleto(departamento);
+        return this.mlPredictionService.obtenerAnalisisCompleto(departamento);
     }
 
     async obtenerPronosticosMultiples(departamento: string): Promise<string> {
-        return await this.advancedPredictionService.obtenerPronosticosMultiples(departamento);
+        return this.advancedPredictionService.obtenerPronosticosMultiples(departamento);
     }
 
     async listarEventosDisponibles(): Promise<string> {
-        return await this.listarEventosComoTexto();
+        return this.listarEventosComoTexto();
     }
+
+    async listarUbicacionesDisponibles(): Promise<string[]> {
+        return await this.saludPublicaService.getDepartamentos();
+    }
+
 }

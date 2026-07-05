@@ -190,6 +190,9 @@ export class EarlyWarningService {
         }
     }
 
+    /**
+     * Método original: Resumen general de todas las alertas (usado por "Alertas tempranas de salud pública")
+     */
     async obtenerResumenAlertas(): Promise<string> {
         const alertas = await this.evaluarAlertas();
 
@@ -233,5 +236,120 @@ export class EarlyWarningService {
         resumen += '_Alertas generadas automáticamente basadas en datos SIVIGILA, vacunación y análisis de tendencias._';
 
         return resumen;
+    }
+
+    /**
+     * NUEVO: Responde a "¿Qué eventos requieren atención inmediata?"
+     * Muestra SOLO los eventos en nivel EMERGENCIA o ALERTA (los más críticos).
+     */
+    async obtenerEventosAtencionInmediata(): Promise<string> {
+        const alertas = await this.evaluarAlertas();
+
+        const criticos = alertas.filter(a => a.nivel === '🔴 EMERGENCIA' || a.nivel === '🟠 ALERTA');
+
+        if (criticos.length === 0) {
+            return '✅ **No hay eventos que requieran atención inmediata en este momento.**\n\nTodos los eventos monitoreados se encuentran en niveles de vigilancia normal.';
+        }
+
+        let respuesta = '🚨 **EVENTOS QUE REQUIEREN ATENCIÓN INMEDIATA**\n\n';
+        respuesta += `Se han identificado **${criticos.length} eventos** con nivel de riesgo crítico o alto:\n\n`;
+
+        for (const a of criticos) {
+            const emoji = a.nivel === '🔴 EMERGENCIA' ? '🔴' : '🟠';
+            respuesta += `${emoji} **${a.evento}**\n`;
+            respuesta += `   📍 Departamento: ${a.departamento}\n`;
+            respuesta += `   📊 Casos reportados: ${a.casos.toLocaleString()}\n`;
+            respuesta += `   ⚠️ Factor detonante: ${a.factor_detonante}\n`;
+            respuesta += `   📈 Tendencia: ${a.tendencia} (${a.variacion_porcentual.toFixed(0)}% variación)\n`;
+            respuesta += `   💡 Acción recomendada: ${a.recomendacion}\n\n`;
+        }
+
+        respuesta += '---\n';
+        respuesta += '_Estos eventos requieren intervención prioritaria de las autoridades sanitarias._';
+        return respuesta;
+    }
+
+    /**
+     * NUEVO: Responde a "Panorama de riesgo epidemiológico"
+     * Enfoque en distribución geográfica, factores de riesgo y tendencias generales.
+     */
+    async obtenerPanoramaRiesgoEpidemiologico(): Promise<string> {
+        const alertas = await this.evaluarAlertas();
+
+        if (alertas.length === 0) {
+            return '📊 **PANORAMA DE RIESGO EPIDEMIOLÓGICO**\n\nNo se detectaron riesgos epidemiológicos significativos en el período actual.';
+        }
+
+        // Agrupar por nivel
+        const emergencias = alertas.filter(a => a.nivel === '🔴 EMERGENCIA');
+        const alertasActivas = alertas.filter(a => a.nivel === '🟠 ALERTA');
+        const vigilancia = alertas.filter(a => a.nivel === '🟡 VIGILANCIA');
+
+        // Eventos con tendencia creciente
+        const crecientes = alertas.filter(a => a.tendencia === 'creciente');
+        // Departamentos más afectados
+        const deptosAfectados = [...new Set(alertas.map(a => a.departamento))];
+
+        let respuesta = '📊 **PANORAMA DE RIESGO EPIDEMIOLÓGICO**\n\n';
+        respuesta += `Período de análisis: datos consolidados SIVIGILA\n\n`;
+
+        // Resumen ejecutivo
+        respuesta += '**Resumen ejecutivo:**\n';
+        respuesta += `• Total de eventos monitoreados: ${alertas.length}\n`;
+        respuesta += `• Departamentos con alertas: ${deptosAfectados.length}\n`;
+        respuesta += `• Eventos con tendencia creciente: ${crecientes.length}\n\n`;
+
+        // Distribución por nivel de riesgo
+        respuesta += '**Distribución por nivel de riesgo:**\n';
+        if (emergencias.length > 0) {
+            respuesta += `🔴 Emergencias: ${emergencias.length}\n`;
+            for (const a of emergencias) {
+                respuesta += `   - ${a.evento} (${a.departamento}): ${a.casos.toLocaleString()} casos\n`;
+            }
+        }
+        if (alertasActivas.length > 0) {
+            respuesta += `🟠 Alertas: ${alertasActivas.length}\n`;
+            for (const a of alertasActivas) {
+                respuesta += `   - ${a.evento} (${a.departamento}): ${a.casos.toLocaleString()} casos\n`;
+            }
+        }
+        if (vigilancia.length > 0) {
+            respuesta += `🟡 En vigilancia: ${vigilancia.length}\n`;
+            for (const a of vigilancia.slice(0, 5)) {
+                respuesta += `   - ${a.evento}: ${a.casos.toLocaleString()} casos\n`;
+            }
+        }
+        respuesta += '\n';
+
+        // Factores de riesgo predominantes
+        respuesta += '**Factores de riesgo predominantes:**\n';
+        const todosFactores = alertas.flatMap(a => a.factor_detonante.split('; '));
+        const factorCount = new Map<string, number>();
+        for (const f of todosFactores) {
+            const key = f.trim();
+            if (key) factorCount.set(key, (factorCount.get(key) || 0) + 1);
+        }
+        const factoresOrdenados = [...factorCount.entries()].sort((a, b) => b[1] - a[1]);
+        for (const [factor, count] of factoresOrdenados.slice(0, 5)) {
+            respuesta += `• ${factor} (presente en ${count} evento(s))\n`;
+        }
+        respuesta += '\n';
+
+        // Recomendaciones generales
+        respuesta += '**Recomendaciones generales:**\n';
+        if (emergencias.length > 0) {
+            respuesta += '🔴 Activar protocolos de emergencia en las regiones afectadas.\n';
+        }
+        if (alertasActivas.length > 0) {
+            respuesta += '🟠 Intensificar vigilancia activa y búsqueda de casos.\n';
+        }
+        if (crecientes.length > 3) {
+            respuesta += '📈 Reforzar campañas de prevención ante múltiples eventos con tendencia creciente.\n';
+        }
+        respuesta += '✅ Mantener canales de notificación obligatoria activos.\n\n';
+
+        respuesta += '---\n';
+        respuesta += '_Panorama generado con datos oficiales SIVIGILA, coberturas de vacunación y análisis de tendencias._';
+        return respuesta;
     }
 }

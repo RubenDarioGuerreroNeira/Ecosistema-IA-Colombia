@@ -203,32 +203,26 @@ export class BotUpdate {
 
         const isPublicHealthQuery =
             norm.includes('eventos') ||
-            norm.includes('evento') ||  // Agregado: detectar también singular "evento"
+            norm.includes('evento') ||
             norm.includes('salud publica') ||
             norm.includes('qué info tienes de salud publica') ||
             norm.includes('que info tienes de salud publica') ||
             norm.includes('salud pública') ||
             norm.includes('resumen') ||
-            // plural de eventos Rurales
             norm.includes('eventos mas rurales') ||
             norm.includes('los mas rurales') ||
             norm.includes('cuales son los eventos mas rurales') ||
             norm.includes('ranking de eventos rurales') ||
-
-            // Plural eventos Salud Urbana
             norm.includes('cuales son los eventos mas urbanos') ||
             norm.includes('eventos más rurales') ||
             norm.includes('ranking de eventos urbanos') ||
             norm.includes('que evento es el mas urbano en colombia') ||
-            // Singular evento salud Rural
             norm.includes('cual es el evento mas rural') ||
             norm.includes('enfermedad mas rural') ||
             norm.includes('mayor concentracion rural') ||
-            // Singular evento salud urbano
             norm.includes('cual es el evento mas urbano') ||
             norm.includes('enfermedad mas urbana') ||
             norm.includes('mayor concentracion urbano') ||
-
             norm.includes('adolescentes') ||
             norm.includes('mayores') ||
             norm.includes('proporcion') ||
@@ -240,19 +234,14 @@ export class BotUpdate {
             norm.includes('ranking de eventos') ||
             norm.includes('puedes mostrarme el ranking de eventos de salud en colombia') ||
             norm.includes('categorias') ||
-            //CATEGORIAS DE EVENTOS DE SALUD PUBLICA
             norm.includes('categorias de eventos de salud publica') ||
             norm.includes('cual es el ranking de categorias') ||
             (norm.includes('cual es el ranking') && norm.includes('categorias')) ||
             norm.includes('mayor incidencia') ||
             norm.includes('las categorias con mayor incidencia') ||
-
-            // eventos
             norm.includes('eventos que mas afectan a las mujeres ') ||
             norm.includes('eventos de salud en mujeres ') ||
             norm.includes('enfermedades que mas afectan a las mujeres') ||
-
-
             norm.includes('adultos jovenes');
 
         if (!isPublicHealthQuery) return false;
@@ -366,7 +355,11 @@ Te puedo responder preguntas sobre salud mental solo escribe:
 📈 **Predicciones:**
 ----------------------------------------------------------------
 Puedes Escribirme:
-- ¿Qué riesgos sanitarios pueden predecir? → (muestra la lista de eventos y departamentos/municipios disponibles)
+
+- "Servicios predictivos y clasificacion de riesgos" 
+(te mostrare mis capacidades disponibles)
+
+- Predicción de riesgos epidemiológicos (muestra la lista de eventos y departamentos disponibles)
 
 ----------------------------------------------------------------
 📊 **Estadísticas e Inteligencia Epidemiológica:**
@@ -527,6 +520,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 • "Pronóstico de dengue en Antioquia"
 • "Tendencia de tuberculosis"
 • "Proyección de casos de malaria"
+• ¿Sobre que municipios y de que enfermedades puedes hacer el analisis de riesgos?
 
 **Clasificación IA:**
 • "Clasificar riesgo de dengue en Cali"
@@ -561,7 +555,6 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
 💬 *Tip: Pregunta por cualquier municipio o departamento para estadísticas SIVIGILA.*`;
 
-        // Enviar mensajes en partes usando sendLongMessage
         await this.sendLongMessage(ctx, helpText, { parse_mode: 'Markdown' });
         await this.sendLongMessage(ctx, mentalHealthText, { parse_mode: 'Markdown' });
         await this.sendLongMessage(ctx, sexualHealthText, { parse_mode: 'Markdown' });
@@ -660,25 +653,18 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
         const messageText = ctx.message.text;
 
-        // Detectar región para posibles análisis posteriores
         const detectedRegion = this.detectRegion(messageText);
 
-        // Continuidad de conversación
         if (await this.handleConversationContinuity(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 0: Consultas de capacidades de servicios específicos
         if (await this.handleServiceCapabilitiesQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 1: Datos estructurales (conteos, listas)
         if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 2: Salud mental (incluye perfil de riesgo, diagnósticos)
         if (await this.mentalHealthQuestionsService.handleMentalHealthQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 2.5: Consultas de salud pública vía servicio especializado
         if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
 
-        // PRIORIDAD 3.5: Alertas tempranas, pronósticos y predicciones
         const normPred = normalizeString(messageText);
         if (
             normPred.includes('alertas tempranas') ||
@@ -695,47 +681,36 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
             if (await this.handleNewPredictiveServices(ctx, messageText, detectedRegion)) return;
         }
 
-        // PRIORIDAD 4: Gráficos
         if (await this.handleChartQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 5: Saludos
         if (await this.handleGreeting(ctx, messageText)) return;
 
-        // PRIORIDAD 6: Cali (antes que búsqueda general de prestadores, ya que detecta urgencias y servicios específicos)
         if (await this.handleServiceCali(ctx, messageText)) return;
 
-        // PRIORIDAD 6.5: Antioquia (procesamiento específico de Antioquia)
         if (await this.handleAntioquiaQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 7: Búsqueda de prestadores
         if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 8: Yopal específico
         if (await this.handleYopalQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 9: Predicciones
+        if (await this.handlePredictiveCapabilitiesQuery(ctx, messageText)) return;
+
         if (await this.handlePrediction(ctx, messageText)) return;
 
-        // PRIORIDAD 10: Calidad del aire
         if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 11: Estadísticas generales
         const contextData = await this.statsService.getSummary(messageText);
         if (contextData && BYPASS_MARKERS.some(marker => contextData.includes(marker))) {
             await this.sendLongMessage(ctx, contextData);
             return;
         }
 
-        // PRIORIDAD 12: Salud sexual
         if (await this.handleSexualHealthQuery(ctx, messageText)) return;
 
-        // PRIORIDAD 13: Análisis de riesgo específico
         if (await this.handleMLClassification(ctx, messageText, contextData)) return;
 
-        // PRIORIDAD 14: Salud pública (eventos por nombre)
         if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
-        // PRIORIDAD 15: IA general (solo si nada más manejó la consulta)
         await this.handleGeneralQuery(ctx, messageText, contextData);
     }
 
@@ -743,12 +718,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     private async handleAntioquiaQuery(ctx: Context, text: string): Promise<boolean> {
         const norm = normalizeString(text);
 
-        // Excluir consultas de análisis de riesgo para que sean manejadas por handleRiskAnalysis
-        if (norm.includes('analizar riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')) {
+        if (norm.includes('analizar riesgo') || norm.includes('riesgos') || norm.includes('riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')) {
             return false;
         }
 
-        // Solo procesar si la consulta menciona Antioquia
         const mentionsAntioquia = norm.includes('antioquia');
         if (!mentionsAntioquia) return false;
 
@@ -761,11 +734,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
     // ─── Cali Health Service ────────────────────────────────────────────────────
     private async handleServiceCali(ctx: Context, text: string): Promise<boolean> {
-        // Solo procesar si la consulta menciona Cali o es una consulta explícita de servicios de salud
         const norm = normalizeString(text);
 
-        // Excluir consultas de análisis de riesgo para que sean manejadas por handleRiskAnalysis
-        if (norm.includes('analizar riesgo') || norm.includes('clasificar riesgo') || norm.includes('riesgo de')) {
+        if (norm.includes('analizar riesgo') || norm.includes('clasificar riesgo') || norm.includes('riesgo de') || norm.includes('riesgos')
+            || norm.includes('riesgo')) {
             return false;
         }
 
@@ -778,7 +750,6 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         await ctx.reply(result.respuesta, { parse_mode: 'Markdown' });
         return true;
     }
-
 
     // ─── Conversation Continuity ──────────────────────────────────────────────────
     private async handleConversationContinuity(
@@ -818,8 +789,6 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
                 return false;
         }
     }
-
-
 
     // ─── Sexual Health ────────────────────────────────────────────────────────────
     private async handleSexualHealthQuery(ctx: Context, text: string): Promise<boolean> {
@@ -875,7 +844,6 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                 await ctx.reply(await this.saludPublicaQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
                 return;
             }
-
 
             if (norm.includes('que informacion tienes') && norm.includes('análisis de riesgo')) {
                 await ctx.reply(await this.predictiveQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
@@ -941,7 +909,6 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                     return true;
                 }
 
-                // Usar PredictiveQuestionsService.clasificarRiesgo para obtener el formato de Scoring Compuesto
                 const analysis = await this.predictiveQuestionsService.clasificarRiesgo(event, detectedRegion);
                 if (userId) this.userState.delete(userId);
                 if (analysis) {
@@ -963,7 +930,6 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         if (fromRiskEvents) return fromRiskEvents;
         const fromPending = (pending?.data as { event?: string } | undefined)?.event;
         if (fromPending) return fromPending;
-        // Fallback: si contiene "riesgo de" o "analizar riesgo de", extraer lo que sigue
         const fallbackMatch = norm.match(/(?:riesgo de|analizar riesgo de)\s+([a-záéíóúñ\s]+?)(?:\s+en\s+|$)/);
         if (fallbackMatch && fallbackMatch[1]) {
             return fallbackMatch[1].trim();
@@ -987,7 +953,6 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
             return matchedRegion === 'atioquia' ? 'Antioquia' : matchedRegion;
         }
 
-        // Extracción dinámica para patrones específicos donde la región no está en las listas estáticas
         const matchAire = text.match(/aire\s+en\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+?)(?:\s*[,]|$)/i);
         if (matchAire && matchAire[1]) {
             return matchAire[1].trim();
@@ -1031,7 +996,10 @@ ${this.getCommonQuestionMenu()}`,
             cleanQuery.includes(keyword.replace(/k/g, 'c'))
         );
 
-        if ((!isYopalQuery) || norm.includes('analizar riesgo') || norm.includes('analisis de riesgo')) return false;
+        if ((!isYopalQuery) || norm.includes('analizar riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')
+            || norm.includes('riesgos') || norm.includes('riesgo'))
+
+            return false;
 
         const respuesta = await this.yopalQuestionsService.processYopalQuery(text);
         if (!respuesta) return false;
@@ -1090,12 +1058,13 @@ ${this.getCommonQuestionMenu()}`,
         const userId = ctx.from?.id;
         const norm = normalizeString(text);
 
-        // No interceptar consultas de análisis de riesgo, predicción o clasificación
         if (
             norm.includes('analizar riesgo') ||
             norm.includes('analisis de riesgo') ||
             norm.includes('analisis de riesgo') ||
             norm.includes('clasificar riesgo') ||
+            norm.includes('riesgos') ||
+            norm.includes('riesgo') ||
             norm.includes('riesgo de')
         ) return false;
 
@@ -1135,7 +1104,6 @@ ${this.getCommonQuestionMenu()}`,
         if (await this.handleRiskPrediction(ctx, text, lowerText, userId, pending)) return true;
         if (await this.handleCasePrediction(ctx, lowerText, userId, pending)) return true;
 
-        // Si es pregunta general sobre predicciones, mostrar mensaje afirmativo y opciones (sin pedir ubicación)
         if (
             lowerText.includes('prediccion') ||
             lowerText.includes('pronostico') ||
@@ -1144,8 +1112,6 @@ ${this.getCommonQuestionMenu()}`,
             lowerText.includes('proyeccion') ||
             lowerText.includes('clasificar riesgo') ||
             lowerText.includes('puedes predecir riesgos') ||
-            lowerText.includes('riesgos') ||
-
             lowerText.includes('alerta temprana')
         ) {
             await this.sendPredictiveOverview(ctx);
@@ -1155,12 +1121,9 @@ ${this.getCommonQuestionMenu()}`,
         return false;
     }
 
-
-    //Prediccion
     private async sendPredictiveOverview(ctx: Context): Promise<void> {
         const eventsList = RISK_EVENTS.slice(0, 8).map(e => `• ${e}`).join('\n');
 
-        // Obtener ubicaciones disponibles dinámicamente desde los servicios
         let availableLocations: string[] = [];
         try {
             const [vaccinationDeptos, airQualityMunis] = await Promise.all([
@@ -1168,15 +1131,13 @@ ${this.getCommonQuestionMenu()}`,
                 this.airQualityService.getAllMunicipios(),
             ]);
 
-            // Combinar departamentos y municipios, eliminando duplicados
             const combined = [...vaccinationDeptos, ...airQualityMunis];
             const unique = Array.from(new Set(combined.map(l => l.trim()))).filter(l => l.length > 2);
-            availableLocations = unique.slice(0, 10); // Limitar a 10 para no saturar el mensaje
+            availableLocations = unique.slice(0, 10);
         } catch (error) {
             this.logger.warn(`Error obteniendo ubicaciones disponibles: ${error.message}`);
         }
 
-        // Fallback si no se pudieron obtener datos dinámicamente
         if (availableLocations.length === 0) {
             availableLocations = ['Norte de Santander', 'Antioquia', 'Valle del Cauca', 'Boyacá', 'Casanare (Yopal)', 'Meta', 'Cundinamarca'];
         }
@@ -1208,7 +1169,6 @@ ${this.getCommonQuestionMenu()}`,
         const region = this.detectRegion(text);
         const departamento = region || 'Antioquia';
 
-        // Si no hay evento explícito, buscar en palabras clave de riesgo
         if (!finalEventName) {
             finalEventName = RISK_ANALYSIS_KEYWORDS.find((k) => lowerText.includes(k)) || '';
         }
@@ -1309,7 +1269,6 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             pending?.intent !== 'air_quality'
         ) return false;
 
-        // Si no se detectó región por las listas, intentar extraerla del texto después de "calidad del aire en" o "calidad aire en"
         let region = detectedRegion;
         if (!region) {
             const matchCalidadAire = norm.match(/calidad\s+(?:del\s+)?aire\s+en\s+([a-z\s]+?)(?:\s*[,]|$)/i);
@@ -1319,7 +1278,6 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         }
 
         if (!region) {
-            // Obtener y mostrar municipios disponibles
             let municipiosDisponibles = 'Amazonas, Antioquia, Arauca, Atlántico, Bogotá, Bolívar, Boyacá, Caldas, Caquetá, Casanare, Cauca, Cesar, Chocó, Córdoba, Cundinamarca, Guainía, Guaviare, Huila, La Guajira, Magdalena, Meta, Nariño, Norte de Santander, Putumayo, Quindío, Risaralda, San Andrés, Santander, Sucre, Tolima, Valle del Cauca, Vaupés, Vichada';
             try {
                 const munis = await this.airQualityService.getAllMunicipios();
@@ -1372,8 +1330,6 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
                 if (userId !== undefined) this.userState.delete(userId!);
                 return true;
             }
-
-            // No interceptar consultas generales sobre capacidades de salud pública
             const norm = normalizeString(text);
             if (this.isPublicHealthCapabilitiesQuery(norm)) {
                 return false;
@@ -1458,7 +1414,6 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         const norm = normalizeString(text);
         const userId = ctx.from?.id;
 
-        // Mostrar capacidades predictivas generales (incluye listado dinámico de eventos/ubicaciones)
         const riskResponse = await this.predictiveQuestionsService.processPredictiveQuery(text);
         if (riskResponse) {
             await ctx.reply(riskResponse.respuesta, { parse_mode: 'Markdown' });
@@ -1487,6 +1442,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
 
     private async handlePredictiveCapabilitiesQuery(ctx: Context, norm: string): Promise<boolean> {
         if (
+            norm.includes('riesgos') ||
             norm.includes('que riesgos se pueden predecir') ||
             norm.includes('que eventos se pueden predecir') ||
             norm.includes('que puedes predecir') ||
@@ -1515,6 +1471,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             norm.includes('que graficas') ||
             norm.includes('que puedes graficar') ||
             norm.includes('que tipo de graficos') ||
+            norm.includes('graficar') ||
             (norm.includes('ayuda') && norm.includes('grafico'))
         ) {
             const respuesta = await this.graphicsQuestionsService.processGraphicsQuery(text);
@@ -1548,18 +1505,55 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         norm: string,
         userId: number | undefined,
     ): Promise<boolean> {
+        // Pregunta 1: "Alertas tempranas de salud pública" → resumen general
         if (
             norm.includes('alertas tempranas') ||
             norm.includes('alerta temprana') ||
-            norm.includes('alertas de salud') ||
-            norm.includes('panorama de riesgo') ||
-            norm.includes('que eventos requieren atencion')
+            norm.includes('alertas de salud')
         ) {
             if (userId) this.userState.delete(userId);
             const resumen = await this.predictiveQuestionsService.obtenerAlertasTempranas();
             await this.sendLongMessage(ctx, resumen, { parse_mode: 'Markdown' });
             return true;
         }
+
+        // Pregunta 2: "¿Qué eventos requieren atención inmediata?" → solo EMERGENCIA + ALERTA
+        if (norm.includes('que eventos requieren atencion')) {
+            if (userId) this.userState.delete(userId);
+            const respuesta = await this.predictiveQuestionsService.obtenerEventosAtencionInmediata();
+            await this.sendLongMessage(ctx, respuesta, { parse_mode: 'Markdown' });
+            return true;
+        }
+
+        // Pregunta 3.0 Que departamentos pueds predecir riesgos
+        if (norm.includes('que departamentos tienes informacion de riesgos') || norm.includes('departamentos')
+            && norm.includes('riegos')
+        ) {
+            if (userId) this.userState.delete(userId);
+            const respuesta = await this.predictiveQuestionsService.listarUbicacionesDisponibles();
+            await this.sendLongMessage(ctx, respuesta.join('\n'), { parse_mode: 'Markdown' });
+            return true;
+        }
+
+
+        if (norm.includes('predictivo') || norm.includes('clasificacion')
+            && norm.includes('riesgo') || norm.includes('alertas') || norm.includes('prediccion avanzada') &&
+            norm.includes('riesgos') || norm.includes('riesgo')
+        ) {
+            if (userId) this.userState.delete(userId);
+            const respuesta = await this.predictiveQuestionsService.listarEventosDisponibles();
+            await this.sendLongMessage(ctx, respuesta, { parse_mode: 'Markdown' });
+            return true;
+        }
+
+        // Pregunta 3: "Panorama de riesgo epidemiológico" → distribución geográfica y factores
+        if (norm.includes('panorama de riesgo')) {
+            if (userId) this.userState.delete(userId);
+            const respuesta = await this.predictiveQuestionsService.obtenerPanoramaRiesgoEpidemiologico();
+            await this.sendLongMessage(ctx, respuesta, { parse_mode: 'Markdown' });
+            return true;
+        }
+
         return false;
     }
 
@@ -1582,8 +1576,15 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         ) {
             const region = detectedRegion || 'Colombia';
 
-            const eventoMatch = norm.match(/(?:tendencia de|pronostico de|prediccion de|proyeccion de)\s+([a-z\s]+?)(?:\s+en\s+|$)/);
-            const eventoEspecifico = eventoMatch?.[1]?.trim() || (pending?.data as { event?: string } | undefined)?.event;
+            // Extracción mejorada para manejar frases como "tendencia de zika en los proximos meses en Cali"
+            // Primero intentar extraer el evento (antes del primer "en")
+            const eventoMatch = norm.match(/(?:tendencia de|pronostico de|prediccion de|proyeccion de)\s+([a-záéíóúñ]+)/);
+            let eventoEspecifico = eventoMatch?.[1]?.trim() || (pending?.data as { event?: string } | undefined)?.event;
+
+            // Validar que el evento extraído no sea una palabra temporal como "proximos", "meses", etc.
+            if (eventoEspecifico && (eventoEspecifico.includes('proximos') || eventoEspecifico.includes('meses'))) {
+                eventoEspecifico = undefined;
+            }
 
             if (eventoEspecifico) {
                 if (userId) this.userState.delete(userId);

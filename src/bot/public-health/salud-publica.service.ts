@@ -219,6 +219,13 @@ export class SaludPublicaService implements OnModuleInit {
     return this.events.map((e) => e.nombre_del_evento);
   }
 
+
+  // Obtiene Todos los departamentos
+  public async getDepartamentos(): Promise<string[]> {
+    await this.ensureReady();
+    return [...new Set(this.events.map(e => e.departamento))];
+  }
+
   /**
    * Top n eventos con más casos totales
    * Preguntas: "¿Cuáles son los 5 eventos más comunes?", "Evento con más casos", "Ranking de enfermedades"
@@ -811,5 +818,7 @@ export class SaludPublicaService implements OnModuleInit {
       )
       .slice(0, n);
   }
+
+
 
 }

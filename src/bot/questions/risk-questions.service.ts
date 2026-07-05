@@ -101,16 +101,16 @@ export class RiskQuestionsService {
 
         // Detectar si pregunta sobre capacidades del servicio de predicción de riesgos
         if (
-            norm.includes('que riesgos') ||
-            norm.includes('que analisis de riesgo') ||
-            norm.includes('que predicciones') ||
-            norm.includes('de que eventos') ||
-            norm.includes('de qué eventos') ||
-            (norm.includes('que') && norm.includes('analizar riesgo')) ||
-            (norm.includes('que') && norm.includes('riesgo') && norm.includes('enfermedades')) ||
+            norm.includes('epidemiologico') ||
+            norm.includes('eventos epidemiologicos') ||
+            norm.includes('riesgos epidemiologicos') ||
+            norm.includes('prediccion de riesgos epidemiologicos') ||
+            norm.includes('epidemiologicos') ||
+            (norm.includes('que') && norm.includes('riesgos') && norm.includes('epidemiologicos')) ||
+            (norm.includes('que') && norm.includes('riesgos') && norm.includes('epidemilogicos') && norm.includes('predecir')) ||
             (norm.includes('que') && norm.includes('riesgo') && norm.includes('predecir')) ||
-            (norm.includes('riesgos') && norm.includes('puedes predecir')) ||
-            (norm.includes('puedes predecir') && norm.includes('riesgo'))
+            (norm.includes('riesgos') && norm.includes('epidemias') && norm.includes('puedes predecir')) ||
+            (norm.includes('puedes predecir') && norm.includes('epidemias'))
         ) {
             const respuesta = await this.getAvailableQuestions();
             return { respuesta, tipo: 'listado' };
