@@ -45,6 +45,15 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
     ): Promise<{ respuesta: string; tipo: string } | null> {
         const norm = normalizeString(text);
 
+        // valida que no contenga estas palabras para que valid ela entrada al flujo 
+        if (
+            (norm.includes('municipios') || norm.includes('departamentos') && norm.includes('graficar') && norm.includes('calidad del aire')) ||
+            (norm.includes('municipios') || norm.includes('departamentos') && norm.includes('grafico') && norm.includes('calidad del aire')) ||
+            (norm.includes('calidad del aire en') && norm.includes('graficar')) ||
+            norm.includes('graficos')
+
+        ) return null;
+
         // Detectar solo consultas EXPLÍCITAS sobre capacidades del servicio (no consultas de datos reales)
         if (
             norm.includes('que calidad del aire') ||
@@ -56,6 +65,7 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
             norm.includes('tienes datos de calidad del aire') ||
             norm.includes('que preguntas sobre calidad del aire') ||
             (norm.includes('que') && norm.includes('calidad del aire') && !norm.includes(' en ')) ||
+            (norm.includes('calidad') && norm.includes('aire') || norm.includes('info') || norm.includes('informacion')) ||
             (norm.includes('que') && norm.includes('calidad aire'))
         ) {
             return { respuesta: await this.getAvailableQuestions(), tipo: 'listado' };

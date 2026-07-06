@@ -13,7 +13,10 @@ Puedo generar visualizaciones dinámicas sobre diversos temas de salud en Colomb
 🍃 **Calidad del Aire**
 -----------------------------------------------------------------------
 Escribe:
-• "¿Puedes graficar la calidad del aire?"
+
+• En que Municipios puedes graficar la calidad del aire
+• En que Departamentos puedes graficar la calidad del aire
+
 (Ejemplo: "¿Puedes graficar la calidad del aire en Cali")
 
 -----------------------------------------------------------------------
@@ -34,7 +37,6 @@ Escribe:
 • "Gráfico de Zika en zona rural vs urbana"
 • "Tendencia de tuberculosis en los últimos 6 meses"
 • "Muéstrame un gráfico de los eventos de salud pública más frecuentes en Colombia"
-
 
 
 -----------------------------------------------------------------------

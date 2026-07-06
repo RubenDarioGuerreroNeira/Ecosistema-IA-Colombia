@@ -31,13 +31,20 @@ export class ChartQueryService {
         const norm = normalizeString(text);
 
         // --- Helper para detectar si la consulta es explícitamente sobre aire/ambiente ---
-        const isAirQuery = (norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')) &&
-            (norm.includes('grafic') || norm.includes('visual') || norm.includes('indicador') || norm.includes('mostrar') || norm.includes('muestra'));
-        const isAirQueryIn = (norm.includes('calidad del aire en') || norm.includes('calidad aire en'));
+        const isAirQuery = (
+            norm.includes('aire') || norm.includes('ambiental') || norm.includes('contaminacion')
+        ) && (
+                norm.includes('grafic') || norm.includes('visual') || norm.includes('indicador') ||
+                norm.includes('mostrar') || norm.includes('muestra')
+            );
+
+        const isAirQueryIn = (
+            norm.includes('calidad del aire en') || norm.includes('calidad aire en') ||
+            norm.includes('graficar calidad aire en')
+        );
 
         // 1. Calidad del Aire (solo si la consulta menciona explícitamente aire)
         if (isAirQueryIn && region) {
-            // Caso: consulta específica con región ("calidad del aire en bello")
             const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
             if (aireData && aireData.length > 0) {
                 const uniqueVariables = Array.from(new Map(aireData.map((v: any) => [v.variable, v])).values());
@@ -48,18 +55,46 @@ export class ChartQueryService {
                 return { success: true, photo: chartUrl, caption: `🍃 Indicadores ambientales para ${region}.` };
             }
             return { success: false };
-        } else if (isAirQuery) {
+        }
+
+        if (isAirQuery) {
+            // si pregunta en que departamentos puedes mostrar calidad del aire
+            if (!region && norm.includes('en que departamentos') && norm.includes('calidad del aire')) {
+                const deptos = await this.airQualityService.getAllDepartamentos();
+                const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');
+                return {
+                    success: true,
+                    message: `🍃 Puedo generar gráficos de calidad del aire para los siguientes departamentos:\n\n${listaDeptos}\n\n¿De cuál deseas ver la cobertura? (Ej: "Graficar calidad del aire en Antioquia")`,
+                    needsLocation: true,
+                    intent: 'chart_air_quality',
+                };
+            }
+
+            // si pregunta en que municipios puedes mostrar calidad del aire
+            if (norm.includes('en que municipios') && norm.includes('calidad del aire')) {
+                const municipios = await this.airQualityService.getAllMunicipios();
+                const listaMunicipios = municipios.map(m => `• **${m}**`).join('\n');
+                return {
+                    success: true,
+                    message: `🍃 Puedo generar gráficos de calidad del aire para los siguientes municipios:\n\n${listaMunicipios}\n\n¿De cuál deseas ver la cobertura? (Ej: "Graficar calidad del aire en Cali")`,
+                    needsLocation: true,
+                    intent: 'chart_air_quality',
+                };
+            }
+
             // Caso: consulta general sin región específica
             if (!region) {
                 const municipios = await this.airQualityService.getAllMunicipios();
                 const listaMunicipios = municipios.slice(0, 30).map(m => `• ${m}`).join('\n');
                 return {
                     success: true,
-                    message: `☁️ Tengo datos de calidad del aire para varios municipios de Colombia.\n\nEjemplos:\n${listaMunicipios}\n\n📍 ¿De qué **municipio o departamento** deseas consultar? (Ej: "Graficar aire en Cali")`,
+                    message: `☁️ Tengo datos de calidad del aire para varios municipios de Colombia.\n\nEjemplos:\n${listaMunicipios}\n\n📍 ¿De qué **municipio** deseas consultar? (Ej: "Graficar aire en Andes")`,
                     needsLocation: true,
                     intent: 'chart_air_quality',
                 };
             }
+
+            // Si hay región, generar gráfico
             const aireData = await this.airQualityService.getAirQualityByMunicipio(region);
             if (aireData && aireData.length > 0) {
                 const uniqueVariables = Array.from(new Map(aireData.map((v: any) => [v.variable, v])).values());
@@ -94,7 +129,7 @@ export class ChartQueryService {
         }
 
         // 4. Top Eventos Salud Pública
-        if ((norm.includes('salud publica'))) {
+        if (norm.includes('salud publica')) {
             const top = await this.healthDataService.getTopEvents(6);
             const labels = top.map(e => e.nombre_del_evento.length > 20 ? e.nombre_del_evento.substring(0, 17) + '...' : e.nombre_del_evento);
             const data = top.map(e => e.total_de_eventos);
@@ -144,69 +179,82 @@ export class ChartQueryService {
         }
 
         // 6. Vacunación
-        // valido que no contenga la palabra informacion
-
         if (norm.includes('servicios') || norm.includes('servicio') || norm.includes('serv')) {
             return { success: false };
         }
 
         if (
-            (norm.includes('grafico') && norm.includes('vacun'))
-            || norm.includes('puedes graficar vacunas')
-            || (norm.includes('graficar') && norm.includes('vacunacion'))
-            || (norm.includes('grafico') && norm.includes('vacunacion'))
-            || (norm.includes('grafico') && norm.includes('vacunas'))
-
+            (norm.includes('grafico') && norm.includes('vacun')) ||
+            norm.includes('puedes graficar vacunas') ||
+            (norm.includes('graficar') && norm.includes('vacunacion')) ||
+            (norm.includes('grafico') && norm.includes('vacunacion')) ||
+            (norm.includes('grafico') && norm.includes('vacunas')) ||
+            (norm.includes('grafico') && norm.includes('vacun')) ||
+            (norm.includes('grafico') && norm.includes('vacuna')) ||
+            (norm.includes('que') && norm.includes('puedes') && norm.includes('graficar'))
         ) {
             return { success: true };
         }
 
         if (
-            (norm.includes('informacion') && norm.includes('vacunacion') || norm.includes('vacunas')) ||
+            (norm.includes('informacion') && norm.includes('vacunacion')) ||
             (norm.includes('info') && norm.includes('vacunacion')) ||
-            (norm.includes('datos') && (norm.includes('vacunacion') || norm.includes('vacunacion'))) ||
-            norm.includes('vacunas') || norm.includes('vacunación') || norm.includes('vacunacion')
+            (norm.includes('datos') && (norm.includes('vacunacion'))) ||
+            norm.includes('vacunas') ||
+            norm.includes('vacunación') ||
+            norm.includes('vacunacion') ||
+            (norm.includes('sabes') && norm.includes('hacer')) ||
+            norm.includes('hola') ||
+            norm.includes('como') ||
+            norm.includes('cual') ||
+            norm.includes('que') ||
+            norm.includes('quiero') ||
+            norm.includes('quieres') ||
+            norm.includes('necesito') ||
+            norm.includes('necesitas') ||
+            norm.includes('quiere') ||
+            norm.includes('necesita') ||
+            norm.includes('cuanto') ||
+            norm.includes('cuantos') ||
+            norm.includes('cuales') ||
+            norm.includes('cuantas') ||
+            norm.includes('cuanta') ||
+            norm.includes('cantidad') ||
+            norm.includes('cantidades')
         ) {
             return { success: false };
         }
 
-        {
-            if (!region) {
-                const deptos = await this.vaccinationService.getAllDepartament();
-                const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');
-                return {
-                    success: true,
-                    message: `💉 Puedo generar gráficos de la  información de vacunación de los siguientes departamentos:\n\n${listaDeptos}\n\n¿De cuál deseas ver la cobertura? (Ej: "Graficar vacunas en Antioquia")`,
-                    needsLocation: true,
-                    intent: 'chart_vaccination',
-                };
-            }
-            const coberturas = await this.vaccinationService.getCoverageByDepartment(region);
-            if (coberturas && coberturas.length > 0) {
-                const dataMap = new Map<string, number>();
-                coberturas.forEach(c => {
-                    const rawVal = parseFloat(c.cobertura_de_vacunaci_n);
-                    const val = rawVal <= 1 ? rawVal * 100 : rawVal;
-                    if (!isNaN(val)) dataMap.set(c.biol_gico, val);
-                });
-                const sorted = Array.from(dataMap.entries()).sort(([, a], [, b]) => b - a).slice(0, 8);
-                const labels = sorted.map(([l]) => l);
-                const data = sorted.map(([, d]) => d);
-
-                // Elegir tipo de gráfico según la cantidad de vacunas:
-                // - Hasta 6: doughnut (torta)
-                // - Más de 6: barras horizontales (más legible)
-                let chartUrl: string;
-                if (labels.length <= 6) {
-                    chartUrl = this.chartService.generatePieChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
-                } else {
-                    chartUrl = this.chartService.generateHorizontalBarChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
-                }
-                return { success: true, photo: chartUrl, caption: `💉 Coberturas de vacunación en ${region}.` };
-            }
-            return { success: false, message: `No se encontró información de vacunación en ${region}.` };
+        if (!region) {
+            const deptos = await this.vaccinationService.getAllDepartament();
+            const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');
+            return {
+                success: true,
+                message: `💉 Puedo generar gráficos de la información de vacunación de los siguientes departamentos:\n\n${listaDeptos}\n\n¿De cuál deseas ver la cobertura? (Ej: "Graficar vacunas en Antioquia")`,
+                needsLocation: true,
+                intent: 'chart_vaccination',
+            };
         }
+        const coberturas = await this.vaccinationService.getCoverageByDepartment(region);
+        if (coberturas && coberturas.length > 0) {
+            const dataMap = new Map<string, number>();
+            coberturas.forEach(c => {
+                const rawVal = parseFloat(c.cobertura_de_vacunaci_n);
+                const val = rawVal <= 1 ? rawVal * 100 : rawVal;
+                if (!isNaN(val)) dataMap.set(c.biol_gico, val);
+            });
+            const sorted = Array.from(dataMap.entries()).sort(([, a], [, b]) => b - a).slice(0, 8);
+            const labels = sorted.map(([l]) => l);
+            const data = sorted.map(([, d]) => d);
 
-        return { success: false };
+            let chartUrl: string;
+            if (labels.length <= 6) {
+                chartUrl = this.chartService.generatePieChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
+            } else {
+                chartUrl = this.chartService.generateHorizontalBarChart(labels, data, `Cobertura de Vacunación en ${region} (%)`);
+            }
+            return { success: true, photo: chartUrl, caption: `💉 Coberturas de vacunación en ${region}.` };
+        }
+        return { success: false, message: `No se encontró información de vacunación en ${region}.` };
     }
 }
