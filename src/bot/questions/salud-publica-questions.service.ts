@@ -105,6 +105,11 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
       return null; // Dejo que el ChartQueryService maneje esta consulta específica de gráfico para evitar solapamientos y mantener la lógica de gráficos centralizada.
     };
 
+    // Excluir consultas de vacunación para que las maneje VaccinationService
+    if (norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('vacunas') || norm.includes('vacun')) {
+      return null;
+    }
+
     // Consulta de capacidades (solo si NO es una consulta específica de evento rural/urbano)
     const isSpecificQuery =
       norm.includes('cual es el evento mas rural') ||

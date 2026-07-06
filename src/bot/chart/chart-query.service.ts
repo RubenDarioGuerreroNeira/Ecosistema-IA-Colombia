@@ -73,7 +73,8 @@ export class ChartQueryService {
         }
 
         // 2. Cali Health - Solo cuando se piden EXPRESAMENTE servicios de salud en Cali
-        const serviciosKeywords = ['grafica servicios', 'graficar servicios ', 'clinicas', 'hospitales', 'prestadores', 'ips'];
+        const serviciosKeywords = ['grafica servicios', 'graficar servicios ',
+            'grafico servicios', 'grafico de servicios', 'clinicas', 'hospitales', 'prestadores', 'ips'];
         const isCaliServicesQuery = norm.includes('grafica servicios') ||
             (region === 'CALI' && serviciosKeywords.some(k => norm.includes(k)));
         if (isCaliServicesQuery) {
@@ -143,7 +144,33 @@ export class ChartQueryService {
         }
 
         // 6. Vacunación
-        if (norm.includes('vacun') || norm.includes('puedes graficar')) {
+        // valido que no contenga la palabra informacion
+
+        if (norm.includes('servicios') || norm.includes('servicio') || norm.includes('serv')) {
+            return { success: false };
+        }
+
+        if (
+            (norm.includes('grafico') && norm.includes('vacun'))
+            || norm.includes('puedes graficar vacunas')
+            || (norm.includes('graficar') && norm.includes('vacunacion'))
+            || (norm.includes('grafico') && norm.includes('vacunacion'))
+            || (norm.includes('grafico') && norm.includes('vacunas'))
+
+        ) {
+            return { success: true };
+        }
+
+        if (
+            (norm.includes('informacion') && norm.includes('vacunacion') || norm.includes('vacunas')) ||
+            (norm.includes('info') && norm.includes('vacunacion')) ||
+            (norm.includes('datos') && (norm.includes('vacunacion') || norm.includes('vacunacion'))) ||
+            norm.includes('vacunas') || norm.includes('vacunación') || norm.includes('vacunacion')
+        ) {
+            return { success: false };
+        }
+
+        {
             if (!region) {
                 const deptos = await this.vaccinationService.getAllDepartament();
                 const listaDeptos = deptos.map(d => `• **${d}**`).join('\n');

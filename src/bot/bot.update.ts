@@ -324,6 +324,10 @@ Me Puedes preguntar:
  "¿Qué puedes Graficar?" 
  (te mostraré la lista de gráficos que puedo hacer para ti)
 
+ "¿ Puedes graficar la cobertura de vacunacion en Colombia?"
+
+ - "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
+
 ------------------------------------------------------------------
 📍 **Información sobre Yopal:**
 ------------------------------------------------------------------
@@ -359,7 +363,8 @@ Puedes Escribirme:
 - "Servicios predictivos y clasificacion de riesgos" 
 (te mostrare mis capacidades disponibles)
 
-- Predicción de riesgos epidemiológicos (muestra la lista de eventos y departamentos disponibles)
+- Predicción de riesgos epidemiológicos 
+(muestra la lista de eventos y departamentos disponibles)
 
 ----------------------------------------------------------------
 📊 **Estadísticas e Inteligencia Epidemiológica:**
@@ -368,11 +373,15 @@ Puedes Escribirme:
 
 - "¿Cuál es la tendencia de la tuberculosis en los últimos 6 meses?"
 
-- "Muéstrame un gráfico de los eventos de salud pública más frecuentes."
+
 
 ----------------------------------------------------------------
 🛡️ **Análisis de Riesgo y Vacunación:**
 ----------------------------------------------------------------
+
+- ¿Puedes gráficar la informacion sobre vacunación en Colombia?
+  (te mostrare los departamentos y indicadores de vacunación)
+
 - "De que Eventos de Salud puedes hacer análisis de riesgo" (te mostrare los eventos y los departamentos).
 
 - "Analizar riesgo de sarampión en Antioquia" (revisaré casos vs. cobertura de vacuna TV).
@@ -652,6 +661,7 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         if (!ctx.message || !('text' in ctx.message)) return;
 
         const messageText = ctx.message.text;
+        this.logger.log(`onText received - userId=${ctx.from?.id}, text="${messageText}"`);
 
         const detectedRegion = this.detectRegion(messageText);
 
@@ -689,6 +699,8 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
         if (await this.handleAntioquiaQuery(ctx, messageText)) return;
 
+        if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
+
         if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
 
         if (await this.handleYopalQuery(ctx, messageText)) return;
@@ -709,9 +721,298 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
         if (await this.handleMLClassification(ctx, messageText, contextData)) return;
 
+        if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
+
         if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
 
         await this.handleGeneralQuery(ctx, messageText, contextData);
+    }
+
+    // ─── Vaccination ────────────────────────────────────────────────────────────
+    private async handleVaccination(ctx: Context, text: string, detectedRegion?: string): Promise<boolean> {
+        const userId = ctx.from?.id;
+        const pending = userId ? this.userState.get(userId) : null;
+        const norm = normalizeString(text);
+        this.logger.log(`handleVaccination invoked - userId=${userId}, text="${text}", norm="${norm}"`);
+        this.logger.log(`handleVaccination - detectedRegion="${detectedRegion}"`);
+
+        this.logger.log(`handleVaccination - entró en bloque general de vacunación? ${norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('informacion sobre vacunas')}`);
+        // Detectar si es una pregunta general sobre vacunación (sin región específica)
+        if (norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('informacion sobre vacunas')) {
+            if (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('departamento')) {
+                if (detectedRegion) {
+                    const indicators = await this.vaccinationService.getAvailableIndicatorsByDepartment(detectedRegion);
+                    if (indicators && indicators.length > 0) {
+                        const response = `📊 **Indicadores de vacunación disponibles en ${detectedRegion}:**\n\n${indicators.map(i => `• ${i}`).join('\n')}`;
+                        await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                        return true;
+                    } else {
+                        await ctx.reply(`No se encontraron indicadores de vacunación para ${detectedRegion}.`);
+                        return true;
+                    }
+                }
+                await ctx.reply('📍 ¿Para qué departamento deseas consultar los indicadores de vacunación?');
+                return true;
+            }
+
+            // Pregunta específica sobre indicadores por municipio
+            if (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('municipio')) {
+                if (detectedRegion) {
+                    const indicators = await this.vaccinationService.getAvailableIndicatorsByMunicipio(detectedRegion);
+                    if (indicators && indicators.length > 0) {
+                        const response = `📊 **Indicadores de vacunación disponibles en ${detectedRegion}:**\n\n${indicators.map(i => `• ${i}`).join('\n')}`;
+                        await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                        return true;
+                    } else {
+                        await ctx.reply(`No se encontraron indicadores de vacunación para ${detectedRegion}.`);
+                        return true;
+                    }
+                }
+                await ctx.reply('📍 ¿Para qué municipio deseas consultar los indicadores de vacunación?');
+                return true;
+            }
+
+            // Pregunta sobre estadísticas por departamento
+            if (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('departamento') && detectedRegion) {
+                const stats = await this.vaccinationService.getVaccinationStatsByDepartment(detectedRegion);
+                await ctx.reply(stats, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta sobre estadísticas por municipio
+            if (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('municipio') && detectedRegion) {
+                const stats = await this.vaccinationService.getVaccinationStatsByMunicipio(detectedRegion);
+                await ctx.reply(stats, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta sobre top departamentos
+            if (norm.includes('top') && norm.includes('vacunacion') && (norm.includes('departamentos') || norm.includes('departamento'))) {
+                const topDepts = await this.vaccinationService.getTopDepartmentsByCoverage();
+                if (topDepts && topDepts.length > 0) {
+                    const response = `🏆 **Top 5 Departamentos por Cobertura de Vacunación:**\n\n${topDepts.map((d, i) => `${i + 1}. **${d.departamento}**: ${d.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                    await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                    return true;
+                }
+            }
+
+            // Pregunta sobre filtro por tipo biológico
+            const biologicoMatch = text.match(/(?:biol[oó]gico(?:s)?(?:\s+de)?\s*[:\-]?\s*|vacunas?\s+de\s+)([a-z0-9áéíóúñÁÉÍÓÚÑ\s]+)/i);
+            if ((norm.includes('biolog') || norm.includes('tipo biol')) && !norm.includes('indicadores') && !norm.includes('estadisticas')) {
+                const biologico = biologicoMatch?.[1]?.trim();
+                if (!biologico || biologico.length < 2) {
+                    await ctx.reply('📍 ¿Cuál es el tipo biológico o vacuna que deseas filtrar?');
+                    if (userId) {
+                        this.userState.set(userId, { intent: 'vaccination_filter_biologico' });
+                    }
+                    return true;
+                }
+
+                const results = await this.vaccinationService.getVaccinationByBiologico(biologico);
+                if (!results || results.length === 0) {
+                    await ctx.reply(`No encontré registros de vacunación para el biológico "${biologico}".`);
+                    return true;
+                }
+
+                const response = `💉 **Vacunación filtrada por biológico: ${biologico}**\n\n${results.slice(0, 20).map(r => `• ${r.departamento} / ${r.indicator1 || 'Indicador'}: ${r.cobertura_de_vacunaci_n}% (${r.biol_gico || 'N/A'})`).join('\n')}`;
+                await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta de búsqueda flexible por múltiples criterios
+            if ((norm.includes('filtra') || norm.includes('filtro') || norm.includes('buscar') || norm.includes('consulta') || norm.includes('criterios')) &&
+                (norm.includes('departamento') || norm.includes('municipio') || norm.includes('biolog') || norm.includes('año') || norm.includes('ano'))) {
+                const criteria: { departamento?: string; municipio?: string; biologico?: string; year?: string } = {};
+                const deptMatch = text.match(/departamento(?:\s+de)?\s+([a-záéíóúñÁÉÍÓÚÑ\s]+)/i);
+                const muniMatch = text.match(/municipio(?:\s+de)?\s+([a-záéíóúñÁÉÍÓÚÑ\s]+)/i);
+                const biologicoTextMatch = text.match(/(?:biol[oó]gico(?:s)?(?:\s+de)?\s*[:\-]?\s*|vacunas?\s+de\s+)([a-z0-9áéíóúñÁÉÍÓÚÑ\s]+)/i);
+                const yearMatch = text.match(/\b(19|20)\d{2}\b/);
+
+                if (deptMatch && deptMatch[1]) {
+                    criteria.departamento = deptMatch[1].trim();
+                }
+                if (muniMatch && muniMatch[1]) {
+                    criteria.municipio = muniMatch[1].trim();
+                }
+                if (biologicoTextMatch && biologicoTextMatch[1]) {
+                    criteria.biologico = biologicoTextMatch[1].trim();
+                }
+                if (yearMatch && yearMatch[0]) {
+                    criteria.year = yearMatch[0];
+                }
+
+                if (Object.keys(criteria).length === 0) {
+                    await ctx.reply('📍 ¿Qué criterios quieres usar para la búsqueda de vacunación? Puedes especificar departamento, municipio, tipo biológico o año.');
+                    if (userId) {
+                        this.userState.set(userId, { intent: 'vaccination_search_criteria' });
+                    }
+                    return true;
+                }
+
+                const results = await this.vaccinationService.searchVaccinationData(criteria);
+                if (!results || results.length === 0) {
+                    await ctx.reply('No encontré resultados de vacunación con los criterios indicados.');
+                    return true;
+                }
+
+                const response = `🔎 **Búsqueda de vacunación**\n\n${results.slice(0, 20).map(r => `• ${r.departamento} / ${r.indicator1 || 'Indicador'} (${r.biol_gico || 'N/A'}): ${r.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta sobre resumen por año
+            if ((norm.includes('resumen') && norm.includes('vacunacion')) || (norm.includes('vacunacion') && norm.includes('año')) || (norm.includes('vacunacion') && norm.includes('ano'))) {
+                const summary = await this.vaccinationService.getCoverageSummary();
+                await ctx.reply(summary, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta sobre departamentos/municipios disponibles
+            if ((norm.includes('municipios') || norm.includes('departamentos')) && norm.includes('vacunacion')) {
+                const deptos = await this.vaccinationService.getAllDepartament();
+                const municipios = await this.vaccinationService.getAllMunicipios();
+                const response = `💉 **Ubicaciones disponibles para vacunación:**\n\n**Departamentos:** ${deptos.slice(0, 10).join(', ')}${deptos.length > 10 ? '...' : ''}\n\n**Municipios:** ${municipios.slice(0, 10).join(', ')}${municipios.length > 10 ? '...' : ''}`;
+                await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                return true;
+            }
+
+            // Pregunta sobre indicadores altos y bajos por departamento
+            const matchesIndicatorsLowHigh = (
+                norm.includes('indicadores') &&
+                norm.includes('vacunacion') &&
+                (norm.includes('bajos') || norm.includes('bajo') || norm.includes('alto') || norm.includes('altos'))
+            );
+            this.logger.log(`handleVaccination - bloque altos/bajos? ${matchesIndicatorsLowHigh}, detectedRegion="${detectedRegion}"`);
+            if (matchesIndicatorsLowHigh) {
+                if (detectedRegion) {
+                    // Priorizar coincidencia con municipios si la región detectada corresponde a un municipio
+                    const municipiosList = await this.vaccinationService.getAllMunicipios();
+                    const detectedNorm = normalizeString(detectedRegion);
+                    const matchedMunicipio = municipiosList.find(m => {
+                        const mNorm = normalizeString(m || '');
+                        return mNorm === detectedNorm || mNorm.includes(detectedNorm) || detectedNorm.includes(mNorm);
+                    });
+
+                    if (matchedMunicipio) {
+                        const highest = await this.vaccinationService.getHighestIndicatorsByMunicipio(matchedMunicipio);
+                        const lowest = await this.vaccinationService.getLowestIndicatorsByMunicipio(matchedMunicipio);
+                        let response = `📊 **Indicadores de vacunación - ${matchedMunicipio}**\n\n`;
+                        if (highest && highest.length > 0) {
+                            response += `🏆 **Más altos:**\n${highest.map(h => `• ${h.indicator1}: ${h.cobertura_de_vacunaci_n}%`).join('\n')}\n\n`;
+                        }
+                        if (lowest && lowest.length > 0) {
+                            response += `📉 **Más bajos:**\n${lowest.map(l => `• ${l.indicator1}: ${l.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                        }
+                        await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                        return true;
+                    }
+
+                    // Si no coincide con municipio, tratar como departamento
+                    const highestDept = await this.vaccinationService.getHighestIndicatorsByDepartamento(detectedRegion);
+                    const lowestDept = await this.vaccinationService.getLowestIndicatorsByDepartamento(detectedRegion);
+
+                    let responseDept = `📊 **Indicadores de vacunación - ${detectedRegion}**\n\n`;
+                    if (highestDept && highestDept.length > 0) {
+                        responseDept += `🏆 **Más altos:**\n${highestDept.map(h => `• ${h.indicator1}: ${h.cobertura_de_vacunaci_n}%`).join('\n')}\n\n`;
+                    }
+                    if (lowestDept && lowestDept.length > 0) {
+                        responseDept += `📉 **Más bajos:**\n${lowestDept.map(l => `• ${l.indicator1}: ${l.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                    }
+                    await this.sendLongMessage(ctx, responseDept, { parse_mode: 'Markdown' });
+                    return true;
+                }
+                // Si no se detectó una región desde detectRegion, intentar inferir municipio directamente desde el texto
+                if (!detectedRegion) {
+                    try {
+                        const municipiosList = await this.vaccinationService.getAllMunicipios();
+                        const textNorm = normalizeString(text);
+                        const matchedFromText = municipiosList.find(m => {
+                            const mNorm = normalizeString(m || '');
+                            return textNorm.includes(mNorm) || mNorm.includes(textNorm);
+                        });
+                        if (matchedFromText) {
+                            const highest = await this.vaccinationService.getHighestIndicatorsByMunicipio(matchedFromText);
+                            const lowest = await this.vaccinationService.getLowestIndicatorsByMunicipio(matchedFromText);
+                            let response = `📊 **Indicadores de vacunación - ${matchedFromText}**\n\n`;
+                            if (highest && highest.length > 0) {
+                                response += `🏆 **Más altos:**\n${highest.map(h => `• ${h.indicator1}: ${h.cobertura_de_vacunaci_n}%`).join('\n')}\n\n`;
+                            }
+                            if (lowest && lowest.length > 0) {
+                                response += `📉 **Más bajos:**\n${lowest.map(l => `• ${l.indicator1}: ${l.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                            }
+                            await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                            return true;
+                        }
+                    } catch (err) {
+                        this.logger.warn(`Error buscando municipios en texto: ${err.message}`);
+                    }
+                }
+
+                // Sin región detectada - preguntar por el departamento y guardar estado
+                await ctx.reply('📍 ¿Para qué **departamento** deseas consultar los indicadores de vacunación (altos/bajos)?', { parse_mode: 'Markdown' });
+                if (userId) {
+                    this.userState.set(userId, { intent: 'vaccination_indicators' });
+                }
+                return true;
+            }
+
+            // indicadores altos y bajos por municipio
+            const municipios = await this.vaccinationService.getAllMunicipios();
+            const municipioLowHigh = (norm.includes('indicadores') &&
+                norm.includes('vacunacion') &&
+                (norm.includes('bajos') || norm.includes('bajo') || norm.includes('alto') || norm.includes('altos'))
+            );
+
+            if (municipioLowHigh) {
+                if (detectedRegion) {
+                    const detectedNorm = normalizeString(detectedRegion);
+                    const matchedMunicipio = municipios.find(m => {
+                        const mNorm = normalizeString(m || '');
+                        return mNorm === detectedNorm || mNorm.includes(detectedNorm) || detectedNorm.includes(mNorm);
+                    });
+
+                    if (matchedMunicipio) {
+                        const highest = await this.vaccinationService.getHighestIndicatorsByMunicipio(matchedMunicipio);
+                        const lowest = await this.vaccinationService.getLowestIndicatorsByMunicipio(matchedMunicipio);
+                        let response = `📊 **Indicadores de vacunación - ${matchedMunicipio}**\n\n`;
+                        if (highest && highest.length > 0) {
+                            response += `🏆 **Más altos:**\n${highest.map(h => `• ${h.indicator1}: ${h.cobertura_de_vacunaci_n}%`).join('\n')}\n\n`;
+                        }
+                        if (lowest && lowest.length > 0) {
+                            response += `📉 **Más bajos:**\n${lowest.map(l => `• ${l.indicator1}: ${l.cobertura_de_vacunaci_n}%`).join('\n')}`;
+                        }
+                        await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                        return true;
+                    }
+                }
+
+                // Sin región detectada o no se reconoció el municipio - preguntar por el municipio y guardar estado
+                await ctx.reply('📍 ¿Para qué **municipio** deseas consultar los indicadores de vacunación (altos/bajos)?', { parse_mode: 'Markdown' });
+                if (userId) {
+                    this.userState.set(userId, { intent: 'vaccination_indicators' });
+                }
+                return true;
+            }
+
+
+            // Consulta con región detectada - mostrar cobertura
+            if (detectedRegion) {
+                const coverage = await this.vaccinationService.getCoverageByDepartment(detectedRegion);
+                if (coverage && coverage.length > 0) {
+                    const response = `💉 **Cobertura de vacunación en ${detectedRegion}:**\n\n${coverage.slice(0, 10).map(c => `${c.indicator1 || 'Indicador'}: ${c.cobertura_de_vacunaci_n}% (${c.biol_gico || 'N/A'})`).join('\n')}`;
+                    await this.sendLongMessage(ctx, response, { parse_mode: 'Markdown' });
+                    return true;
+                }
+            }
+
+            // Pregunta general sobre vacunación
+            const available = await this.vaccinationService.getAvailabeQuestions();
+            await ctx.reply(available, { parse_mode: 'Markdown' });
+            this.logger.log(`handleVaccination - respondió con lista general de vacunación`);
+            return true;
+        }
+        this.logger.log(`handleVaccination - SALIENDO false, texto no consideró consulta de vacunación`);
+        return false;
     }
 
     // ─── Antioquia Health Service ─────────────────────────────────────────────
@@ -719,6 +1020,11 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         const norm = normalizeString(text);
 
         if (norm.includes('analizar riesgo') || norm.includes('riesgos') || norm.includes('riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')) {
+            return false;
+        }
+
+        // Excluir consultas de vacunación para que las maneje handleVaccination
+        if (norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('vacunas') || norm.includes('vacun')) {
             return false;
         }
 
@@ -739,7 +1045,24 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         if (norm.includes('analizar riesgo') || norm.includes('clasificar riesgo') || norm.includes('riesgo de') || norm.includes('riesgos')
             || norm.includes('riesgo')) {
             return false;
-        }
+        } else
+
+            if (
+                (norm.includes('indicadores') && norm.includes('altos') || norm.includes('vacunacion')) ||
+                (norm.includes('altos') && norm.includes('indicadores') && norm.includes('vacunacion')) ||
+                (norm.includes('vacunacion') && norm.includes('indicadores')) ||
+                (norm.includes('indicadores') && norm.includes('bajos')) ||
+                (norm.includes('bajos') && norm.includes('indicadores')) ||
+                (norm.includes('indicadores') && norm.includes('altos') && norm.includes('bajos')) ||
+                (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('altos')) ||
+                (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('bajos')) ||
+                (norm.includes('indicadores') && norm.includes('vacunacion') && norm.includes('altos') && norm.includes('bajos')) ||
+                (norm.includes('indicadores') && norm.includes('altos') && norm.includes('bajos') && norm.includes('vacunacion')) ||
+                norm.includes('vacunacion')
+
+            ) {
+                return false;
+            }
 
         const mentionsCali = norm.includes('cali');
         if (!mentionsCali) return false;
@@ -785,6 +1108,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
                 return await this.handleStructuralDataQuery(ctx, text, region);
             case 'provider_search':
                 return await this.handleProviderSearch(ctx, text, region);
+            case 'vaccination_indicators':
+                // Reanudar consulta de indicadores de vacunación altos/bajos con la región indicada
+                if (userId) this.userState.delete(userId);
+                return await this.handleVaccination(ctx, text, region);
             default:
                 return false;
         }
@@ -852,6 +1179,13 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
             if (norm.includes('que informacion tienes') && norm.includes('calidad del aire')) {
                 await ctx.reply(await this.airQualityQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
                 return;
+            }
+            if (norm.includes('que informacion tienes') && norm.includes('vacunacion')) {
+                // Responder con las preguntas disponibles del servicio de vacunación
+                if (this.vaccinationService && typeof this.vaccinationService.getAvailableQuestions === 'function') {
+                    await ctx.reply(await this.vaccinationService.getAvailableQuestions(), { parse_mode: 'Markdown' });
+                    return;
+                }
             }
             if (norm.includes('que informacion tienes') && norm.includes('gráficos')) {
                 await ctx.reply(await this.graphicsQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
@@ -996,9 +1330,22 @@ ${this.getCommonQuestionMenu()}`,
             cleanQuery.includes(keyword.replace(/k/g, 'c'))
         );
 
+        // Valido que excluya las palabras analis de riesgo, riesgos
         if ((!isYopalQuery) || norm.includes('analizar riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')
             || norm.includes('riesgos') || norm.includes('riesgo'))
+            return false;
 
+        // valido que no  contnetga las palabras Vacunas, Municipio,departamentos
+        if (
+            (norm.includes('vacunas') && norm.includes('municipios') && norm.includes('departamentos')) ||
+            (norm.includes('vacunas') && norm.includes('municipios')) ||
+            (norm.includes('vacunas') && norm.includes('departamentos')) ||
+            (norm.includes('vacunacion') && norm.includes('municipios') && norm.includes('departamentos')) ||
+            (norm.includes('vacunacion') && norm.includes('municipios')) ||
+            (norm.includes('vacunacion') && norm.includes('departamentos')) ||
+            norm.includes('vacunas') || norm.includes('vacunacion')
+
+        )
             return false;
 
         const respuesta = await this.yopalQuestionsService.processYopalQuery(text);
@@ -1049,7 +1396,7 @@ ${this.getCommonQuestionMenu()}`,
         return false;
     }
 
-    // ─── Provider Search ────────────────────────────────────────────────────────────
+    //Manejador de Provedores de salud 
     private async handleProviderSearch(
         ctx: Context,
         text: string,
@@ -1072,6 +1419,26 @@ ${this.getCommonQuestionMenu()}`,
         if (providerCapabilities) {
             await this.sendLongMessage(ctx, providerCapabilities, { parse_mode: 'Markdown' });
             return true;
+        }
+
+        // Excluir consultas de vacunación para que las maneje handleVaccination
+        if (
+            norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('vacunas') || norm.includes('vacun') ||
+            norm.includes('biologico') || norm.includes('biol_gico') || norm.includes('cobertura')
+        ) {
+            return false;
+        }
+
+        // Responder a consultas generales sobre vacunación
+        if (
+            norm.includes('informacion') &&
+            (norm.includes('vacunacion') || norm.includes('vacunación') || norm.includes('vacunas') || norm.includes('vacun'))
+        ) {
+            if (this.vaccinationService && typeof this.vaccinationService.getAvailableQuestions === 'function') {
+                const q = await this.vaccinationService.getAvailableQuestions();
+                await ctx.reply(q, { parse_mode: 'Markdown' });
+                return true;
+            }
         }
 
         const result = await this.saludPublicaQuestionsService.handleProviderSearchQuery(text, detectedRegion);
@@ -1413,6 +1780,7 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
     private async handleServiceCapabilitiesQuery(ctx: Context, text: string): Promise<boolean> {
         const norm = normalizeString(text);
         const userId = ctx.from?.id;
+        this.logger.log(`handleServiceCapabilitiesQuery - userId=${userId}, norm="${norm}"`);
 
         const riskResponse = await this.predictiveQuestionsService.processPredictiveQuery(text);
         if (riskResponse) {

@@ -630,7 +630,21 @@ ${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n'
       'psicologia', 'medicina general', 'consulta externa', 'pediatria', 'ginecologia',
       'medicina interna', 'cirugia', 'dermatologia', 'nutricion', 'optometria',
       'oftalmologia', 'ecografia', 'mamografia', 'vacunacion', 'farmacia'];
+
+    // Detecta si la consulta es sobre datos de vacunación (debe manejarse por VaccinationService, no por Cali)
     const servicioMatch = servicios.find(s => q.includes(s));
+    const vaccinationTerms = ['vacunacion', 'vacunación', 'vacunas', 'vacuna', 'biol_gico', 'biologico', 'cobertura'];
+    const vaccinationContextTerms = ['departamento', 'municipio', 'municipios', 'indicador', 'indicadores',
+      'cobertura', 'coberturas', 'pai', 'biol_gico', 'biologico', 'dosis', 'año', 'años'];
+    const hasVaccinationTerm = vaccinationTerms.some(t => q.includes(t));
+    const hasVaccinationContext = vaccinationContextTerms.some(t => q.includes(t));
+    // Si la consulta menciona vacunación Y términos de contexto (departamento, municipio, indicadores, etc.),
+    // o si menciona explícitamente "datos de vacunación", retorna null para que VaccinationService la maneje
+    if (hasVaccinationTerm && (hasVaccinationContext || q.includes('datos') || q.includes('informacion'))) {
+      return null;
+    }
+
+
     if (servicioMatch) {
       const results = this.searchByService(servicioMatch);
       if (results.length > 0) {
@@ -697,6 +711,8 @@ ${stats.topSedes.map(s => `• ${s.sede} (${s.count} servicios)`).join('\n')}
     return `${sede}|${direccion}|${ciudad}`;
   }
 
+
+  // Obtiene un proveedor de servicios único por centro
   getUniqueProvidersByCenter(providers: CaliHealthProvider[]): CaliHealthProvider[] {
     const seen = new Set<string>();
     const unique: CaliHealthProvider[] = [];
@@ -712,6 +728,7 @@ ${stats.topSedes.map(s => `• ${s.sede} (${s.count} servicios)`).join('\n')}
     return unique;
   }
 
+  // Obtiene los municipios de los proveedores
   getMunicipios(): string[] {
     const seen = new Set<string>();
     return this.providers
@@ -725,6 +742,7 @@ ${stats.topSedes.map(s => `• ${s.sede} (${s.count} servicios)`).join('\n')}
       });
   }
 
+  // Obtiene ejemplos de búsqueda
   getExampleSearchHints(): string {
     const seen = new Set<string>();
     const examples: string[] = [];
@@ -751,7 +769,7 @@ ${stats.topSedes.map(s => `• ${s.sede} (${s.count} servicios)`).join('\n')}
     const selection = examples.slice(0, 4);
     return `Puedes filtrar con datos reales como ${selection.join(', ')}.`;
   }
-
+  // Búsqueda por identificador
   findByIdentifier(query: string): CaliHealthProvider[] {
     const q = this.normalizeString(query);
     if (!q) return [];
@@ -788,6 +806,7 @@ ${stats.topSedes.map(s => `• ${s.sede} (${s.count} servicios)`).join('\n')}
     return result;
   }
 
+  // Obtiene las estadísticas de categorías
   getStatsByCategory(): { labels: string[]; data: number[] } {
     const stats: Record<string, number> = {};
     this.providers.forEach((p) => {

@@ -19,7 +19,7 @@ Escribe:
 -----------------------------------------------------------------------
 🏥 **Servicios de Salud en Cali**
 -----------------------------------------------------------------------
-• "Gráficar de Servicios de salud en Cali"
+• "Gráfico de Servicios de salud en Cali"
 
 -----------------------------------------------------------------------
 🧠 **Salud Mental**
@@ -33,6 +33,9 @@ Escribe:
 • "Gráfico de dengue por sexo"
 • "Gráfico de Zika en zona rural vs urbana"
 • "Tendencia de tuberculosis en los últimos 6 meses"
+• "Muéstrame un gráfico de los eventos de salud pública más frecuentes en Colombia"
+
+
 
 -----------------------------------------------------------------------
 💉 **Vacunación**
