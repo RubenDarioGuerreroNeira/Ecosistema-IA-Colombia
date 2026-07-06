@@ -68,23 +68,23 @@ graph LR
 
 ## 🚀 Características Principales
 
-- **🧠 IA Especializada + RAG**: Orquestación directa usando el SDK de OpenAI hacia OpenRouter (LLaMA 3.1) para generar respuestas basadas en contexto real de salud pública y evitando alucinaciones.
-- **🔬 Módulo de Salud Pública Avanzado**: Procesamiento de lenguaje natural para consultas complejas sobre SIVIGILA (resúmenes nacionales, comparativas, brechas de género y ciclos de vida).
+- **🧠 IA Especializada + RAG**: Orquestación directa usando el SDK de OpenAI hacia OpenRouter (LLaMA 3.1) para generar respuestas basadas en contexto real de salud pública, evitando alucinaciones.
+- **🔬 Módulo de Salud Pública Avanzado**: Procesamiento de lenguaje natural para consultas complejas sobre SIVIGILA (resúmenes nacionales, comparativas, brechas de género y ciclos de vida). Incluye detección de términos singulares (`evento`) y frases de género (`eventos que afectan a mujeres`).
 - **🛡️ Módulo de Salud Sexual**: Guía especializada para acceso a información sobre derechos, prevención (ITS, VIH), rutas de atención ante violencias y guías médicas predefinidas (ej. Cáncer de Próstata).
 - **🔎 Motor de Búsqueda Robusto**: Implementación de búsqueda flexible mediante normalización de texto, optimizado para lenguaje natural y consultas con errores ortográficos o gramaticales.
 - **📊 Datos reales integrados**: Soporta análisis de eventos de salud pública, salud mental CIE-10, salud sexual y servicios de salud locales.
 - **📈 Visualización Gráfica Dinámica**: Generación instantánea de gráficos (barras, tortas, líneas) mediante la integración con **QuickChart**, permitiendo visualizar tendencias y distribuciones demográficas.
 - **🏥 Búsqueda local de centros y prestadores**: Consultas avanzadas y enrutamiento en Antioquia, Boyacá, Yopal y Cali.
-- **📍 Enrutamiento Regional Directo y Detección de Urgencias (Cali) (¡NUEVO!)**: Procesamiento de lenguaje natural ultra rápido para Cali que detecta automáticamente intenciones de urgencias, niveles de complejidad, sedes específicas o servicios puntuales (odontología, ginecología, farmacia, etc.), entregando respuestas formateadas directo de la base de datos SQLite sin pasar por la IA para garantizar un 0% de alucinación.
-- **📍 Búsqueda por ubicación (“cerca de mí”)**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; actualmente la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km). Enviar ubicación: usar el botón "Enviar ubicación" desde el selector de Telegram.
+- **📍 Enrutamiento Regional Directo y Detección de Urgencias (Cali)**: Procesamiento de lenguaje natural ultra rápido para Cali que detecta automáticamente intenciones de urgencias, niveles de complejidad, sedes específicas o servicios puntuales (odontología, ginecología, farmacia, etc.), entregando respuestas formateadas directo de la base de datos SQLite sin pasar por la IA para garantizar un 0% de alucinación.
+- **📍 Búsqueda por ubicación ("cerca de mí")**: El bot detecta consultas de proximidad y solicita compartir la ubicación con un teclado de Telegram; la búsqueda por coordenadas está disponible para Yopal (radio por defecto 5 km).
 - **📈 Análisis Epidemiológico Avanzado**:
   - Rankings de incidencia.
   - Comparativas directas y demográficas.
-  - Filtrado de eventos.
+  - Filtrado de eventos por zona (urbano/rural), sexo y grupo etario.
 - **🔮 Predicción y alertas tempranas**: Servicio modular que procesa consultas de `predicción`, `pronóstico`, `alerta temprana` y `clasificación de riesgo`.
   - Soporta análisis dinámico de `dengue`, `zika`, `malaria`, `tuberculosis` y otros eventos de salud pública.
   - Genera listados de eventos y ubicaciones disponibles en tiempo real.
-- **🤖 Sistema de Scoring Compuesto (NUEVO)**: Algoritmo multidimensional que cruza datos de SIVIGILA, cobertura de vacunación y factores ambientales para calcular el riesgo epidemiológico. Combina cuatro dimensiones ponderadas:
+- **🤖 Sistema de Scoring Compuesto**: Algoritmo multidimensional que cruza datos de SIVIGILA, cobertura de vacunación y factores ambientales para calcular el riesgo epidemiológico. Combina cuatro dimensiones ponderadas:
   - Volumen de casos (40%)
   - Ruralidad (20%)
   - Brecha de vacunación (25%)
@@ -92,6 +92,9 @@ graph LR
 
   Proporciona nivel de riesgo (BAJO, MEDIO, ALTO, CRÍTICO), desglose detallado de puntajes y recomendaciones específicas.
 
+- **💉 Módulo de Vacunación (SQLite)**: Consultas de cobertura del PAI (Programa Ampliado de Inmunización) por departamento y municipio. Soporta 32 departamentos y municipios del Valle del Cauca. Datos cargados desde `data/salud-ia-bot.db` vía TypeORM.
+- **🗣️ NLP Conversacional Extendido**: Nuevos handlers para frases como `qué información tienes` dirigidas a módulos específicos (salud mental, pública, riesgo, aire, gráficos) y análisis territorial `qué enfermedad es más urbana/rural`.
+- **🪵 Logging Profesional en Producción**: Registro de todos los mensajes entrantes mediante el `Logger` de NestJS en `@On('text')` para monitoreo y debugging en Render/producción.
 - **✉️ Experiencia Telegram mejorada**: Mensajería fragmentada, saludos personalizados, soporte de `/start` y `/help`, y gestión profesional de consultas fuera de alcance.
 
 ### 🏗️ Arquitectura del Sistema
@@ -114,21 +117,24 @@ flowchart TD
     Bot --> Stats["📈 Analítica y Predicción"]:::logic
     Bot --> Charts["📊 Generación de Gráficos"]:::logic
     Bot --> Geo["📍 Búsqueda Local (Geo)"]:::logic
+    Bot --> Vacc["💉 Vacunación (PAI)"]:::logic
     Bot --> Predictions["🔮 Predicción y Alertas"]:::logic
 
-    NLP --> SIVIGILA[("🏥 SIVIGILA")]:::data
-    NLP --> Mental[("🧠 Salud Mental")]:::data
-    NLP --> Sexual[("❤️ Salud Sexual")]:::data
+    NLP --> SIVIGILA[("🏥 SIVIGILA (XML)")]:::data
+    NLP --> Mental[("🧠 Salud Mental (XML)")]:::data
+    NLP --> Sexual[("❤️ Salud Sexual (XML)")]:::data
 
     Stats --> SIVIGILA
-    Stats --> PAI[("💉 Vacunación")]:::data
-    Stats --> AirQuality[("☁️ Calidad Aire")]:::data
+    Stats --> AirQuality[("☁️ Calidad Aire (API)")]:::data
     Predictions --> SIVIGILA
-    Predictions --> PAI[("💉 Vacunación")]:::data
-    Predictions --> AirQuality[("☁️ Calidad Aire")]:::data
+    Predictions --> AirQuality
+    
+    SQLite[("🗄️ SQLite DB (salud-ia-bot.db)")]:::data
+    Vacc --> SQLite
+    Geo --> SQLite
+    Predictions --> SQLite
 
     Charts --> Air["☁️ API Calidad Aire"]:::data
-    Geo --> Local[("🏥 Prestadores Locales")]:::data
 ```
 
 ---
@@ -209,9 +215,20 @@ Aquí tienes ejemplos de cómo interactuar con el bot:
 - "Proporción global por sexo"
 - "Eventos con mayor brecha de género"
 
-**Vacunación**
+**Vacunación PAI**
 
-- "Graficar vacunas en Antioquia" (Coberturas departamentales)
+- `"¿Qué indicadores de vacunación tienes en Antioquia?"`
+- `"Vacunación en el municipio de Yopal"`
+- `"Los 5 indicadores de vacunación más altos en Antioquia"`
+- `"Estadísticas de vacunación en Cartago"`
+- `"Graficar vacunas en Antioquia"` (Coberturas departamentales)
+
+**Consultas NLP Extendidas**
+
+- `"¿Qué información tienes sobre salud mental?"` — Catálogo de módulo
+- `"¿Qué información tienes sobre calidad del aire?"` — Catálogo de módulo
+- `"¿Qué enfermedad es más urbana?"` — Análisis territorial
+- `"¿Qué enfermedad afecta más a las mujeres?"` — Análisis de género
 
 ---
 
@@ -292,6 +309,10 @@ Este proyecto ha sido desarrollado para el **Concurso IA Colombia**.
 © 2026 - Todos los derechos reservados.
 
 ---
+
+---
+
+_Última actualización: 6 de julio de 2026 — Sprint 8 completado._
 
 ## ✍️ Autores
 

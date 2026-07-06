@@ -65,7 +65,7 @@ Para asegurar la calidad y el rigor técnico, el desarrollo de esta solución si
 
 ### 3.0 Diagrama Arquitectónico General
 
-````mermaid
+```mermaid
 ---
 title: Diagrama Arquitectónico General
 ---
@@ -89,22 +89,24 @@ graph TD
         Bot --> BoyacaHealthService["📍 BoyacaHealthService"]:::service
         Bot --> AirQualityService["☁️ AirQualityService"]:::service
         Bot --> PredictiveServices["🤖 Predicción y Riesgo<br/>(ML/Advanced/EW)"]:::service
+        Bot --> VaccinationService["💉 VaccinationService"]:::service
     end
 
     subgraph Procesamiento ["Procesamiento y Respuesta"]
         ChartService --> ResponderPhoto["🖼️ Bot Reply Photo"]:::bot
 
-        SaludPublicaService --> GenkitRAG["🧠 OpenAI SDK RAG<br/>(SaludAnaliticaService)"]:::service
-        MentalHealthService --> GenkitRAG
-        SexualHealthService --> GenkitRAG
-        YopalHealthService --> GenkitRAG
-        CaliHealthService --> GenkitRAG
-        AntioquiaHealthService --> GenkitRAG
-        BoyacaHealthService --> GenkitRAG
-        AirQualityService --> GenkitRAG
-        PredictiveServices --> GenkitRAG
+        SaludPublicaService --> OpenRouterLLaMA["🧠 OpenRouter + LLaMA 3.1<br/>(SaludAnaliticaService)"]:::service
+        MentalHealthService --> OpenRouterLLaMA
+        SexualHealthService --> OpenRouterLLaMA
+        YopalHealthService --> OpenRouterLLaMA
+        CaliHealthService --> OpenRouterLLaMA
+        AntioquiaHealthService --> OpenRouterLLaMA
+        BoyacaHealthService --> OpenRouterLLaMA
+        AirQualityService --> OpenRouterLLaMA
+        PredictiveServices --> OpenRouterLLaMA
+        VaccinationService --> OpenRouterLLaMA
 
-        GenkitRAG --> ResponderText["💬 Bot Reply Text"]:::bot
+        OpenRouterLLaMA --> ResponderText["💬 Bot Reply Text"]:::bot
 
         PredictiveServices --> ResponderText
         YopalHealthService --> ResponderText
@@ -115,14 +117,14 @@ graph TD
         MentalHealthService --> ResponderText
         SexualHealthService --> ResponderText
         AirQualityService --> ResponderText
+        VaccinationService --> ResponderText
     end
 
     subgraph Fuentes de Datos ["Fuentes de Datos"]
         XML_SIVIGILA[("📂 XML SIVIGILA")]:::data
         XML_SaludMental[("🧠 XML Salud Mental")]:::data
         XML_SaludSexual[("❤️ XML Salud Sexual")]:::data
-        XML_Prestadores[("📍 XML Prestadores Locales")]:::data
-        XML_Vacunacion[("💉 XML Vacunación")]:::data
+        SQLite[("🗄️ SQLite DB<br/>(salud-ia-bot.db)")]:::data
         API_CalidadAire[("☁️ API Calidad Aire")]:::data
         Redis[("⚡ User Sessions")]:::data
     end
@@ -130,18 +132,20 @@ graph TD
     SaludPublicaService --> XML_SIVIGILA
     MentalHealthService --> XML_SaludMental
     SexualHealthService --> XML_SaludSexual
-    YopalHealthService --> XML_Prestadores
-    CaliHealthService --> XML_Prestadores
-    AntioquiaHealthService --> XML_Prestadores
-    BoyacaHealthService --> XML_Prestadores
+    YopalHealthService --> SQLite
+    CaliHealthService --> SQLite
+    AntioquiaHealthService --> SQLite
+    BoyacaHealthService --> SQLite
+    VaccinationService --> SQLite
     AirQualityService --> API_CalidadAire
     PredictiveServices --> XML_SIVIGILA
-    PredictiveServices --> XML_Vacunacion
+    PredictiveServices --> SQLite
     PredictiveServices --> API_CalidadAire
 
     PredictiveServices --> MLPredict["🤖 MlPredictionService"]:::service
     PredictiveServices --> Advanced["📈 AdvancedPredictionService"]:::service
     PredictiveServices --> EarlyWarning["🚨 EarlyWarningService"]:::service
+```
 
 ### 3.1 Flujo de Trabajo (Workflow)
 
@@ -627,7 +631,13 @@ artillery quick -d 60 -r 10 https://your-bot-url.com/health
 </Eventos>
 ```
 
-### 8.3 Comandos Útiles
+### 8.3 Novedades Recientes (Sprints 7 y 8)
+
+- **Módulo de Vacunación (SQLite):** Se incorporó el servicio `VaccinationService` con carga directa desde TypeORM/SQLite, sin depender de estructuras XML en memoria, optimizando recursos y entregando datos de cobertura del PAI a nivel departamental y municipal (Casanare, Valle del Cauca, Antioquia, etc.).
+- **Detección NLP Extendida:** Nuevos handlers especializados en frases exploratorias como `"qué información tienes sobre..."` para canalizar rápidamente al usuario hacia los módulos de _Salud Mental, Salud Pública, Análisis de Riesgo, Calidad del Aire y Gráficos_.
+- **Logging en Producción:** Sistema unificado de rastreo de mensajes entrantes mediante el `@Logger()` nativo de NestJS en el hook `@On('text')`, vital para auditoría en plataformas como Render.
+
+### 8.4 Comandos Útiles
 
 ```bash
 # Instalación
@@ -649,6 +659,6 @@ npm run lint
 
 ---
 
-**Estado del Documento:** _Versión 1.1 - En desarrollo activo._
+**Estado del Documento:** _Versión 1.2 - Actualizado con Sprints 7 y 8 (Julio 2026)._
 
 **Autores:** Maria G. Barrientos y Rubén D. Guerrero — Colombia 2026
