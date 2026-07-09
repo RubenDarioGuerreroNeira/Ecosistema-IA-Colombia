@@ -1176,7 +1176,7 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                 await ctx.reply(await this.predictiveQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
                 return;
             }
-            if (norm.includes('que informacion tienes') && norm.includes('calidad del aire')) {
+            if (norm.includes('que informacion tienes') || norm.includes('sabes') && norm.includes('calidad del aire')) {
                 await ctx.reply(await this.airQualityQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
                 return;
             }
@@ -1329,6 +1329,12 @@ ${this.getCommonQuestionMenu()}`,
         const isYopalQuery = YOPAL_KEYWORDS.some(keyword =>
             cleanQuery.includes(keyword.replace(/k/g, 'c'))
         );
+
+
+        // excluyo calidad del aire
+        if (norm.includes('calidad') || norm.includes('aire') || norm.includes('mental')) {
+            return false;
+        }
 
         // Valido que excluya las palabras analis de riesgo, riesgos
         if ((!isYopalQuery) || norm.includes('analizar riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')

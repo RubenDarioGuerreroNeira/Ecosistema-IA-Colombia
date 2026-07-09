@@ -45,23 +45,25 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
     ): Promise<{ respuesta: string; tipo: string } | null> {
         const norm = normalizeString(text);
 
-        // valida que no contenga estas palabras para que valid ela entrada al flujo 
+        // Valida que no contenga estas palabras para que valide la entrada al flujo
         if (
-            (norm.includes('municipios') || norm.includes('departamentos') && norm.includes('graficar') && norm.includes('calidad del aire')) ||
-            (norm.includes('municipios') || norm.includes('departamentos') && norm.includes('grafico') && norm.includes('calidad del aire')) ||
-            (norm.includes('calidad del aire en') && norm.includes('graficar')) ||
-            norm.includes('graficos')
+            ((norm.includes('municipios') || norm.includes('departamentos')) && norm.includes('graficar') && norm.includes('calidad del aire')) ||
+            ((norm.includes('municipios') || norm.includes('departamentos')) && norm.includes('grafico') && norm.includes('calidad del aire')) ||
+            (norm.includes('yopal') && (norm.includes('que') || norm.includes('info'))) ||
+            (norm.includes('antioquia') && (norm.includes('que') || norm.includes('info'))) ||
+            (norm.includes('mental') && (norm.includes('que') || norm.includes('info')))
 
         ) return null;
 
         // Detectar solo consultas EXPLÍCITAS sobre capacidades del servicio (no consultas de datos reales)
         if (
-            norm.includes('que calidad del aire') ||
-            norm.includes('que info de aire') ||
-            norm.includes('que datos de aire') ||
-            norm.includes('que sabes de calidad del aire') ||
-            norm.includes('tienes informacion de calidad del aire') ||
-            norm.includes('tienes info sobre calidad del aire') ||
+            norm.includes('que') || norm.includes('info') || norm.includes('informacion') && norm.includes('calidad') && norm.includes('aire') ||
+            norm.includes('informacion') || norm.includes('info') && norm.includes('aire') ||
+            norm.includes('calidad') && norm.includes('aire') ||
+            (norm.includes('que') || norm.includes('sabes') || norm.includes('sobre') && norm.includes('calidad') && norm.includes('aire')) ||
+            norm.includes('que') || norm.includes('sabes') || norm.includes('sobre') && norm.includes('calidad') && norm.includes('aire') ||
+            norm.includes('sabes') || norm.includes('sobre') && norm.includes('calidad') && norm.includes('aire') ||
+            norm.includes('tienes') || norm.includes('datos') && norm.includes('aire') ||
             norm.includes('tienes datos de calidad del aire') ||
             norm.includes('que preguntas sobre calidad del aire') ||
             (norm.includes('que') && norm.includes('calidad del aire') && !norm.includes(' en ')) ||

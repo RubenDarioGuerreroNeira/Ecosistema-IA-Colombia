@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { map } from 'rxjs';
 import * as xml2js from 'xml2js';
 
 export interface CaliHealthProvider {
@@ -480,7 +481,7 @@ ${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n'
     const q = this.normalizeString(text);
     const knowledgePatterns = [
       'cali',
-      'que sabes de cali',
+      // 'que sabes de cali',
       'que informacion tienes de cali',
       'que informacion hay sobre cali',
       'que servicios de salud hay en cali',
@@ -513,6 +514,11 @@ ${grupos.slice(0, 8).map(g => `• ${g.grupo} (${g.count} servicios)`).join('\n'
 
     // ── [1] CONSULTA DE CONOCIMIENTO ─────────────────────────────────────────
     // Responde: "¿Qué sabes de Cali?", "¿Qué información tienes sobre Cali?"
+
+    if (q.includes('calidad del aire') || q.includes('calidad') || q.includes('aire')) {
+      return null;
+    }
+
     if (this.isKnowledgeQuery(text)) {
       return { respuesta: this.getAvailableQuestions(), tipo: 'listado' };
     }
