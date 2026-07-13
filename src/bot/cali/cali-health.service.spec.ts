@@ -56,7 +56,7 @@ describe('CaliHealthService', () => {
 
   it('should parse xml data successfully', () => {
     const summary = service.getKnowledgeSummary();
-    expect(summary).toContain('RED DE SALUD DEL CENTRO (CALI)');
+    expect(summary).toContain('Red de Salud del Centro');
   });
 
   // --- Bug Fix Verification ---

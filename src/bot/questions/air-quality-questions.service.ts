@@ -8,6 +8,7 @@ export class AirQualityQuestionsService {
         private readonly airQualityService: AirQualityService,
     ) { }
 
+
     async getAvailableQuestions(): Promise<string> {
         const departamentos = await this.airQualityService.getAllDepartamentos();
 
@@ -51,6 +52,9 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
             ((norm.includes('municipios') || norm.includes('departamentos')) && norm.includes('grafico') && norm.includes('calidad del aire')) ||
             (norm.includes('yopal') && (norm.includes('que') || norm.includes('info'))) ||
             (norm.includes('antioquia') && (norm.includes('que') || norm.includes('info'))) ||
+            (norm.includes('info') && (norm.includes('salud') || norm.includes('publica'))) ||
+            (norm.includes('informacion') && (norm.includes('salud') || norm.includes('publica'))) ||
+
             (norm.includes('mental') && (norm.includes('que') || norm.includes('info')))
 
         ) return null;
@@ -75,6 +79,8 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
 
         return null;
     }
+
+
 
     /**
      * Obtiene datos de calidad del aire para un municipio/región.

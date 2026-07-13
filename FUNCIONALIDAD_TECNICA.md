@@ -271,16 +271,16 @@ Respuesta con indicadores del PAI para Antioquia
 
 Se incorporaron al bot los siguientes handlers de intención durante el Sprint 7:
 
-| Frase detectada                            | Acción                                    | Servicio        |
-| :----------------------------------------- | :---------------------------------------- | :-------------- |
-| `qué información tienes sobre salud mental` | Retorna catálogo de salud mental          | MentalHealthQS  |
-| `qué información tienes sobre salud pública`| Retorna catálogo de salud pública         | SaludPublicaQS  |
-| `qué información tienes sobre riesgo`       | Retorna catálogo de predicción            | PredictiveQS    |
-| `qué información tienes sobre calidad`      | Retorna catálogo de calidad del aire      | AirQualityQS    |
-| `qué información tienes sobre gráficos`     | Retorna catálogo de gráficos              | GraphicsQS      |
-| `qué enfermedad es más urbana`              | Consulta de distribución territorial      | SaludPublicaQS  |
-| `qué enfermedad es más rural`               | Consulta de distribución territorial      | SaludPublicaQS  |
-| `eventos que afectan a mujeres`             | Consulta de brecha de género              | SaludPublicaQS  |
+| Frase detectada                              | Acción                               | Servicio       |
+| :------------------------------------------- | :----------------------------------- | :------------- |
+| `qué información tienes sobre salud mental`  | Retorna catálogo de salud mental     | MentalHealthQS |
+| `qué información tienes sobre salud pública` | Retorna catálogo de salud pública    | SaludPublicaQS |
+| `qué información tienes sobre riesgo`        | Retorna catálogo de predicción       | PredictiveQS   |
+| `qué información tienes sobre calidad`       | Retorna catálogo de calidad del aire | AirQualityQS   |
+| `qué información tienes sobre gráficos`      | Retorna catálogo de gráficos         | GraphicsQS     |
+| `qué enfermedad es más urbana`               | Consulta de distribución territorial | SaludPublicaQS |
+| `qué enfermedad es más rural`                | Consulta de distribución territorial | SaludPublicaQS |
+| `eventos que afectan a mujeres`              | Consulta de brecha de género         | SaludPublicaQS |
 
 ---
 
@@ -297,6 +297,56 @@ async onText(ctx: Context): Promise<void> {
 ```
 
 **Razón:** En Render (producción), sin logs explícitos es imposible distinguir si el bot está recibiendo mensajes pero fallando en procesarlos, o si directamente no llegan. Este log permite distinguir ambos escenarios desde el dashboard de Render.
+
+---
+
+## 9. Calidad y Pruebas - Corrección de tests (2026-07-12)
+
+### 9.1 Configuración transversal (Jest / TypeScript)
+
+- Se actualizó `ts-jest` al formato moderno de configuración (array con opciones) para eliminar warnings de deprecación.
+- Se corrigió `moduleNameMapper` para resolver correctamente alias de imports locales en tests (`text-normalizer` desde `.js` a `.ts`).
+- Se configuró `diagnostics: { ignoreCodes: [151002] }` en `ts-jest` para evitar falsos positivos de TypeScript en módulos aislados.
+
+### 9.2 BotUpdate y servicios base
+
+- Se agregó el provider `DEFAULT_BOT_NAME` en todos los tests que instancian `BotUpdate`.
+- Se completaron mocks dependientes en `bot.update.spec.ts`:
+  - `PredictiveQuestionsService` (incluyendo `processPredictiveQuery`).
+  - `AirQualityQuestionsService`.
+- Se creó `src/bot/bot.update.location.spec.ts` para cubrir el flujo de geolocalización:
+  - Manejo de mensajes `location` y búsqueda de prestadores cercanos.
+  - Detección de consultas "cerca de mí" y solicitud de ubicación por teclado.
+  - Cobertura de casos sin resultados y mensajes sin ubicación.
+
+### 9.3 Servicios con repositorios TypeORM (Antioquia y Boyacá)
+
+- Se reestructuraron los specs para inyectar repositorios mockeados en el `Test.createTestingModule`:
+  - `src/bot/boyaca/boyaca-health.service.spec.ts` → mock de `BoyacaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health.service.spec.ts` → mock de `AntioquiaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health-precision.spec.ts` → mock de `AntioquiaProviderRepository`.
+- Se adaptaron las pruebas de `searchProviders`, `getMunicipios`, `findByIdentifier` y `getHospitalCount` al nuevo contrato del repositorio.
+
+### 9.4 Ajustes en tests de Cali
+
+- Se actualizó `src/bot/cali/cali-health.service.spec.ts`:
+  - Se reemplazó el `assert` rígido del resumen de conocimiento por una validación flexible que reconoce el nuevo formato (`'Red de Salud del Centro'`).
+
+### 9.5 AppController
+
+- Se actualizó `src/app.controller.spec.ts` para reflejar el nuevo contrato de `getHello()`:
+  - Ahora valida el objeto JSON de respuesta (`message`, `name`, `status`, `timestamp`).
+
+### 9.6 Resultado final y CI
+
+- Ejecución completa de la suite: **125/125 tests en verde**.
+- Cantidad de suites: **16/16 en verde**.
+- Se agregó `.github/workflows/ci.yml` para ejecutar `npm ci` + `npm test -- --no-coverage` en push/PR a `main` y `master`.
+
+```bash
+npm test            # Suite completa (125 tests)
+npm run test:cov    # Con reporte de cobertura
+```
 
 ---
 

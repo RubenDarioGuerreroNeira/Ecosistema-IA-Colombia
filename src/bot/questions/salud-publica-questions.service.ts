@@ -32,22 +32,18 @@ export class SaludPublicaQuestionsService {
     return `💊 **Preguntas que puedo responder sobre Datos de Salud Pública:**
 
 📊 **Generales:**
-|
-• "Puedes mostrarme las categorias de eventos de salud publica" 
+
 • "Puedes mostrarme el ranking de eventos de salud en colombia"
 • "Dame un resumen de salud pública"
-• "¿Qué enfermedad es más rural?" / "¿Cuál es la más urbana?"
-• "Comparar dengue vs zika"
-• "Proporción global por sexo"
 • "Eventos con mayor brecha de género"
 • "¿Cual es el evento de salud mas rural?"
-• "¿Cual es el evento de salud mas urbano?"
-• "Top 5 eventos más urbanos" 
 • "¿Cuales son los eventos más rurales?" (muestra los 5 eventos de salud con mayor proporción rural)
+• "¿Cual es el evento de salud mas urbano?"
 • "¿Cuales son los eventos más urbanos?" (muestra los 5 eventos de salud con mayor proporción urbana)
 
 👥 **Por grupo etario:**
 
+•  "Proporción global por sexo"
 • "Eventos más comunes en niños"
 • "Eventos más frecuentes en adultos mayores"
 • "¿Qué eventos afectan más a los adolescentes?" (ranking)
@@ -59,13 +55,12 @@ export class SaludPublicaQuestionsService {
 • "Eventos de salud que más afectan a las mujeres" 
 • "Eventos de salud que más afectan a los hombres"
 • "Eventos más reportados"
-• "¿cual es el evento mas rural en Colombia?" 
 • "¿Cual es el ranking de categorías de Eventos de salud en colombia"?"
 
 🔍 **Consulta específica:**
-
-• puedes escribir 
-  "¿Quiero ver el total de categorias de eventos de salud publica?" 
+•  Puedes escribir: 
+  
+ "¿Quiero ver el total de categorias de eventos de salud publica?" 
   (te dare el listado completo de eventos con sus casos)
 
 
@@ -133,6 +128,7 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
         norm.includes('que datos') ||
         norm.includes('que consultas') ||
         norm.includes('que me puedes') ||
+        norm.includes('salud publica') ||
         (norm.includes('salud publica') && norm.includes('info')) ||
         (norm.includes('salud publica') && norm.includes('informacion')))
     ) {
@@ -220,6 +216,7 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     // Eventos que más afecta a las mujeres
     if (
       norm.includes('enfermedades que mas afectan a las mujeres') ||
+      norm.includes('enfermedades') && norm.includes('mujeres') ||
       norm.includes('eventos que mas afectan a las mujeres') ||
       (norm.includes('enfermedades') && norm.includes('afectan') && norm.includes('mujeres')) ||
       (norm.includes('eventos') && norm.includes('afectan') && norm.includes('mujeres'))
@@ -238,7 +235,10 @@ Puedo ayudarte a buscar hospitales, clínicas, EPS y centros de salud en varias 
     }
 
     // === RANKING de eventos de salud Adoslescentes 
-    if (norm.includes('eventos mas frecuentes en adolescentes') || norm.includes('adolescente') || norm.includes('adolescentes')) {
+    if (
+      (norm.includes('eventos mas frecuentes en adolescentes') || norm.includes('enfermedad') && norm.includes('adolescentes'))
+
+      || norm.includes('adolescente') || norm.includes('adolescentes')) {
       return this.handleEventosFreqAdolescentes(text);
     }
 

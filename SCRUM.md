@@ -83,17 +83,38 @@ Proporcionar una herramienta de inteligencia artificial en Telegram que facilite
 - **Optimización ChartQueryService:** Ajustes en la lógica de consulta de gráficos.
 - **Refactorización YopalHealthService:** Limpieza profunda (~900 líneas reorganizadas).
 
+### Sprint 9: Corrección de Tests y CI (2026-07-12)
+
+- **Configuración transversal Jest/TypeScript:** Actualización de `ts-jest` al formato moderno, corrección de `moduleNameMapper` para alias locales y configuración de `diagnostics.ignoreCodes` para evitar falsos positivos (151002).
+- **Cobertura de BotUpdate:** Agregado del provider `DEFAULT_BOT_NAME` en tests y completado de mocks dependientes (`PredictiveQuestionsService`, `AirQualityQuestionsService`).
+- **Nuevo suite de Geolocalización:** `src/bot/bot.update.location.spec.ts` cubre el flujo completo de mensajes `location`, detección de “cerca de mí” y casos sin resultados/sin ubicación.
+- **Repositorios TypeORM mockeados:** Reestructuración de tests de Antioquia y Boyacá para inyectar mocks de `createQueryBuilder` con `getMany`/`getRawMany`, eliminando dependencia de datos XML reales.
+- **Ajustes de precisión en Cali:** `cali-health.service.spec.ts` ahora valida el nuevo formato flexible del resumen de conocimiento.
+- **AppController actualizado:** Validación del contrato JSON de `getHello()` (`message`, `name`, `status`, `timestamp`).
+- **Verificación completa:** 125/125 tests en verde (16/16 suites).
+- **CI GitHub Actions:** Workflow `.github/workflows/ci.yml` que ejecuta `npm ci` + `npm test -- --no-coverage` en push/PR a `main` y `master`.
+
 ---
 
 ## 📋 Product Backlog (Pendientes)
 
-| Prioridad | Tarea                           | Descripción                                                                            | Estado    |
-| :-------- | :------------------------------ | :------------------------------------------------------------------------------------- | :-------- |
-| Alta      | Vacunación: Consultas Avanzadas | Implementar top-5, comparativas y tendencias por indicador desde VaccinationService.   | En Curso  |
-| Media     | Geocodificación de Direcciones  | Conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali.      | Pendiente |
-| Media     | UI Polishing                    | Mejorar formato de mensajes largos y menús interactivos (Inline Buttons).              | Pendiente |
-| Baja      | Dashboard Web Analítico         | Interfaz web externa para visualizaciones (gráficas del bot ya implementadas).         | Pendiente |
-| Baja      | Exportación de Datos            | Permitir descargar resúmenes de salud en PDF/Excel.                                    | Pendiente |
+| Prioridad | Tarea                           | Descripción                                                                          | Estado    |
+| :-------- | :------------------------------ | :----------------------------------------------------------------------------------- | :-------- |
+| Alta      | Vacunación: Consultas Avanzadas | Implementar top-5, comparativas y tendencias por indicador desde VaccinationService. | En Curso  |
+| Media     | Geocodificación de Direcciones  | Conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali.     | Pendiente |
+| Media     | UI Polishing                    | Mejorar formato de mensajes largos y menús interactivos (Inline Buttons).            | Pendiente |
+| Baja      | Dashboard Web Analítico         | Interfaz web externa para visualizaciones (gráficas del bot ya implementadas).       | Pendiente |
+| Baja      | Exportación de Datos            | Permitir descargar resúmenes de salud en PDF/Excel.                                  | Pendiente |
+
+## 📋 Product Backlog (Pendientes)
+
+| Prioridad | Tarea                           | Descripción                                                                          | Estado    |
+| :-------- | :------------------------------ | :----------------------------------------------------------------------------------- | :-------- |
+| Alta      | Vacunación: Consultas Avanzadas | Implementar top-5, comparativas y tendencias por indicador desde VaccinationService. | En Curso  |
+| Media     | Geocodificación de Direcciones  | Conversión de direcciones a coordenadas (lat/lon) para Antioquia, Boyacá y Cali.     | Pendiente |
+| Media     | UI Polishing                    | Mejorar formato de mensajes largos y menús interactivos (Inline Buttons).            | Pendiente |
+| Baja      | Dashboard Web Analítico         | Interfaz web externa para visualizaciones (gráficas del bot ya implementadas).       | Pendiente |
+| Baja      | Exportación de Datos            | Permitir descargar resúmenes de salud en PDF/Excel.                                  | Pendiente |
 
 ---
 
@@ -108,7 +129,7 @@ Para que una tarea se considere terminada, debe:
 
 ---
 
-_Última actualización: 6 de julio de 2026_
+_Última actualización: 12 de julio de 2026 — Sprint 9: Corrección de Tests y CI_
 
 ---
 

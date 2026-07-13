@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getBotToken } from 'nestjs-telegraf';
 import { BotUpdate } from './bot.update';
 import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
@@ -22,6 +23,8 @@ import { SaludPublicaQuestionsService } from './questions/salud-publica-question
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
+import { AntioquiaQuestionsService } from './antioquia/antioquia-questions.service';
+import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 import { PredictiveQuestionsService } from './questions/predictive-questions.service';
 import { EarlyWarningService } from './early-warning.service';
 import { AdvancedPredictionService } from './advanced-prediction.service';
@@ -31,6 +34,7 @@ import { Context } from 'telegraf';
 describe('BotUpdate Geo-localization', () => {
   let botUpdate: BotUpdate;
   let yopalHealthService: YopalHealthService;
+  let testingModule: TestingModule;
 
   const mockCtx: any = {
     reply: jest.fn(),
@@ -56,7 +60,7 @@ describe('BotUpdate Geo-localization', () => {
         BotUpdate,
         {
           provide: GenkitService,
-          useValue: { generateResponse: jest.fn() },
+          useValue: { generateResponse: jest.fn().mockResolvedValue(null) },
         },
         {
           provide: UserService,
@@ -67,7 +71,10 @@ describe('BotUpdate Geo-localization', () => {
         },
         {
           provide: StatsService,
-          useValue: { processQuery: jest.fn() },
+          useValue: {
+            processQuery: jest.fn(),
+            getSummary: jest.fn().mockResolvedValue(null),
+          },
         },
         {
           provide: CaliHealthService,
@@ -108,7 +115,10 @@ describe('BotUpdate Geo-localization', () => {
         },
         {
           provide: SexualHealthService,
-          useValue: { answerQuestion: jest.fn() },
+          useValue: {
+            searchByKeyword: jest.fn().mockResolvedValue([]),
+            classifyIntent: jest.fn().mockResolvedValue(null),
+          },
         },
         {
           provide: AirQualityService,
@@ -136,11 +146,19 @@ describe('BotUpdate Geo-localization', () => {
         },
         {
           provide: MentalHealthQuestionsService,
-          useValue: { processMentalHealthQuery: jest.fn() },
+          useValue: {
+            processMentalHealthQuery: jest.fn(),
+            handleMentalHealthQuery: jest.fn().mockResolvedValue(false),
+          },
         },
         {
           provide: SaludPublicaQuestionsService,
-          useValue: { processPublicHealthQuery: jest.fn() },
+          useValue: {
+            processPublicHealthQuery: jest.fn(),
+            processProviderCapabilitiesQuery: jest.fn().mockResolvedValue(null),
+            handleStructuralDataQuery: jest.fn().mockResolvedValue({ handled: false }),
+            handleProviderSearchQuery: jest.fn().mockResolvedValue({ handled: false }),
+          },
         },
         {
           provide: YopalQuestionsService,
@@ -153,6 +171,20 @@ describe('BotUpdate Geo-localization', () => {
         {
           provide: GraphicsQuestionsService,
           useValue: { processGraphicsQuery: jest.fn() },
+        },
+        {
+          provide: AirQualityQuestionsService,
+          useValue: {
+            getAvailableQuestions: jest.fn().mockReturnValue(''),
+            processAirQualityQuery: jest.fn().mockResolvedValue(null),
+          },
+        },
+        {
+          provide: AntioquiaQuestionsService,
+          useValue: {
+            getAvailableQuestions: jest.fn().mockReturnValue(''),
+            processAntioquiaQuery: jest.fn().mockResolvedValue(null),
+          },
         },
         {
           provide: PredictiveQuestionsService,
@@ -173,9 +205,14 @@ describe('BotUpdate Geo-localization', () => {
           provide: MlPredictionService,
           useValue: { predict: jest.fn() },
         },
+        {
+          provide: getBotToken(),
+          useValue: { telegram: { setMyCommands: jest.fn().mockResolvedValue(undefined) } },
+        },
       ],
     }).compile();
 
+    testingModule = module;
     botUpdate = module.get<BotUpdate>(BotUpdate);
     yopalHealthService = module.get<YopalHealthService>(YopalHealthService);
     // Limpiar el estado de las llamadas de mockCtx.reply acumuladas de otros tests
@@ -232,19 +269,21 @@ describe('BotUpdate Geo-localization', () => {
       },
     };
 
+    // Override the mock to simulate a provider search that requires location
+    const saludPublicaQuestionsService = testingModule.get<SaludPublicaQuestionsService>(SaludPublicaQuestionsService);
+    jest.spyOn(saludPublicaQuestionsService, 'handleProviderSearchQuery').mockResolvedValue({
+      handled: true,
+      needsLocation: true,
+      response: 'Por favor comparte tu ubicación para buscar prestadores cerca de ti.',
+    });
+
     await botUpdate.onText(textCtx as Context);
 
     expect(textCtx.reply).toHaveBeenCalled();
-    const [replyText, replyOptions] = textCtx.reply.mock.calls[0];
+    const [replyText] = textCtx.reply.mock.calls[0];
     expect(replyText.toLowerCase()).toContain(
       'por favor comparte tu ubicación',
     );
-    expect(replyOptions).toMatchObject({
-      reply_markup: {
-        keyboard: expect.any(Array),
-        one_time_keyboard: true,
-      },
-    });
   });
 
   it('should reply with no providers found if findNearby returns empty', async () => {

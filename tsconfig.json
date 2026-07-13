@@ -13,9 +13,11 @@
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "isolatedModules": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node16",
     "paths": {

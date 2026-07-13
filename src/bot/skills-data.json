@@ -1,0 +1,119 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-07-12",
+    "skills": [
+        {
+            "id": "epidemiological_analysis",
+            "name": "🔬 Análisis Epidemiológico (SIVIGILA)",
+            "icon": "🔬",
+            "description": "Interpreta datos del sistema SIVIGILA: resúmenes nacionales, brechas de género, distribución por ciclos de vida, comparativas rural vs. urbano, rankings de incidencia.",
+            "examples": [
+                "Resumen de salud pública en Colombia",
+                "¿Qué enfermedad es más rural?",
+                "Eventos que más afectan a mujeres",
+                "Top 5 eventos más reportados",
+                "Comparar dengue vs zika"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "risk_scoring",
+            "name": "📊 Scoring Compuesto y Alertas Tempranas",
+            "icon": "📊",
+            "description": "Evalúa riesgo epidemiológico (BAJO, MEDIO, ALTO, CRÍTICO) usando 4 dimensiones: casos SIVIGILA (40%), ruralidad (20%), brecha de vacunación (25%), población vulnerable (15%). Genera alertas tempranas de brotes.",
+            "examples": [
+                "Analizar riesgo de dengue en Antioquia",
+                "Alertas tempranas de salud pública",
+                "Clasificar riesgo de sarampión en Cali",
+                "Pronóstico de tuberculosis"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "sexual_health",
+            "name": "❤️ Salud Sexual y Reproductiva",
+            "icon": "❤️",
+            "description": "Orientación sobre derechos sexuales, prevención de ITS/VIH, rutas de atención ante violencia de género, guías de chequeos preventivos.",
+            "examples": [
+                "Información sobre VIH",
+                "Prevención de sífilis",
+                "Derechos en salud sexual",
+                "Guía de cáncer de próstata"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "provider_search",
+            "name": "📍 Búsqueda de Prestadores de Salud",
+            "icon": "📍",
+            "description": "Localiza hospitales, clínicas y centros de salud en Antioquia, Boyacá, Yopal y Cali. Búsqueda por proximidad (cerca de mí) en Yopal con radio de 5 km.",
+            "examples": [
+                "Hospitales en Medellín",
+                "Urgencias 24 horas en Yopal",
+                "¿Dónde queda Hospital Primitivo Iglesias?",
+                "Centros de salud cerca de mí"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "data_visualization",
+            "name": "📈 Visualización de Datos (Gráficos)",
+            "icon": "📈",
+            "description": "Genera gráficos de barras, tortas y líneas en tiempo real vía QuickChart. Visualiza calidad del aire, salud mental, vacunación y eventos SIVIGILA.",
+            "examples": [
+                "Graficar top eventos de salud pública",
+                "Gráfico de vacunación en Antioquia",
+                "Tendencia de tuberculosis",
+                "Gráfico de salud mental"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "mental_health",
+            "name": "🧠 Salud Mental (CIE-10)",
+            "icon": "🧠",
+            "description": "Identifica y explica perfiles de riesgo psicológico usando clasificación CIE-10: depresión, ansiedad, trastorno bipolar, esquizofrenia, consumo de SPA.",
+            "examples": [
+                "¿Cuántos casos hay de depresión?",
+                "Diagnósticos más frecuentes",
+                "Perfil de riesgo de esquizofrenia",
+                "Distribución de edades en salud mental"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "emergency_protocols",
+            "name": "🛡️ Protocolos de Emergencia",
+            "icon": "🛡️",
+            "description": "Provee respuestas estructuradas sobre cómo actuar ante emergencias médicas específicas como mordeduras de serpiente, intoxicaciones y accidentes ofídicos.",
+            "examples": [
+                "¿Qué hacer ante una mordedura de serpiente?",
+                "Protocolo por intoxicación"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "air_quality",
+            "name": "🍃 Calidad del Aire",
+            "icon": "🍃",
+            "description": "Consulta indicadores ambientales por municipio o departamento: material particulado, ozono, dióxido de nitrógeno, etc.",
+            "examples": [
+                "Calidad del aire en Bogotá",
+                "Indicadores ambientales en Medellín"
+            ],
+            "enabled": true
+        },
+        {
+            "id": "vaccination",
+            "name": "💉 Vacunación (PAI)",
+            "icon": "💉",
+            "description": "Coberturas administrativas de vacunación por departamento y municipio. Indicadores altos/bajos, filtros por biológico, búsqueda multicriterio.",
+            "examples": [
+                "Cobertura de vacunación en Antioquia",
+                "Indicadores de BCG en Santander",
+                "Top departamentos por cobertura"
+            ],
+            "enabled": true
+        }
+    ]
+}

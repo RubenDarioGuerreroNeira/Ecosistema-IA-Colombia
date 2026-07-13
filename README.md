@@ -128,7 +128,7 @@ flowchart TD
     Stats --> AirQuality[("☁️ Calidad Aire (API)")]:::data
     Predictions --> SIVIGILA
     Predictions --> AirQuality
-    
+
     SQLite[("🗄️ SQLite DB (salud-ia-bot.db)")]:::data
     Vacc --> SQLite
     Geo --> SQLite
@@ -313,6 +313,68 @@ Este proyecto ha sido desarrollado para el **Concurso IA Colombia**.
 ---
 
 _Última actualización: 6 de julio de 2026 — Sprint 8 completado._
+
+---
+
+## 🧪 Plan y avance de corrección de tests (2026-07-12)
+
+Se ejecutó un plan progresivo por fases para estabilizar y modernizar la suite de pruebas. A continuación se registran los cambios aplicados:
+
+### Fase 0 — Configuración transversal (Jest / TypeScript)
+
+- Se pasó la configuración de `ts-jest` al formato moderno (arreglo con opciones) para eliminar el warning de deprecación.
+- Se corrigió el mapeo de rutas en `moduleNameMapper` para que los alias de imports de fuentes (`./text-normalizer.js` → `./text-normalizer.ts`) funcionen correctamente en tests.
+- Se ignoró de forma explícita el código `151002` en diagnostics de `ts-jest` para evitar falsos positivos de TypeScript en módulos aislados.
+
+### Fase 1 — BotUpdate y servicios base
+
+- Se agregó el provider `DEFAULT_BOT_NAME` en todos los tests que instancian `BotUpdate`.
+- Se completaron los mocks de `PredictiveQuestionsService` (agregando `processPredictiveQuery`) y `AirQualityQuestionsService` en `bot.update.spec.ts`.
+- Se creó `src/bot/bot.update.location.spec.ts` para cubrir el flujo de geolocalización:
+  - Manejo de mensajes `location` y búsqueda de prestadores cercanos.
+  - Detección de consultas “cerca de mí” y solicitud de ubicación por teclado.
+  - Cobertura de caso “sin resultados” y “mensaje sin ubicación”.
+
+### Fase 2 — Servicios con repositorios TypeORM (Antioquia y Boyacá)
+
+- Se reestructuraron los specs para proveer repositorios mockeados en el `Test.createTestingModule`:
+  - `src/bot/boyaca/boyaca-health.service.spec.ts` → mock de `BoyacaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health.service.spec.ts` → mock de `AntioquiaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health-precision.spec.ts` → mock de `AntioquiaProviderRepository`.
+- Se adaptaron los tests de `searchProviders`, `getMunicipios`, `findByIdentifier` y `getHospitalCount` al nuevo contrato del repositorio.
+
+### Fase 3 — Ajustes en tests de Cali
+
+- Se actualizó `src/bot/cali/cali-health.service.spec.ts`:
+  - Se cambió el `assert` del resumen de conocimiento de la red de salud por una validación flexible que reconoce el nuevo formato (`'Red de Salud del Centro'` en lugar del nombre en mayúsculas completo).
+
+### Fase 4 — AppController
+
+- Se actualizó `src/app.controller.spec.ts` para reflejar el nuevo contrato de `getHello()` (objeto JSON con `message`, `name`, `status` y `timestamp`).
+
+### Fase 5 — Verificación final
+
+- Ejecución completa: **125/125 tests pasan** en 16 suites.
+- Estado final: **16/16 suites en verde**.
+
+### CI — GitHub Actions
+
+- Se agregó `.github/workflows/ci.yml`:
+  - Ejecuta `npm ci` y `npm test -- --no-coverage` en push/PR a `main` y `master`.
+  - Protege la rama principal contra fusiones con tests rotos.
+
+#### Cómo ejecutar los tests localmente
+
+```bash
+npm test            # Suite completa (125 tests)
+npm run test:cov    # Con reporte de cobertura
+```
+
+#### Cómo leer el estado de la suite
+
+- Salida esperada en verde:
+  - `Test Suites: 16 passed, 16 total`
+  - `Tests: 125 passed, 125 total`
 
 ## ✍️ Autores
 

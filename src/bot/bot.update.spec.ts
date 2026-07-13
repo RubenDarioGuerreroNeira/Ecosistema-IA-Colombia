@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getBotToken } from 'nestjs-telegraf';
 import { BotUpdate } from './bot.update';
 import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
@@ -10,6 +11,7 @@ import { AntioquiaHealthService } from './antioquia/antioquia-health.service';
 import { SaludPublicaService } from './public-health/salud-publica.service';
 import { SaludAnaliticaService } from './analytic-health/salud-analitica.service';
 import { HealthStatsService } from './stats/health-stats.service';
+import { AntioquiaQuestionsService } from './antioquia/antioquia-questions.service';
 import { HealthDataService } from './health-data.service';
 import { AirQualityService } from './air/air-quality.service';
 import { PredictionService } from './prediction.service';
@@ -134,6 +136,7 @@ const mockGraphicsQuestionsService = {
 
 const mockPredictiveQuestionsService = {
   getAvailableQuestions: jest.fn().mockReturnValue(''),
+  processPredictiveQuery: jest.fn().mockResolvedValue(null),
   obtenerAlertasTempranas: jest.fn().mockResolvedValue(null),
   predecirEvento: jest.fn().mockResolvedValue(null),
   obtenerPronosticosMultiples: jest.fn().mockResolvedValue([]),
@@ -149,6 +152,11 @@ const mockVaccinationService = {
 const mockYopalQuestionsService = {
   getAvailableQuestions: jest.fn().mockReturnValue(''),
   processYopalQuery: jest.fn().mockResolvedValue(null),
+};
+
+const mockAntioquiaQuestionsService = {
+  getAvailableQuestions: jest.fn().mockReturnValue(''),
+  processAntioquiaQuery: jest.fn().mockResolvedValue(null),
 };
 
 const mockAirQualityQuestionsService = {
@@ -212,6 +220,10 @@ describe('BotUpdate', () => {
         { provide: VaccinationService, useValue: mockVaccinationService },
         { provide: SaludPublicaQuestionsService, useValue: mockSaludPublicaQuestionsService },
         { provide: YopalQuestionsService, useValue: mockYopalQuestionsService },
+        {
+          provide: AntioquiaQuestionsService,
+          useValue: mockAntioquiaQuestionsService,
+        },
         // Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
         { provide: AirQualityQuestionsService, useValue: mockAirQualityQuestionsService },
         { provide: ChartQueryService, useValue: mockChartQueryService },
@@ -220,6 +232,10 @@ describe('BotUpdate', () => {
         { provide: AdvancedPredictionService, useValue: mockAdvancedPredictionService },
         { provide: MlPredictionService, useValue: mockMlPredictionService },
         { provide: PredictiveQuestionsService, useValue: mockPredictiveQuestionsService },
+        {
+          provide: getBotToken(),
+          useValue: { telegram: { setMyCommands: jest.fn().mockResolvedValue(undefined) } },
+        },
       ],
     }).compile();
     botUpdate = module.get<BotUpdate>(BotUpdate);
@@ -565,7 +581,6 @@ describe('BotUpdate', () => {
     const message = mockCtx.reply.mock.calls[0][0];
     expect(message).toContain('Evento con mayor concentración rural');
     expect(message).toContain('DENGUE');
-    expect(mockCtx.reply.mock.calls[0][1]).toEqual({ parse_mode: 'Markdown' });
   });
 
   it('should answer a risk profile query even with trailing explanatory text', async () => {

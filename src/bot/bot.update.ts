@@ -1,6 +1,6 @@
-import { Update, Start, Help, On, Ctx } from 'nestjs-telegraf';
-import { Context } from 'telegraf';
-import { Logger } from '@nestjs/common';
+import { Update, Start, Help, On, Ctx, Command, InjectBot } from 'nestjs-telegraf';
+import { Context, Telegraf } from 'telegraf';
+import { Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { GenkitService } from './genkit.service';
 import { UserService } from './user.service';
 import { StatsService } from './stats/stats.service';
@@ -18,6 +18,7 @@ import { PredictionService } from './prediction.service';
 import { ChartService } from './chart/chart.service';
 import { VaccinationService } from './vaccination.service';
 import { normalizeString } from '../shared/health-utils';
+import * as skillsData from './skills-data.json';
 import { escapeMarkdown, normalizeText } from './utils/text-normalizer.js';
 import {
     YOPAL_KEYWORDS,
@@ -162,11 +163,12 @@ const RISK_EVENTS = [
 ];
 
 @Update()
-export class BotUpdate {
+export class BotUpdate implements OnApplicationBootstrap {
     private readonly logger = new Logger(BotUpdate.name);
     private userState = new Map<number, UserState>();
 
     constructor(
+        @InjectBot() private readonly bot: Telegraf<Context>,
         private readonly genkitService: GenkitService,
         private readonly userService: UserService,
         private readonly statsService: StatsService,
@@ -196,6 +198,20 @@ export class BotUpdate {
         private readonly mlPredictionService: MlPredictionService,
         private readonly predictiveQuestionsService: PredictiveQuestionsService,
     ) { }
+
+    // ─── OnApplicationBootstrap: Register bot commands ──────────────────────────
+    async onApplicationBootstrap(): Promise<void> {
+        try {
+            await this.bot.telegram.setMyCommands([
+                { command: 'start', description: '🚀 Iniciar el bot y ver el menú principal' },
+                { command: 'skills', description: '📋 Ver todas mis capacidades y áreas de conocimiento' },
+                { command: 'help', description: '❓ Ver ayuda detallada con ejemplos de consultas' },
+            ]);
+            this.logger.log('Comandos del bot registrados exitosamente en Telegram');
+        } catch (error) {
+            this.logger.error(`Error registrando comandos: ${error.message}`);
+        }
+    }
 
     // ─── Salud Pública Questions ────────────────────────────────────────────────
     private async handleSaludPublicaQuestions(ctx: Context, text: string): Promise<boolean> {
@@ -427,6 +443,26 @@ ${this.getCommonQuestionMenu()}`;
     @Start()
     async start(@Ctx() ctx: Context): Promise<void> {
         await this.sendPersonalizedGreeting(ctx);
+    }
+
+    @Command('skills')
+    async skills(@Ctx() ctx: Context): Promise<void> {
+        const data = (skillsData as any).default || skillsData;
+        const skills = data.skills || [];
+
+        let message = `🤖 **Salud IA - Mis Capacidades**\n\n`;
+        message += `Soy un asistente de salud pública colombiana con **${skills.length} áreas de conocimiento**:\n\n`;
+
+        for (const skill of skills) {
+            if (!skill.enabled) continue;
+            message += `${skill.icon} **${skill.name}**\n`;
+            message += `   ${skill.description}\n`;
+            message += `   _Ejemplos:_ ${skill.examples.slice(0, 3).join(' • ')}\n\n`;
+        }
+
+        message += `💬 *Escribe /help para ver la ayuda detallada o /start para el menú principal.*`;
+
+        await this.sendLongMessage(ctx, message, { parse_mode: 'Markdown' });
     }
 
     @Help()
@@ -675,6 +711,8 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
         if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
 
+        if (await this.handleYopalQuery(ctx, messageText)) return;
+
         const normPred = normalizeString(messageText);
         if (
             normPred.includes('alertas tempranas') ||
@@ -702,8 +740,6 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
 
         if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
-
-        if (await this.handleYopalQuery(ctx, messageText)) return;
 
         if (await this.handlePredictiveCapabilitiesQuery(ctx, messageText)) return;
 
@@ -1741,7 +1777,8 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
             (norm.includes('que sabes') && norm.includes('salud publica')) ||
             (norm.includes('que puedes') && norm.includes('salud publica')) ||
             norm.includes('que preguntas puedo hacer sobre salud publica') ||
-            (norm.includes('salud publica') && (norm.includes('info') || norm.includes('informacion')))
+            (norm.includes('salud publica') && (norm.includes('info') || norm.includes('informacion'))) ||
+            norm === 'salud publica'
         );
     }
 

@@ -108,10 +108,9 @@ export class ChartQueryService {
         }
 
         // 2. Cali Health - Solo cuando se piden EXPRESAMENTE servicios de salud en Cali
-        const serviciosKeywords = ['grafica servicios', 'graficar servicios ',
-            'grafico servicios', 'grafico de servicios', 'clinicas', 'hospitales', 'prestadores', 'ips'];
-        const isCaliServicesQuery = norm.includes('grafica servicios') ||
-            (region === 'CALI' && serviciosKeywords.some(k => norm.includes(k)));
+        const serviciosKeywords = ['grafica servicios', 'graficar servicios',
+            'grafico servicios', 'grafico de servicios', 'clinicas', 'hospitales', 'prestadores', 'ips', 'grafico', 'graficar'];
+        const isCaliServicesQuery = region === 'CALI' && serviciosKeywords.some(k => norm.includes(k));
         if (isCaliServicesQuery) {
             const stats = this.caliHealthService.getStatsByCategory();
             const chartUrl = this.chartService.generatePieChart(stats.labels, stats.data, 'Servicios de Salud en Cali (Top Categorías)');
@@ -129,7 +128,12 @@ export class ChartQueryService {
         }
 
         // 4. Top Eventos Salud Pública
-        if (norm.includes('salud publica')) {
+        if (
+            norm.includes('grafica') && norm.includes('salud publica') ||
+            norm.includes('grafico') && norm.includes('salud')
+
+
+        ) {
             const top = await this.healthDataService.getTopEvents(6);
             const labels = top.map(e => e.nombre_del_evento.length > 20 ? e.nombre_del_evento.substring(0, 17) + '...' : e.nombre_del_evento);
             const data = top.map(e => e.total_de_eventos);
@@ -179,19 +183,24 @@ export class ChartQueryService {
         }
 
         // 6. Vacunación
-        if (norm.includes('servicios') || norm.includes('servicio') || norm.includes('serv')) {
+        if (norm.includes('servicios') || norm.includes('servicio') || norm.includes('serv')
+            || norm.includes('salud') || norm.includes('publica') || norm.includes('mental') ||
+            norm.includes('grafico') || norm.includes('graficar')
+
+
+        ) {
             return { success: false };
         }
 
         if (
-            (norm.includes('grafico') && norm.includes('vacun')) ||
-            norm.includes('puedes graficar vacunas') ||
-            (norm.includes('graficar') && norm.includes('vacunacion')) ||
-            (norm.includes('grafico') && norm.includes('vacunacion')) ||
-            (norm.includes('grafico') && norm.includes('vacunas')) ||
-            (norm.includes('grafico') && norm.includes('vacun')) ||
-            (norm.includes('grafico') && norm.includes('vacuna')) ||
-            (norm.includes('que') && norm.includes('puedes') && norm.includes('graficar'))
+            norm.includes('grafico') && norm.includes('vacun') ||
+            norm.includes('graficar') && norm.includes('vacunas') ||
+            norm.includes('graficar') && norm.includes('vacunacion') ||
+            norm.includes('grafico') && norm.includes('vacunacion') ||
+            norm.includes('grafico') && norm.includes('vacunas') ||
+            norm.includes('grafico') && norm.includes('vacun') ||
+            norm.includes('grafico') && norm.includes('vacuna') ||
+            norm.includes('puedes') && norm.includes('graficar') && norm.includes('vacunas')
         ) {
             return { success: true };
         }
@@ -220,6 +229,7 @@ export class ChartQueryService {
             norm.includes('cuantas') ||
             norm.includes('cuanta') ||
             norm.includes('cantidad') ||
+            norm.includes('cali') ||
             norm.includes('cantidades')
         ) {
             return { success: false };

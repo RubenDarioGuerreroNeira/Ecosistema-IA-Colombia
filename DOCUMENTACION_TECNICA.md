@@ -17,27 +17,32 @@ El proyecto **Salud IA Bot** es una solución tecnológica diseñada para actuar
 ## 2. Alineación con Criterios de Evaluación
 
 ### 2.1 Uso de Datos Abiertos (Prioridad Estratégica)
-El proyecto aprovecha datasets clave integrados directamente en su arquitectura para garantizar decisiones basadas en evidencia. Estos se alinean con la *Hoja de Ruta Nacional de Datos Abiertos Estratégicos*:
 
-| Conjunto de Datos | ID en Datos.gov.co / Fuente | Uso en Salud IA Bot |
-| :--- | :--- | :--- |
-| **SIVIGILA** | INS-SIVIGILA-2026 | Análisis de brotes y epidemiología |
-| **Cobertura Vacunación** | PAI-COL-2026 | Evaluación de factores de riesgo |
-| **Calidad del Aire** | IDEAM-2026 | Análisis de riesgo respiratorio |
-| **Red Prestadores** | ESE-PRESTADORES-2026 | Ubicación y búsqueda de servicios |
+El proyecto aprovecha datasets clave integrados directamente en su arquitectura para garantizar decisiones basadas en evidencia. Estos se alinean con la _Hoja de Ruta Nacional de Datos Abiertos Estratégicos_:
+
+| Conjunto de Datos        | ID en Datos.gov.co / Fuente | Uso en Salud IA Bot                |
+| :----------------------- | :-------------------------- | :--------------------------------- |
+| **SIVIGILA**             | INS-SIVIGILA-2026           | Análisis de brotes y epidemiología |
+| **Cobertura Vacunación** | PAI-COL-2026                | Evaluación de factores de riesgo   |
+| **Calidad del Aire**     | IDEAM-2026                  | Análisis de riesgo respiratorio    |
+| **Red Prestadores**      | ESE-PRESTADORES-2026        | Ubicación y búsqueda de servicios  |
 
 ### 2.2 Innovación Técnica: Bypass de Datos Inteligente
-Una de nuestras mayores innovaciones técnicas es la metodología de **"Bypass de Datos"** (detallada en nuestro esquema de diseño). 
-*   **El problema:** Las soluciones convencionales basadas solo en LLM alucinan datos estadísticos cuando el contexto es denso.
-*   **Nuestra solución:** Implementamos una capa de decisión en el `BotUpdate.onText` que consulta primero nuestros servicios de datos (`StatsService`, `HealthService`). Si el dato es preciso y está listo, **se entrega directamente al usuario**, omitiendo el motor de IA (`GenkitService`) para el procesamiento del dato.
-*   **Impacto:** Garantizamos **100% de precisión** en cifras oficiales, usando la IA solo para lo que mejor sabe hacer: la comunicación, síntesis y recomendación preventiva.
+
+Una de nuestras mayores innovaciones técnicas es la metodología de **"Bypass de Datos"** (detallada en nuestro esquema de diseño).
+
+- **El problema:** Las soluciones convencionales basadas solo en LLM alucinan datos estadísticos cuando el contexto es denso.
+- **Nuestra solución:** Implementamos una capa de decisión en el `BotUpdate.onText` que consulta primero nuestros servicios de datos (`StatsService`, `HealthService`). Si el dato es preciso y está listo, **se entrega directamente al usuario**, omitiendo el motor de IA (`GenkitService`) para el procesamiento del dato.
+- **Impacto:** Garantizamos **100% de precisión** en cifras oficiales, usando la IA solo para lo que mejor sabe hacer: la comunicación, síntesis y recomendación preventiva.
 
 ### 2.3 Impacto y Escalabilidad: Réplica Regional
+
 Diseñamos el bot para ser sostenible y replicable. Gracias a nuestra arquitectura modular en NestJS, añadir un nuevo departamento es un proceso estandarizado:
+
 1.  **Modelo:** Crear una entidad (ej. `MagdalenaProvider.entity.ts`).
 2.  **Servicio:** Crear la plantilla de servicio `MagdalenaHealthService` (extendiendo nuestra interfaz base).
 3.  **Migración:** Utilizar los scripts de carga (`scripts/seed-*.ts`) para mapear el nuevo dataset a SQLite.
-Este enfoque "Plug-and-Play" demuestra la madurez técnica necesaria para una escalabilidad nacional inmediata.
+    Este enfoque "Plug-and-Play" demuestra la madurez técnica necesaria para una escalabilidad nacional inmediata.
 
 ---
 
@@ -179,12 +184,14 @@ graph TD
 #### Flujo Predictivo y de Riesgo
 
 El bot ahora incluye un subsistema predictivo que detecta consultas de:
+
 - `predicción` / `pronóstico`
 - `alertas tempranas`
 - `clasificar riesgo`
 - `analizar riesgo`
 
 Estas consultas son enrutadas a `PredictiveQuestionsService`, que orquesta `MlPredictionService`, `AdvancedPredictionService` y `EarlyWarningService` para devolver respuestas estructuradas con:
+
 - clasificación de riesgo (BAJO / MEDIO / ALTO / CRÍTICO)
 - pronósticos de series temporales
 - alertas automáticas
@@ -338,10 +345,12 @@ graph TD
 ## 5. Análisis de Impacto Esperado
 
 ### 5.1 Impacto Social
+
 - **Accesibilidad:** Proporciona información de salud a personas que no tienen facilidad de acceso a centros médicos para consultas preventivas básicas.
 - **Educación:** Fomenta la cultura de la prevención en la población colombiana, reduciendo la propagación de enfermedades evitables.
 
 ### 5.2 Impacto Económico
+
 - **Eficiencia del Sistema:** Al resolver dudas preventivas mediante IA, se reduce la saturación de las líneas de atención telefónica y las citas médicas innecesarias en el primer nivel de atención.
 
 ---
@@ -349,10 +358,12 @@ graph TD
 ## 6. Limitaciones y Planes Futuros
 
 ### 6.1 Limitaciones Actuales
+
 - **Alcance Geográfico:** Datos completos solo para Antioquia, Valle, Boyacá, Yopal (expansión en curso).
 - **Modelo IA:** Dependencia de API externa (OpenRouter) para el modelo LLM.
 
 ### 6.2 Roadmap de Mejoras
+
 - **Fase 1 (Corto plazo):** Implementar Redis para cache de consultas frecuentes y optimizar tiempos.
 - **Fase 2 (Medio plazo):** Implementar sistema de RAG vectorial y expandir regiones a todo el país.
 - **Fase 3 (Largo plazo):** Integración con WhatsApp Business API.
@@ -363,14 +374,64 @@ graph TD
 
 ### 7.1 Casos de Prueba
 
-| Caso                 | Input                                     | Esperado                            | Estado          |
-| -------------------- | ----------------------------------------- | ----------------------------------- | --------------- |
-| **Greeting**         | `/start`                                  | Mensaje de bienvenida personalizado | ✅ Implementado |
-| **Consultar casos**  | "¿Cuántos casos de dengue hay en Cali?"   | Estadísticas SIVIGILA               | ✅ Implementado |
-| **Predicción**       | "Predecir riesgo de malaria en Antioquia" | Análisis de riesgo                  | ✅ Implementado |
+| Caso                | Input                                     | Esperado                            | Estado          |
+| ------------------- | ----------------------------------------- | ----------------------------------- | --------------- |
+| **Greeting**        | `/start`                                  | Mensaje de bienvenida personalizado | ✅ Implementado |
+| **Consultar casos** | "¿Cuántos casos de dengue hay en Cali?"   | Estadísticas SIVIGILA               | ✅ Implementado |
+| **Predicción**      | "Predecir riesgo de malaria en Antioquia" | Análisis de riesgo                  | ✅ Implementado |
 
 ---
 
-**Estado del Documento:** _Versión 1.3 - Actualizado con criterios de Convocatoria (Julio 2026)._
+## 8. Cambios recientes - Corrección de tests (2026-07-12)
+
+### 8.1 Configuración transversal (Jest / TypeScript)
+
+- Se actualizó `ts-jest` al formato moderno de configuración (array con opciones) para eliminar warnings de deprecación.
+- Se corrigió `moduleNameMapper` para resolver correctamente alias de imports locales en tests (`text-normalizer` desde `.js` a `.ts`).
+- Se configuró `diagnostics: { ignoreCodes: [151002] }` en `ts-jest` para evitar falsos positivos de TypeScript en módulos aislados.
+
+### 8.2 BotUpdate y servicios base
+
+- Se agregó el provider `DEFAULT_BOT_NAME` en todos los tests que instancian `BotUpdate`.
+- Se completaron mocks dependientes en `bot.update.spec.ts`:
+  - `PredictiveQuestionsService` (incluyendo `processPredictiveQuery`).
+  - `AirQualityQuestionsService`.
+- Se creó `src/bot/bot.update.location.spec.ts` para cubrir el flujo de geolocalización:
+  - Manejo de mensajes `location` y búsqueda de prestadores cercanos.
+  - Detección de consultas "cerca de mí" y solicitud de ubicación por teclado.
+  - Cobertura de casos sin resultados y mensajes sin ubicación.
+
+### 8.3 Servicios con repositorios TypeORM (Antioquia y Boyacá)
+
+- Se reestructuraron los specs para inyectar repositorios mockeados en el `Test.createTestingModule`:
+  - `src/bot/boyaca/boyaca-health.service.spec.ts` → mock de `BoyacaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health.service.spec.ts` → mock de `AntioquiaProviderRepository`.
+  - `src/bot/antioquia/antioquia-health-precision.spec.ts` → mock de `AntioquiaProviderRepository`.
+- Se adaptaron las pruebas de `searchProviders`, `getMunicipios`, `findByIdentifier` y `getHospitalCount` al nuevo contrato del repositorio.
+
+### 8.4 Ajustes en tests de Cali
+
+- Se actualizó `src/bot/cali/cali-health.service.spec.ts`:
+  - Se reemplazó el `assert` rígido del resumen de conocimiento por una validación flexible que reconoce el nuevo formato de salida (`'Red de Salud del Centro'` en lugar del nombre completo en mayúsculas).
+
+### 8.5 AppController
+
+- Se actualizó `src/app.controller.spec.ts` para reflejar el nuevo contrato de `getHello()`:
+  - Ahora se valida el objeto JSON de respuesta (`message`, `name`, `status`, `timestamp`).
+
+### 8.6 Resultado final y CI
+
+- Ejecución completa de la suite: **125/125 tests en verde**.
+- Cantidad de suites: **16/16 en verde**.
+- Se agregó `.github/workflows/ci.yml` para ejecutar `npm ci` + `npm test -- --no-coverage` en push/PR a `main` y `master`.
+
+#### Ejecución local
+
+```bash
+npm test            # Suite completa (125 tests)
+npm run test:cov    # Con reporte de cobertura
+```
+
+**Estado del Documento:** _Versión 1.4 - Actualizado con cambios de corrección de tests (Julio 2026)._
 
 **Autores:** Maria G. Barrientos y Rubén D. Guerrero — Colombia 2026

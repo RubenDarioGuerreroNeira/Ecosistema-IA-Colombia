@@ -53,6 +53,10 @@ Escribe:
 
     // Solo devolver la lista de capacidades si el usuario pregunta EXPLÍCITAMENTE
     const explicitQuery =
+      norm.includes('graficar') ||
+      norm.includes('grafica') ||
+      norm.includes('graficos') ||
+      norm.includes('grafico') ||
       norm.includes('que graficos') ||
       norm.includes('que graficas') ||
       norm.includes('que puedes graficar') ||

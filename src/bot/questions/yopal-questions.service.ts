@@ -107,6 +107,7 @@ Si quieres saber algo específico, solo pregúntame. ¡Estoy aquí para ayudarte
 
     // Si es una pregunta genérica sobre qué sabe el bot de Yopal
     if (
+      norm.includes('yopal') ||
       norm.includes('que sabes de yopal') ||
       norm.includes('hospitales en yopal') ||
       norm.includes('clinicas en yopal') ||
