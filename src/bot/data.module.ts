@@ -15,6 +15,7 @@ import { AirQualityService } from './air/air-quality.service';
 import { DatasetBuilderService } from './dataset-builder.service';
 import { VaccinationService } from './vaccination.service';
 import { PredictionService } from './prediction.service';
+import { ValidationService } from './validation/validation.service';
 import { SaludPublicaQuestionsService } from './questions/salud-publica-questions.service';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
@@ -53,6 +54,7 @@ import {
     DatasetBuilderService,
     PredictionService,
     VaccinationService,
+    ValidationService,
     SaludPublicaService,
     HealthDataService,
     SexualHealthService,

@@ -185,7 +185,7 @@ export class ChartQueryService {
         // 6. Vacunación
         if (norm.includes('servicios') || norm.includes('servicio') || norm.includes('serv')
             || norm.includes('salud') || norm.includes('publica') || norm.includes('mental') ||
-            norm.includes('grafico') || norm.includes('graficar')
+            norm.includes('grafico') || norm.includes('graficar') || norm.includes('antioquia')
 
 
         ) {
@@ -232,6 +232,20 @@ export class ChartQueryService {
             norm.includes('cali') ||
             norm.includes('cantidades')
         ) {
+            return { success: false };
+        }
+
+        // Solo proceder con la lógica de vacunación si la consulta menciona explícitamente vacunación
+        const isVaccinationQuery = (
+            norm.includes('vacun') ||
+            norm.includes('vacunas') ||
+            norm.includes('vacunación') ||
+            norm.includes('cobertura') ||
+            (norm.includes('grafic') && norm.includes('vacun')) ||
+            norm.includes('biolog')
+        );
+
+        if (!isVaccinationQuery) {
             return { success: false };
         }
 

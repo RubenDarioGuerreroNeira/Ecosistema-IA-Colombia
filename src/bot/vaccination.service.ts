@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Vaccination } from '../entities/vaccination.entity';
 import { VaccinationCoverage } from './types/vaccination-coverage.interface';
 import { normalizeString } from '@shared/health-utils';
+import { ValidationService } from './validation/validation.service';
 
 @Injectable()
 export class VaccinationService {
@@ -12,6 +13,7 @@ export class VaccinationService {
   constructor(
     @InjectRepository(Vaccination)
     private readonly repo: Repository<Vaccination>,
+    private readonly validationService: ValidationService,
   ) {
     this.logger.log('VaccinationService initialized (SQLite mode)');
   }
@@ -53,14 +55,14 @@ export class VaccinationService {
   private cleanEncoding(text: string): string {
     if (!text) return '';
     const map: Record<string, string> = {
-      'Ã‘': 'Ñ', 'Ã±': 'ñ',
-      'Ã“': 'Ó', 'Ã³': 'ó',
-      'ÃÍ': 'Í', 'Ã­': 'í',
-      'Ã‰': 'É', 'Ã©': 'é',
-      'Ãš': 'Ú', 'Ãº': 'ú',
-      'Ã': 'Á', 'Ã¡': 'á',
-      'Ã¼': 'ü', 'Ãœ': 'Ü',
-      'Â°': '°', 'NÂº': 'N°',
+      'Ñº': 'Ñ', 'ñ': 'ñ',
+      'Ó': 'Ó', 'ó': 'ó',
+      'Í': 'Í', 'í': 'í',
+      'É': 'É', 'é': 'é',
+      'Ú': 'Ú', 'ú': 'ú',
+      'Á': 'Á', 'á': 'á',
+      'ü': 'ü', 'Ü': 'Ü',
+      '°': '°', 'N°': 'N°',
     };
     let out = text;
     for (const [k, v] of Object.entries(map)) {
@@ -146,6 +148,10 @@ export class VaccinationService {
 
   // Obtiene la cobertura de vacunación por departamento
   async getCoverageByDepartment(departamento: string): Promise<VaccinationCoverage[]> {
+    if (!this.validationService.isValidString(departamento)) {
+      this.logger.warn(`Invalid departamento parameter: "${departamento}"`);
+      return [];
+    }
     const searchDepto = this.normalizeDepto(departamento);
     const rows = await this.repo
       .createQueryBuilder('v')
@@ -158,6 +164,10 @@ export class VaccinationService {
 
   // Cobertura de vacunación por municipio
   async getCoverageByMunicipio(municipio: string): Promise<VaccinationCoverage[]> {
+    if (!this.validationService.isValidString(municipio)) {
+      this.logger.warn(`Invalid municipio parameter: "${municipio}"`);
+      return [];
+    }
     const searchMunicipio = this.normalizeMunicipio(municipio);
     const rows = await this.repo
       .createQueryBuilder('v')
@@ -337,7 +347,7 @@ ${Object.entries(biologicoGroups).map(([bio, count]) => `• ${bio}: ${count} re
     for (const row of rows) {
       const dept = this.cleanEncoding(row.departamento);
       const deptData = await this.getCoverageByDepartment(dept);
-      if (deptData.length > 0) {
+      if (deptData && deptData.length > 0) {
         topDepartments.push({
           ...deptData[0],
           cobertura_de_vacunaci_n: row.avgCoverage.toFixed(2),

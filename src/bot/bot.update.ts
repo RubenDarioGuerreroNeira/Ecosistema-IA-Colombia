@@ -49,6 +49,7 @@ import { EarlyWarningService } from './early-warning.service';
 import { AdvancedPredictionService } from './advanced-prediction.service';
 import { MlPredictionService } from './ml-prediction.service';
 import { PredictiveQuestionsService } from './questions/predictive-questions.service';
+import { MentalHealthHandler } from './handlers/mental-health.handler';
 
 // ─── Type definitions ──────────────────────────────────────────────────────────
 interface UserState {
@@ -169,6 +170,7 @@ export class BotUpdate implements OnApplicationBootstrap {
 
     constructor(
         @InjectBot() private readonly bot: Telegraf<Context>,
+        private readonly mentalHealthHandler: MentalHealthHandler,
         private readonly genkitService: GenkitService,
         private readonly userService: UserService,
         private readonly statsService: StatsService,
@@ -694,74 +696,74 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     // ─── Main Text Handler ────────────────────────────────────────────────────────
     @On('text')
     async onText(@Ctx() ctx: Context): Promise<void> {
-        if (!ctx.message || !('text' in ctx.message)) return;
+        try {
+            if (!ctx.message || !('text' in ctx.message)) return;
 
-        const messageText = ctx.message.text;
-        this.logger.log(`onText received - userId=${ctx.from?.id}, text="${messageText}"`);
+            const messageText = ctx.message.text;
+            this.logger.log(`onText received - userId=${ctx.from?.id}, text="${messageText}"`);
 
-        const detectedRegion = this.detectRegion(messageText);
+            // Feedback de carga para el usuario
+            if (ctx.from?.id) {
+                await this.bot.telegram.sendChatAction(ctx.from.id, 'typing');
+            }
 
-        if (await this.handleConversationContinuity(ctx, messageText, detectedRegion)) return;
+            const detectedRegion = this.detectRegion(messageText);
 
-        if (await this.handleServiceCapabilitiesQuery(ctx, messageText)) return;
+            if (await this.handleConversationContinuity(ctx, messageText, detectedRegion)) return;
 
-        if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
+            if (await this.handleServiceCapabilitiesQuery(ctx, messageText)) return;
 
-        if (await this.mentalHealthQuestionsService.handleMentalHealthQuery(ctx, messageText)) return;
+            if (await this.handleStructuralDataQuery(ctx, messageText, detectedRegion)) return;
 
-        if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
+            if (await this.mentalHealthHandler.handle(ctx, messageText)) return;
 
-        if (await this.handleYopalQuery(ctx, messageText)) return;
+            if (await this.handleSaludPublicaQuestions(ctx, messageText)) return;
 
-        const normPred = normalizeString(messageText);
-        if (
-            normPred.includes('alertas tempranas') ||
-            normPred.includes('alerta temprana') ||
-            normPred.includes('alertas de salud') ||
-            normPred.includes('panorama de riesgo') ||
-            normPred.includes('que eventos requieren atencion') ||
-            normPred.includes('pronostico') ||
-            normPred.includes('prediccion') ||
-            (normPred.includes('tendencia') && normPred.includes('en los proximos')) ||
-            (normPred.includes('proyeccion') && normPred.includes('casos')) ||
-            normPred.includes('clasificar riesgo')
-        ) {
-            if (await this.handleNewPredictiveServices(ctx, messageText, detectedRegion)) return;
+            if (await this.handleYopalQuery(ctx, messageText)) return;
+
+            const normPred = normalizeString(messageText);
+            if (
+                normPred.includes('alertas tempranas') ||
+                normPred.includes('alerta temprana') ||
+                normPred.includes('alertas de salud') ||
+                normPred.includes('panorama de riesgo') ||
+                normPred.includes('que eventos requieren atencion') ||
+                normPred.includes('pronostico') ||
+                normPred.includes('prediccion') ||
+                (normPred.includes('tendencia') && normPred.includes('en los proximos')) ||
+                (normPred.includes('proyeccion') && normPred.includes('casos')) ||
+                normPred.includes('clasificar riesgo')
+            ) {
+                if (await this.handleNewPredictiveServices(ctx, messageText, detectedRegion)) return;
+            }
+
+            if (await this.handleChartQuery(ctx, messageText)) return;
+
+            if (await this.handleGreeting(ctx, messageText)) return;
+
+            if (await this.handleServiceCali(ctx, messageText)) return;
+
+            if (await this.handleAntioquiaQuery(ctx, messageText)) return;
+
+            if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
+
+            if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
+
+            if (await this.handlePredictiveCapabilitiesQuery(ctx, messageText)) return;
+
+            if (await this.handlePrediction(ctx, messageText)) return;
+
+            if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
+
+            // Fallback genérico si no se maneja nada más
+            const response = await this.genkitService.generateResponse(messageText);
+            await this.sendLongMessage(ctx, response);
+        } catch (error) {
+            this.logger.error(`Error no controlado en onText para userId=${ctx.from?.id}:`, error);
+            // El filtro de excepciones global capturará este error si lo relanzamos o podemos responder directamente aquí.
+            // Dada la configuración del TelegramExceptionFilter, relanzar es seguro.
+            throw error;
         }
-
-        if (await this.handleChartQuery(ctx, messageText)) return;
-
-        if (await this.handleGreeting(ctx, messageText)) return;
-
-        if (await this.handleServiceCali(ctx, messageText)) return;
-
-        if (await this.handleAntioquiaQuery(ctx, messageText)) return;
-
-        if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
-
-        if (await this.handleProviderSearch(ctx, messageText, detectedRegion)) return;
-
-        if (await this.handlePredictiveCapabilitiesQuery(ctx, messageText)) return;
-
-        if (await this.handlePrediction(ctx, messageText)) return;
-
-        if (await this.handleAirQualityQuery(ctx, messageText, detectedRegion)) return;
-
-        const contextData = await this.statsService.getSummary(messageText);
-        if (contextData && BYPASS_MARKERS.some(marker => contextData.includes(marker))) {
-            await this.sendLongMessage(ctx, contextData);
-            return;
-        }
-
-        if (await this.handleSexualHealthQuery(ctx, messageText)) return;
-
-        if (await this.handleMLClassification(ctx, messageText, contextData)) return;
-
-        if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
-
-        if (await this.handleSaludPublica(ctx, messageText, detectedRegion)) return;
-
-        await this.handleGeneralQuery(ctx, messageText, contextData);
     }
 
     // ─── Vaccination ────────────────────────────────────────────────────────────
@@ -769,6 +771,18 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
         const userId = ctx.from?.id;
         const pending = userId ? this.userState.get(userId) : null;
         const norm = normalizeString(text);
+        // Evitar que consultas sobre prestadores/hospitales entren en el manejador de vacunación
+        if (
+            norm.includes('hospital') ||
+            norm.includes('hospitales') ||
+            norm.includes('clinica') ||
+            norm.includes('clinicas') ||
+            norm.includes('cliníca') ||
+            norm.includes('clínicas')
+        ) {
+            this.logger.log('handleVaccination - consulta sobre prestadores detectada, saltando manejador de vacunación');
+            return false;
+        }
         this.logger.log(`handleVaccination invoked - userId=${userId}, text="${text}", norm="${norm}"`);
         this.logger.log(`handleVaccination - detectedRegion="${detectedRegion}"`);
 

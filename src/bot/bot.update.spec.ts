@@ -24,12 +24,17 @@ import { SaludPublicaQuestionsService } from './questions/salud-publica-question
 import { ChartQueryService } from './chart/chart-query.service';
 import { GraphicsQuestionsService } from './questions/graphics-questions.service';
 import { PredictiveQuestionsService } from './questions/predictive-questions.service';
+import { MentalHealthHandler } from './handlers/mental-health.handler';
 import { YopalQuestionsService } from './questions/yopal-questions.service';
 // Removed: RiskQuestionsService (migrated to PredictiveQuestionsService)
 import { AirQualityQuestionsService } from './questions/air-quality-questions.service';
 import { EarlyWarningService } from './early-warning.service';
 import { AdvancedPredictionService } from './advanced-prediction.service';
 import { MlPredictionService } from './ml-prediction.service';
+
+const mockMentalHealthHandler = {
+  handle: jest.fn().mockResolvedValue(false),
+};
 
 const mockGenkitService = {
   generateResponse: jest.fn().mockResolvedValue('Respuesta de IA mock'),
@@ -194,6 +199,7 @@ describe('BotUpdate', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BotUpdate,
+        { provide: MentalHealthHandler, useValue: mockMentalHealthHandler },
         { provide: GenkitService, useValue: mockGenkitService },
         { provide: UserService, useValue: mockUserService },
         { provide: StatsService, useValue: mockStatsService },
@@ -394,10 +400,10 @@ describe('BotUpdate', () => {
       reply: jest.fn(),
     };
 
-    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+    // Ajustar el mock para MentalHealthHandler.handle
+    mockMentalHealthHandler.handle.mockImplementation(async (ctx, text) => {
       if (text.toLowerCase().includes('perfil de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 32 casos');
-        // Trigger the service call that the test expects
         await mockMentalHealthService.getRiskProfileByDiagnosis('depresion');
         return true;
       }
@@ -423,6 +429,8 @@ describe('BotUpdate', () => {
 
     await botUpdate.onText(mockCtx);
 
+    // Verificar que el handler fue llamado
+    expect(mockMentalHealthHandler.handle).toHaveBeenCalled();
     expect(
       mockMentalHealthService.getRiskProfileByDiagnosis,
     ).toHaveBeenCalled();
@@ -442,7 +450,7 @@ describe('BotUpdate', () => {
       reply: jest.fn(),
     };
 
-    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+    mockMentalHealthHandler.handle.mockImplementation(async (ctx, text) => {
       if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 28 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
@@ -486,6 +494,7 @@ describe('BotUpdate', () => {
 
     await botUpdate.onText(mockCtx);
 
+    expect(mockMentalHealthHandler.handle).toHaveBeenCalled();
     expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
     expect(
       mockMentalHealthService.getRiskProfileByDiagnosis,
@@ -506,7 +515,7 @@ describe('BotUpdate', () => {
       reply: jest.fn(),
     };
 
-    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+    mockMentalHealthHandler.handle.mockImplementation(async (ctx, text) => {
       if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: ESQUIZOFRENIA, NO ESPECIFICADA**\n\nTotal: 15 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
@@ -549,6 +558,7 @@ describe('BotUpdate', () => {
 
     await botUpdate.onText(mockCtx);
 
+    expect(mockMentalHealthHandler.handle).toHaveBeenCalled();
     expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
     expect(
       mockMentalHealthService.getRiskProfileByDiagnosis,
@@ -591,7 +601,7 @@ describe('BotUpdate', () => {
       reply: jest.fn(),
     };
 
-    mockMentalHealthQuestionsService.handleMentalHealthQuery.mockImplementation(async (ctx, text) => {
+    mockMentalHealthHandler.handle.mockImplementation(async (ctx, text) => {
       if (text.toLowerCase().includes('factor de riesgo')) {
         await ctx.reply('📈 **Perfil de riesgo: EPISODIO DEPRESIVO GRAVE SIN SINTOMAS PSICOTICOS**\n\nTotal: 28 casos');
         await mockMentalHealthService.getStatsForDiagnosis(text);
@@ -635,6 +645,7 @@ describe('BotUpdate', () => {
 
     await botUpdate.onText(mockCtx);
 
+    expect(mockMentalHealthHandler.handle).toHaveBeenCalled();
     expect(mockMentalHealthService.getStatsForDiagnosis).toHaveBeenCalled();
     expect(
       mockMentalHealthService.getRiskProfileByDiagnosis,
