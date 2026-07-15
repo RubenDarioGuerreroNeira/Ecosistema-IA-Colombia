@@ -195,7 +195,7 @@ export class YopalHealthService implements OnModuleInit {
       'HOSPITAL/CLINICA': ['HOSPITAL', 'CLINICA', 'CENTRO MEDICO', 'CAIMED'],
       ODONTOLOGIA: ['ODONTO', 'DENTAL', 'DENTISALUD', 'ORTHOPHOS', 'PANOREX', 'CEDENT'],
       LABORATORIO: ['LABORATORIO', 'FAMELAB'],
-      'RADIOLOGIA/DIAGNOSTICO': ['RADIOLOG', 'RX', 'ESCANOGRAFIA', 'TOMOGRAFO', 'MAMOGRAFIA', 'RESONANCIA'],
+      'RADIOLOGIA/DIAGNOSTICO': ['RADIOLOG', 'RX', 'ESCANOGRAFIA', 'TOMOGRAFO', 'MAMOGRAFIA', 'RESONANCIA', 'RADIOGRAFIA'],
       'OPTICA/OFTALMOLOGIA': ['OPTICA', 'OFTALMO', 'OPTISALUD'],
       ESPECIALIDAD_MEDICA: ['CARDIO', 'ONCO', 'HEMATO', 'ORL', 'CIRUGIA PLASTICA'],
       REHABILITACION: ['REHABILITAR', 'KAIROS', 'FISIOTERAPIA'],
@@ -705,10 +705,34 @@ export class YopalHealthService implements OnModuleInit {
 
 
     // 1. Servicios específicos (radiografía, odontología, etc.)
-    const serviceKeywords = ['radiografia', 'mamografia', 'tomografia', 'odontologia', 'fisioterapia', 'laboratorio', 'optometria', 'ecografia', 'endodoncia'];
+    // Mapeo de palabra clave de servicio a categoría en classifyProvider
+    const serviceToCategory: Record<string, string[]> = {
+      'radiografia': ['RADIOLOGIA/DIAGNOSTICO'],
+      'mamografia': ['RADIOLOGIA/DIAGNOSTICO'],
+      'tomografia': ['RADIOLOGIA/DIAGNOSTICO'],
+      'ecografia': ['RADIOLOGIA/DIAGNOSTICO'],
+      'odontologia': ['ODONTOLOGIA'],
+      'endodoncia': ['ODONTOLOGIA'],
+      'fisioterapia': ['REHABILITACION'],
+      'laboratorio': ['LABORATORIO'],
+      'optometria': ['OPTICA/OFTALMOLOGIA'],
+      'oftalmologia': ['OPTICA/OFTALMOLOGIA'],
+    };
+    const serviceKeywords = Object.keys(serviceToCategory);
     for (const sk of serviceKeywords) {
       if (q.includes(sk)) {
-        const providers = this.searchByService(sk);
+        // Buscar primero por nombre del servicio en los nombres de entidades
+        let providers = this.searchByService(sk);
+
+        // Si no encuentra, buscar por categoría mapeada
+        if (providers.length === 0) {
+          const targetCats = serviceToCategory[sk];
+          for (const cat of targetCats) {
+            providers = this.getProvidersByCategory(cat);
+            if (providers.length > 0) break;
+          }
+        }
+
         if (providers.length > 0) {
           let response = `🔍 *Prestadores que ofrecen ${sk.toUpperCase()} en Yopal:*\n\n`;
           providers.slice(0, 5).forEach(p => {

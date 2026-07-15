@@ -11,13 +11,13 @@ export class YopalQuestionsService {
 
 🩺 **Servicios médicos específicos**
 “¿Dónde puedo hacerme una radiografía en Yopal?”
-“¿En qué centro puedo hacerme una mamografía?”
+“¿En qué centro de yopal puedo hacerme una mamografía?”
 “¿Hay tomografía en Yopal?”
 “Clínicas de odontología en Yopal”
 “Fisioterapia en Yopal”
 “Laboratorio clínico en Yopal”
-“Centros de optometría u oftalmología”
-“¿Dónde hacen ecografías?”
+“Centros de optometría u oftalmología hay en yopal  ”
+“¿Dónde hacen ecografías en Yopal?”
 “Endodoncia en Yopal”
 
 ⏱️ **Atención 24 horas / urgencias**
@@ -105,18 +105,30 @@ Si quieres saber algo específico, solo pregúntame. ¡Estoy aquí para ayudarte
   async processYopalQuery(text: string): Promise<string | null> {
     const norm = normalizeString(text);
 
-    // Si es una pregunta genérica sobre qué sabe el bot de Yopal
+    // Palabras que indican una consulta específica (servicio, ubicación, entidad, etc.)
+    // Estas NO deben devolver la lista genérica de preguntas, sino ir a answerNaturalQuestion
+    const specificQueryIndicators = [
+      'donde', 'dónde', 'donde puedo', 'dónde puedo',
+      'radiografia', 'mamografia', 'tomografia', 'odontologia',
+      'fisioterapia', 'laboratorio', 'optometria', 'ecografia',
+      'endodoncia', 'urgencia', 'emergencia', '24 horas',
+      'citas', 'telefono', 'teléfono', 'direccion', 'dirección',
+      'correo', 'email', 'gerente', 'director',
+      'eps', 'hospital', 'clinica', 'clínica',
+      'cuantos', 'cuantas', 'cuántos', 'cuántas', 'estadistica', 'estadística',
+      'cerca', 'cercano', 'cercanos', 'cercana',
+    ];
+    const hasSpecificQuery = specificQueryIndicators.some(ind => norm.includes(ind));
+
+    // Si es una pregunta genérica sobre qué sabe el bot de Yopal (sin ser consulta específica)
     if (
-      norm.includes('yopal') ||
-      norm.includes('que sabes de yopal') ||
-      norm.includes('hospitales en yopal') ||
-      norm.includes('clinicas en yopal') ||
-      norm.includes('prestadores de salud en yopal') ||
-      norm.includes('centros de salud en yopal') ||
-      norm.includes('centros de atencion en yopal') ||
-      norm.includes('que información tienes de yopal') ||
-      norm.includes('que informacion tienes de yopal') ||
-      norm.includes('tienes alguna informacion sobre yopal')
+      !hasSpecificQuery && (
+        norm.includes('yopal') ||
+        norm.includes('que sabes de yopal') ||
+        norm.includes('que información tienes de yopal') ||
+        norm.includes('que informacion tienes de yopal') ||
+        norm.includes('tienes alguna informacion sobre yopal')
+      )
     ) {
       return this.getAvailableQuestions();
     }
