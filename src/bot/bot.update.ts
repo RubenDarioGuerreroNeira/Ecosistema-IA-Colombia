@@ -743,6 +743,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
 
             if (await this.handleServiceCali(ctx, messageText)) return;
 
+            if (normPred.includes('mental')) {
+                if (await this.mentalHealthQuestionsService.handleMentalHealthQuery(ctx, messageText)) return;
+            }
+
             if (await this.handleAntioquiaQuery(ctx, messageText)) return;
 
             if (await this.handleVaccination(ctx, messageText, detectedRegion)) return;
@@ -1069,7 +1073,10 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
     private async handleAntioquiaQuery(ctx: Context, text: string): Promise<boolean> {
         const norm = normalizeString(text);
 
-        if (norm.includes('analizar riesgo') || norm.includes('riesgos') || norm.includes('riesgo') || norm.includes('analisis de riesgo') || norm.includes('riesgo de')) {
+        if (
+            norm.includes('analizar riesgo') || norm.includes('riesgos') || norm.includes('riesgo') ||
+            norm.includes('analisis de riesgo') || norm.includes('riesgo de') || norm.includes('mental')
+        ) {
             return false;
         }
 
@@ -1204,8 +1211,9 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
         try {
             const norm = normalizeString(text);
             if (
-                norm.includes('que informacion tienes') &&
-                norm.includes('salud mental')
+                (norm.includes('que informacion tienes') && norm.includes('salud mental')) ||
+                norm.includes('mental')
+
             ) {
                 await ctx.reply(await this.mentalHealthQuestionsService.getAvailableQuestions(), {
                     parse_mode: 'Markdown',
@@ -1213,7 +1221,12 @@ INSTRUCCIÓN: Como asistente experto en salud pública colombiana, si la consult
                 return;
             }
 
-            if (norm.includes('que informacion tienes') && norm.includes('salud mental')) {
+            if (
+                norm.includes('que informacion tienes') && norm.includes('salud mental') ||
+                norm.includes('mental')
+
+
+            ) {
                 await ctx.reply(await this.mentalHealthQuestionsService.getAvailableQuestions(), { parse_mode: 'Markdown' });
                 return;
             }
