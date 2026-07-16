@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
-import { XMLParser } from 'fast-xml-parser';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HealthEvent as HealthEventEntity } from '../entities/health-event.entity';
 
 export interface HealthEvent {
   departamento: string;
@@ -21,59 +21,49 @@ export interface HealthEvent {
 
 @Injectable()
 export class HealthDataService {
-  private readonly xmlPath = path.join(
-    process.cwd(),
-    'data',
-    'Eventos_de_Interés_en_Salud_Pública_20260514.xml',
-  );
   private events: HealthEvent[] = [];
+  private loaded = false;
 
-  constructor() {
-    this.loadData();
+  constructor(
+    @InjectRepository(HealthEventEntity)
+    private readonly healthEventRepo: Repository<HealthEventEntity>,
+  ) {
+    // No cargamos datos en el constructor - se cargan bajo demanda (lazy load)
+    console.log('✅ HealthDataService initialized (SQLite mode) - data will load on first request');
   }
 
-  private loadData() {
+  private async ensureLoaded(): Promise<void> {
+    if (this.loaded) return;
     try {
-      const xmlData = fs.readFileSync(this.xmlPath, 'utf8');
-      const parser = new XMLParser();
-      const jsonObj = parser.parse(xmlData);
-
-      // Accessing the rows array from the XML structure <response><rows><row>...
-      const rows = jsonObj.response?.rows?.row;
-
-      if (Array.isArray(rows)) {
-        this.events = rows.map((row) => this.mapRowToEvent(row));
-      } else if (rows) {
-        this.events = [this.mapRowToEvent(rows)];
-      }
-
+      const rows = await this.healthEventRepo.find();
+      this.events = rows.map((row) => ({
+        departamento: row.departamento || '',
+        nombre_del_evento: row.nombre_del_evento || 'Desconocido',
+        urbano: row.urbano || 0,
+        rural: row.rural || 0,
+        primera_infancia: row.primera_infancia || 0,
+        infancia: row.infancia || 0,
+        adolescencia: row.adolescencia || 0,
+        juventud: row.juventud || 0,
+        adulto_j_ven: row.adulto_j_ven || 0,
+        adulto_mayor: row.adulto_mayor || 0,
+        femenino: row.femenino || 0,
+        masculino: row.masculino || 0,
+        total_de_eventos: row.total_de_eventos || 0,
+      }));
+      this.loaded = true;
       console.log(
-        `✅ HealthDataService: Loaded ${this.events.length} health events from XML.`,
+        `✅ HealthDataService: Loaded ${this.events.length} health events from SQLite.`,
       );
     } catch (error) {
-      console.error('❌ Error loading health events XML:', error);
+      console.error('❌ Error loading health events from SQLite:', error);
+      this.events = [];
+      this.loaded = true;
     }
   }
 
-  private mapRowToEvent(row: any): HealthEvent {
-    return {
-      departamento: row.departamento || 'Antioquia', // O el valor que traiga el XML
-      nombre_del_evento: row.nombre_del_evento,
-      urbano: Number(row.urbano) || 0,
-      rural: Number(row.rural) || 0,
-      primera_infancia: Number(row.primera_infancia) || 0,
-      infancia: Number(row.infancia) || 0,
-      adolescencia: Number(row.adolescencia) || 0,
-      juventud: Number(row.juventud) || 0,
-      adulto_j_ven: Number(row.adulto_j_ven) || 0,
-      adulto_mayor: Number(row.adulto_mayor) || 0,
-      femenino: Number(row.femenino) || 0,
-      masculino: Number(row.masculino) || 0,
-      total_de_eventos: Number(row.total_de_eventos) || 0,
-    };
-  }
-
   async getStatsForEvent(eventName: string): Promise<HealthEvent | null> {
+    await this.ensureLoaded();
     const event = this.events.find((e) =>
       e.nombre_del_evento.toLowerCase().includes(eventName.toLowerCase()),
     );
@@ -86,6 +76,7 @@ export class HealthDataService {
   public async getTemporalSeries(
     eventName: string,
   ): Promise<{ date: Date; cases: number }[]> {
+    await this.ensureLoaded();
     const event = this.events.find((e) =>
       e.nombre_del_evento.toLowerCase().includes(eventName.toLowerCase()),
     );
@@ -106,10 +97,12 @@ export class HealthDataService {
   }
 
   async getAllEvents(): Promise<string[]> {
+    await this.ensureLoaded();
     return this.events.map((e) => e.nombre_del_evento);
   }
 
   async getTopEvents(limit: number = 5): Promise<HealthEvent[]> {
+    await this.ensureLoaded();
     return [...this.events]
       .sort((a, b) => b.total_de_eventos - a.total_de_eventos)
       .slice(0, limit);
@@ -122,6 +115,7 @@ export class HealthDataService {
     gender: 'femenino' | 'masculino',
     limit: number = 5,
   ): Promise<HealthEvent[]> {
+    await this.ensureLoaded();
     return [...this.events]
       .sort((a, b) => b[gender] - a[gender])
       .slice(0, limit);
@@ -142,6 +136,7 @@ export class HealthDataService {
     >,
     limit: number = 5,
   ): Promise<HealthEvent[]> {
+    await this.ensureLoaded();
     return [...this.events]
       .sort((a, b) => {
         const valB = Number(b[ageGroup]) || 0;
@@ -152,6 +147,7 @@ export class HealthDataService {
   }
 
   async getGlobalTotals() {
+    await this.ensureLoaded();
     return this.events.reduce(
       (acc, curr) => {
         acc.total += curr.total_de_eventos;
@@ -166,6 +162,7 @@ export class HealthDataService {
   }
 
   async getAgeDistributionTotals() {
+    await this.ensureLoaded();
     return this.events.reduce(
       (acc, curr) => {
         acc.primera_infancia += curr.primera_infancia;

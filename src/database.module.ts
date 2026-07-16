@@ -8,7 +8,7 @@ import { entities } from './entities';
             type: 'better-sqlite3',
             database: process.cwd() + '/data/salud-ia-bot.db',
             entities: entities,
-            synchronize: false,
+            synchronize: true,
             logging: false,
         }),
         TypeOrmModule.forFeature(entities),

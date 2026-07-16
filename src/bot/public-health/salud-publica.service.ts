@@ -1,7 +1,7 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { parseStringPromise } from 'xml2js';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HealthEvent as HealthEventEntity } from '../../entities/health-event.entity';
 import { HealthEvent } from '../health-data.service';
 
 @Injectable()
@@ -10,14 +10,14 @@ export class SaludPublicaService implements OnModuleInit {
   private events: HealthEvent[] = [];
   private eventsMap = new Map<string, HealthEvent>();
   private readyPromise: Promise<void>;
-  private readonly dataPath = path.join(
-    process.cwd(),
-    'data',
-    'Eventos_de_Interés_en_Salud_Pública_20260514.xml',
-  );
 
-  constructor() {
+  constructor(
+    @InjectRepository(HealthEventEntity)
+    private readonly healthEventRepo: Repository<HealthEventEntity>,
+  ) {
+    // Carga lazy desde SQLite - no en constructor
     this.readyPromise = this.loadData();
+    this.logger.log('SaludPublicaService initialized (SQLite mode)');
   }
 
   async onModuleInit() {
@@ -32,20 +32,10 @@ export class SaludPublicaService implements OnModuleInit {
   // ---------------------------------------------------------------------------
   private async loadData() {
     try {
-      const xmlData = await fs.readFile(this.dataPath, 'utf-8');
-      const result = await parseStringPromise(xmlData, {
-        explicitArray: false,
-      });
-      const rows = result?.response?.rows?.row;
-      if (!rows) {
-        this.logger.warn('No se encontraron filas en el XML.');
-        return;
-      }
-
-      const rawEvents = Array.isArray(rows) ? rows : [rows];
+      const rows = await this.healthEventRepo.find();
       const tempMap = new Map<string, HealthEvent>();
 
-      for (const row of rawEvents) {
+      for (const row of rows) {
         const nombre = row.nombre_del_evento?.trim();
         if (!nombre) continue;
 
@@ -63,23 +53,23 @@ export class SaludPublicaService implements OnModuleInit {
       this.events = Array.from(tempMap.values());
       this.eventsMap = tempMap;
       this.logger.log(
-        `Cargados ${this.events.length} eventos únicos (agregados).`,
+        `Cargados ${this.events.length} eventos únicos (agregados) desde SQLite.`,
       );
     } catch (error) {
-      this.logger.error('Error cargando datos de salud pública:', error);
-      throw error;
+      this.logger.error('Error cargando datos de salud pública desde SQLite:', error);
+      this.events = [];
     }
   }
 
-  // mapea eventos de salud 
-  private mapRowToEvent(row: any): HealthEvent {
+  // mapea eventos de salud
+  private mapRowToEvent(row: HealthEventEntity): HealthEvent {
     const toNumber = (val: any): number => {
       const num = Number(val);
       return isNaN(num) ? 0 : num;
     };
 
     return {
-      departamento: '', // El XML no contiene departamento
+      departamento: row.departamento || '',
       nombre_del_evento: row.nombre_del_evento?.trim() || 'Desconocido',
       urbano: toNumber(row.urbano),
       rural: toNumber(row.rural),
@@ -371,12 +361,13 @@ export class SaludPublicaService implements OnModuleInit {
       campos.map((campo) => e[campo]?.toString() ?? '').join(','),
     );
     const csvContent = [cabecera, ...filas].join('\n');
-    const outPath = path.join(
+    const outPath = require('path').join(
       process.cwd(),
       'exports',
       'eventos_salud_publica.csv',
     );
-    await fs.mkdir(path.dirname(outPath), { recursive: true });
+    const fs = require('fs/promises');
+    await fs.mkdir(require('path').dirname(outPath), { recursive: true });
     await fs.writeFile(outPath, csvContent, 'utf-8');
     this.logger.log(`Exportado CSV a ${outPath}`);
     return outPath;
@@ -476,9 +467,9 @@ export class SaludPublicaService implements OnModuleInit {
   }
 
   /**
- * Resumen ejecutivo de salud pública: total de casos, top 3 eventos, total por categorías, etc.
- * Preguntas: "Dame un resumen de salud pública", "Estadísticas generales", "Panorama general"
- */
+  * Resumen ejecutivo de salud pública: total de casos, top 3 eventos, total por categorías, etc.
+  * Preguntas: "Dame un resumen de salud pública", "Estadísticas generales", "Panorama general"
+  */
   public async obtenerResumenGeneral(): Promise<{
     totalCasos: number;
     totalEventos: number;
@@ -792,7 +783,7 @@ export class SaludPublicaService implements OnModuleInit {
       .slice(0, n);
   }
 
-  // obtiene más Eventos de Salud que afectana a ls mujeres 
+  // obtiene más Eventos de Salud que afectan a las mujeres
   async eventosMasAfectanMujeres(n = 3): Promise<HealthEvent[]> {
     await this.ensureReady();
     return [...this.events]
@@ -806,7 +797,6 @@ export class SaludPublicaService implements OnModuleInit {
   }
 
   // Obtiene mas Eventos que Afectan a los hombres
-
   async eventosMasAfectanHombres(n = 3): Promise<HealthEvent[]> {
     await this.ensureReady();
     return [...this.events]
@@ -818,7 +808,4 @@ export class SaludPublicaService implements OnModuleInit {
       )
       .slice(0, n);
   }
-
-
-
 }
