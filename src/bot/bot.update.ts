@@ -397,12 +397,15 @@ Puedes Escribirme:
 🛡️ **Análisis de Riesgo y Vacunación:**
 ----------------------------------------------------------------
 
+- Vacunación
+
 - ¿Puedes gráficar la informacion sobre vacunación en Colombia?
   (te mostrare los departamentos y indicadores de vacunación)
 
-- "De que Eventos de Salud puedes hacer análisis de riesgo" (te mostrare los eventos y los departamentos).
+- "Panorama de riesgo epidemiologico" 
+   (te mostrare los eventos y los departamentos).
 
-- "Analizar riesgo de sarampión en Antioquia" (revisaré casos vs. cobertura de vacuna TV).
+- "Analizar riesgo de zika en Yopal"
 
 - "Analizar riesgo de dengue en Antioquia"
 
@@ -722,6 +725,21 @@ Estoy diseñado para responder a consultas de alta precisión basadas en datos o
             if (await this.handleYopalQuery(ctx, messageText)) return;
 
             const normPred = normalizeString(messageText);
+
+            // 🚨 INTERCEPCIÓN DIRECTA: Alertas Tempranas Automáticas
+            // Debe ir ANTES que cualquier otro handler para garantizar la ruta correcta
+            if (
+                normPred.includes('alertas tempranas automaticas') ||
+                normPred.includes('alerta temprana automatica') ||
+                normPred.includes('alertas automaticas')
+            ) {
+                const userIdDirect = ctx.from?.id;
+                if (userIdDirect) this.userState.delete(userIdDirect);
+                const resumen = await this.predictiveQuestionsService.obtenerAlertasTempranasAutomaticas();
+                await this.sendLongMessage(ctx, resumen, { parse_mode: 'Markdown' });
+                return;
+            }
+
             if (
                 normPred.includes('alertas tempranas') ||
                 normPred.includes('alerta temprana') ||
@@ -1943,10 +1961,25 @@ El próximo valor proyectado es: **${prediccion}** casos.`,
         norm: string,
         userId: number | undefined,
     ): Promise<boolean> {
-        // Pregunta 1: "Alertas tempranas de salud pública" → resumen general
+        // 🚨 PRIORIDAD 1: ALERTAS TEMPRANAS AUTOMÁTICAS → análisis completo y automatizado
+        // Debe ir ANTES que "alerta temprana" genérico para evitar captura prematura
         if (
-            norm.includes('alertas tempranas') ||
-            norm.includes('alerta temprana') ||
+            norm.includes('alertas tempranas automaticas') ||
+            norm.includes('alerta temprana automatica') ||
+            norm.includes('alertas automaticas') ||
+            (norm.includes('alertas tempranas') && norm.includes('automaticas'))
+        ) {
+            if (userId) this.userState.delete(userId);
+            const resumen = await this.predictiveQuestionsService.obtenerAlertasTempranasAutomaticas();
+            await this.sendLongMessage(ctx, resumen, { parse_mode: 'Markdown' });
+            return true;
+        }
+
+        // Pregunta 1: "Alertas tempranas de salud pública" → resumen general
+        // NOTA: Excluye "automatica" para evitar conflicto con la prioridad superior
+        if (
+            (norm.includes('alertas tempranas') && !norm.includes('automaticas')) ||
+            (norm.includes('alerta temprana') && !norm.includes('automatica')) ||
             norm.includes('alertas de salud')
         ) {
             if (userId) this.userState.delete(userId);

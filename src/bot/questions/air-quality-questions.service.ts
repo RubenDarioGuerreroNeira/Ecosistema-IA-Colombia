@@ -30,8 +30,8 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
 💡 **Ejemplos:**
 • *"¿Cómo está la calidad del aire en Bogotá?"*
 • *"Calidad del aire en Cali"*
-• *"Indicadores ambientales en Medellín"*
-• *"Cómo está el aire en Bucaramanga"*
+• *"Calidad del aire en Bucaramanga"*
+• *"Calidad del aire en  Medellín"*
 
 ¿De qué municipio o departamento deseas conocer la calidad del aire?`;
     }
@@ -55,11 +55,17 @@ ${deptosList || '(No se pudieron cargar los departamentos)'}
             (norm.includes('info') && (norm.includes('salud') || norm.includes('publica'))) ||
             (norm.includes('informacion') && (norm.includes('salud') || norm.includes('publica'))) ||
 
+
             (norm.includes('mental') && (norm.includes('que') || norm.includes('info')))
 
         ) return null;
 
         // Detectar solo consultas EXPLÍCITAS sobre capacidades del servicio (no consultas de datos reales)
+        // Si la consulta contiene "calidad del aire" + "en [ubicación]", es una consulta de datos reales, no de capacidades
+        const tieneUbicacion = norm.includes(' en ') && (norm.includes('calidad') || norm.includes('aire'));
+
+        if (tieneUbicacion) return null;
+
         if (
             norm.includes('que') || norm.includes('info') || norm.includes('informacion') && norm.includes('calidad') && norm.includes('aire') ||
             norm.includes('informacion') || norm.includes('info') && norm.includes('aire') ||

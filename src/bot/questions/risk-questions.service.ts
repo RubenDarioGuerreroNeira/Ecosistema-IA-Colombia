@@ -83,7 +83,7 @@ export class RiskQuestionsService {
 
         💡 **Ejemplos de uso:**
         • *"Predecir riesgo de dengue en Amazonas"*
-        • *"Analizar riesgo de sarampión en Caldas"*
+        • *"Analizar riesgo de parotiditis en Caldas"*
         • *"Riesgo de malaria en el Arauca"*
         • *"Predecir riesgo de tuberculosis en Boyacá"*
         ¿Sobre qué evento y ubicación deseas realizar la predicción?`;

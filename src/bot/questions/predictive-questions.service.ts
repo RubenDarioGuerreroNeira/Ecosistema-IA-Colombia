@@ -120,9 +120,10 @@ Puedo ayudarte a resolver las siguientes consultas:
 
         // ── 3 preguntas diferentes → 3 métodos diferentes ─────────────────────────
         // Pregunta 1: "Alertas tempranas de salud pública" → resumen general
+        // NOTA: Excluye "automaticas" para que el flujo continue hacia handleEarlyWarning
         if (
-            norm.includes('alertas tempranas') ||
-            norm.includes('alerta temprana') ||
+            (norm.includes('alertas tempranas') && !norm.includes('automaticas')) ||
+            (norm.includes('alerta temprana') && !norm.includes('automatica')) ||
             norm.includes('alertas de salud')
         ) {
             const resumen = await this.earlyWarningService.obtenerResumenAlertas();
@@ -241,6 +242,11 @@ Puedo ayudarte a resolver las siguientes consultas:
             (norm.includes('riesgo') && norm.includes('epidemilogicos')) ||
             (norm.includes('riesgos') && norm.includes('epidemias'))
         ) {
+            return false;
+        }
+
+        // Excluir consultas con "automaticas" para que no bloqueen el método obtenerAlertasTempranasAutomaticas
+        if (norm.includes('automaticas') || norm.includes('automatica')) {
             return false;
         }
 
@@ -403,6 +409,203 @@ Puedo ayudarte a resolver las siguientes consultas:
 
     async obtenerPanoramaRiesgoEpidemiologico(): Promise<string> {
         return this.earlyWarningService.obtenerPanoramaRiesgoEpidemiologico();
+    }
+
+    /**
+     * 🚨 ALERTAS TEMPRANAS AUTOMÁTICAS
+     * 
+     * Genera un análisis completo y automatizado del panorama de alertas tempranas
+     * de salud pública en Colombia. Combina datos de SIVIGILA, cobertura de vacunación
+     * y calidad del aire para producir un informe ejecutivo con:
+     * 
+     * - Resumen general del estado de alertas
+     * - Desglose por nivel de severidad (EMERGENCIA, ALERTA, VIGILANCIA, NORMAL)
+     * - Eventos con tendencia creciente y factores de riesgo
+     * - Departamentos más afectados
+     * - Recomendaciones accionables basadas en datos
+     * - Alertas detalladas con casos, factores detonantes y tendencias
+     */
+    async obtenerAlertasTempranasAutomaticas(): Promise<string> {
+        this.logger.log('🚨 Generando Alertas Tempranas Automáticas...');
+
+        try {
+            // Obtener todas las alertas evaluadas
+            const alertas = await this.earlyWarningService.evaluarAlertas();
+
+            if (alertas.length === 0) {
+                return '🟢 **SISTEMA DE ALERTAS TEMPRANAS AUTOMÁTICAS**\n\n' +
+                    '✅ **No se detectaron alertas activas** en el período actual.\n\n' +
+                    'Todos los eventos de salud pública monitoreados se encuentran dentro de parámetros normales.\n\n' +
+                    '📊 _Monitoreo continuo basado en datos SIVIGILA, coberturas de vacunación y calidad del aire._';
+            }
+
+            // ── 1. Clasificar por nivel de severidad ──────────────────────────────
+            const emergencias = alertas.filter(a => a.nivel === '🔴 EMERGENCIA');
+            const alertasActivas = alertas.filter(a => a.nivel === '🟠 ALERTA');
+            const vigilancia = alertas.filter(a => a.nivel === '🟡 VIGILANCIA');
+            const normales = alertas.filter(a => a.nivel === '🟢 NORMAL');
+
+            // ── 2. Análisis de tendencias ─────────────────────────────────────────
+            const crecientes = alertas.filter(a => a.tendencia === 'creciente');
+            const decrecientes = alertas.filter(a => a.tendencia === 'decreciente');
+            const estables = alertas.filter(a => a.tendencia === 'estable');
+
+            // ── 3. Departamentos más afectados ────────────────────────────────────
+            const deptosAfectados = [...new Set(alertas.map(a => a.departamento))];
+            const deptosCount = new Map<string, number>();
+            for (const a of alertas) {
+                deptosCount.set(a.departamento, (deptosCount.get(a.departamento) || 0) + 1);
+            }
+            const topDeptos = [...deptosCount.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            // ── 4. Factores de riesgo predominantes ───────────────────────────────
+            const todosFactores = alertas.flatMap(a => a.factor_detonante.split('; '));
+            const factorCount = new Map<string, number>();
+            for (const f of todosFactores) {
+                const key = f.trim();
+                if (key) factorCount.set(key, (factorCount.get(key) || 0) + 1);
+            }
+            const topFactores = [...factorCount.entries()]
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            // ── 5. Eventos más críticos (por volumen de casos) ────────────────────
+            const topEventos = [...alertas]
+                .sort((a, b) => b.casos - a.casos)
+                .slice(0, 5);
+
+            // ── 6. Construir respuesta ────────────────────────────────────────────
+            let respuesta = '';
+
+            // Encabezado
+            respuesta += '🚨 **ALERTAS TEMPRANAS AUTOMÁTICAS**\n';
+            respuesta += 'Sistema de monitoreo epidemiológico en tiempo real\n';
+            respuesta += 'Basado en datos SIVIGILA, vacunación y calidad del aire\n\n';
+
+            // ── Resumen Ejecutivo ─────────────────────────────────────────────────
+            respuesta += '📋 **RESUMEN EJECUTIVO**\n';
+            respuesta += `• Total de alertas generadas: **${alertas.length}**\n`;
+            respuesta += `• Departamentos monitoreados: **${deptosAfectados.length}**\n`;
+            respuesta += `• Eventos con tendencia creciente: **${crecientes.length}**\n`;
+            respuesta += `• Eventos con tendencia decreciente: **${decrecientes.length}**\n`;
+            respuesta += `• Eventos estables: **${estables.length}**\n\n`;
+
+            // ── Distribución por Nivel de Riesgo ──────────────────────────────────
+            respuesta += '📊 **DISTRIBUCIÓN POR NIVEL DE RIESGO**\n';
+            respuesta += `🔴 **EMERGENCIAS:** ${emergencias.length} evento(s)\n`;
+            respuesta += `🟠 **ALERTAS:** ${alertasActivas.length} evento(s)\n`;
+            respuesta += `🟡 **VIGILANCIA:** ${vigilancia.length} evento(s)\n`;
+            respuesta += `🟢 **NORMAL:** ${normales.length} evento(s)\n\n`;
+
+            // ── Departamentos más afectados ───────────────────────────────────────
+            respuesta += '📍 **DEPARTAMENTOS CON MAYOR ACTIVIDAD DE ALERTAS**\n';
+            for (const [depto, count] of topDeptos) {
+                const alertasDepto = alertas.filter(a => a.departamento === depto);
+                const tieneEmergencia = alertasDepto.some(a => a.nivel === '🔴 EMERGENCIA');
+                const tieneAlerta = alertasDepto.some(a => a.nivel === '🟠 ALERTA');
+                const indicador = tieneEmergencia ? '🔴' : tieneAlerta ? '🟠' : '🟡';
+                respuesta += `${indicador} **${depto}**: ${count} alerta(s)\n`;
+            }
+            respuesta += '\n';
+
+            // ── Factores de Riesgo Predominantes ──────────────────────────────────
+            if (topFactores.length > 0) {
+                respuesta += '⚠️ **FACTORES DE RIESGO PREDOMINANTES**\n';
+                for (const [factor, count] of topFactores) {
+                    respuesta += `• ${factor} (presente en ${count} alerta(s))\n`;
+                }
+                respuesta += '\n';
+            }
+
+            // ── Top Eventos por Volumen de Casos ──────────────────────────────────
+            if (topEventos.length > 0) {
+                respuesta += '📈 **TOP EVENTOS POR VOLUMEN DE CASOS**\n';
+                for (const ev of topEventos) {
+                    const emoji = ev.nivel === '🔴 EMERGENCIA' ? '🔴' :
+                        ev.nivel === '🟠 ALERTA' ? '🟠' : '🟡';
+                    respuesta += `${emoji} **${ev.evento}** (${ev.departamento}): `;
+                    respuesta += `${ev.casos.toLocaleString()} casos - `;
+                    respuesta += `Tendencia: ${ev.tendencia} (${ev.variacion_porcentual.toFixed(0)}%)\n`;
+                }
+                respuesta += '\n';
+            }
+
+            // ── Alertas Detalladas ────────────────────────────────────────────────
+            if (emergencias.length > 0) {
+                respuesta += '🔴 **ALERTAS DE EMERGENCIA - DETALLE**\n';
+                for (const a of emergencias) {
+                    respuesta += `\n🔴 **${a.evento}**\n`;
+                    respuesta += `   📍 Departamento: **${a.departamento}**\n`;
+                    respuesta += `   📊 Casos: **${a.casos.toLocaleString()}**\n`;
+                    respuesta += `   📈 Tendencia: ${a.tendencia} (${a.variacion_porcentual.toFixed(0)}% variación)\n`;
+                    respuesta += `   ⚠️ Factor detonante: ${a.factor_detonante}\n`;
+                    respuesta += `   💡 Recomendación: ${a.recomendacion}\n`;
+                }
+                respuesta += '\n';
+            }
+
+            if (alertasActivas.length > 0) {
+                respuesta += '🟠 **ALERTAS ACTIVAS - DETALLE**\n';
+                for (const a of alertasActivas.slice(0, 5)) {
+                    respuesta += `\n🟠 **${a.evento}** (${a.departamento})\n`;
+                    respuesta += `   📊 Casos: ${a.casos.toLocaleString()}\n`;
+                    respuesta += `   📈 Tendencia: ${a.tendencia}\n`;
+                    respuesta += `   ⚠️ Factor: ${a.factor_detonante}\n`;
+                }
+                if (alertasActivas.length > 5) {
+                    respuesta += `\n   ... y ${alertasActivas.length - 5} alerta(s) adicional(es)\n`;
+                }
+                respuesta += '\n';
+            }
+
+            if (vigilancia.length > 0) {
+                respuesta += '🟡 **EVENTOS EN VIGILANCIA**\n';
+                for (const a of vigilancia.slice(0, 5)) {
+                    respuesta += `• **${a.evento}** (${a.departamento}): ${a.casos.toLocaleString()} casos\n`;
+                }
+                if (vigilancia.length > 5) {
+                    respuesta += `• ... y ${vigilancia.length - 5} evento(s) más en vigilancia\n`;
+                }
+                respuesta += '\n';
+            }
+
+            // ── Recomendaciones Generales ─────────────────────────────────────────
+            respuesta += '💡 **RECOMENDACIONES GENERALES**\n';
+            if (emergencias.length > 0) {
+                respuesta += '🔴 **ACTIVAR PROTOCOLOS DE EMERGENCIA** en las regiones afectadas.\n';
+                respuesta += '   • Notificar inmediatamente a autoridades sanitarias.\n';
+                respuesta += '   • Intensificar búsqueda activa de casos.\n';
+                respuesta += '   • Activar planes de contingencia hospitalaria.\n';
+            }
+            if (alertasActivas.length > 0) {
+                respuesta += '🟠 **INTENSIFICAR VIGILANCIA** en eventos con nivel de alerta.\n';
+                respuesta += '   • Reforzar esquemas de vacunación donde aplique.\n';
+                respuesta += '   • Mantener vigilancia comunitaria activa.\n';
+            }
+            if (crecientes.length > 3) {
+                respuesta += '📈 **MÚLTIPLES EVENTOS CON TENDENCIA CRECIENTE**.\n';
+                respuesta += '   • Reforzar campañas de prevención.\n';
+                respuesta += '   • Asegurar disponibilidad de insumos médicos.\n';
+            }
+            respuesta += '✅ Mantener canales de notificación obligatoria activos.\n';
+            respuesta += '✅ Monitorear evolución semanal de todos los eventos.\n\n';
+
+            // ── Pie de página ─────────────────────────────────────────────────────
+            respuesta += '---\n';
+            respuesta += '_🤖 Alertas generadas automáticamente por el Sistema de Inteligencia Epidemiológica._\n';
+            respuesta += '_Fuentes: SIVIGILA, Coberturas de Vacunación PAI, Calidad del Aire._\n';
+            respuesta += `_Última actualización: ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })}_`;
+
+            return respuesta;
+
+        } catch (error) {
+            this.logger.error(`Error generando Alertas Tempranas Automáticas: ${error.message}`);
+            return '⚠️ **Error al generar Alertas Tempranas Automáticas**\n\n' +
+                'Ocurrió un error al procesar los datos de alertas. Por favor, intenta de nuevo más tarde.\n\n' +
+                '_Si el problema persiste, contacta al administrador del sistema._';
+        }
     }
 
     async predecirEvento(

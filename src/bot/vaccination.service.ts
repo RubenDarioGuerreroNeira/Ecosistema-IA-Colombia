@@ -20,19 +20,19 @@ export class VaccinationService {
 
   // Preguntas de vacunación disponibles
   async getAvailabeQuestions(): Promise<string> {
+    const departamentos = await this.getAllDepartament();
+    const departamentosList = departamentos.length > 0
+      ? departamentos.join(', ')
+      : 'No hay datos disponibles';
+
     return `💉 **Vacunación**
 
-• Puedo mostrarte los indicadores de vacunación de: 
-  **Departamentos**: Amazonas, Antioquia, Arauca, Archipiélago de San Andrés Providencia y Santa Catalina
-  **Municipios**: ANSERMANUEVO, ARGELIA, BOLÍVAR, BUGALAGRANDE, CAICEDONIA, 
-    CALIMA, CANDELARIA, CARTAGO
+• Puedo mostrarte los indicadores de vacunación de los siguientes departamentos:
+  **Departamentos (${departamentos.length})**: ${departamentosList}
 
- • ¿Qué indicadores de vacunación tienes disponibles en Amazonas?
-• ¿Qué indicadores de vacunación tienes disponibles en Cartago?
-• ¿Puedes mostrarme los 5 indicadores de vacunación más altos y bajos en Antioquia?
-• ¿Puedes mostrarme los 5 indicadores de vacunación más altos y bajos en Alcalá?
+• ¿Qué indicadores de vacunación tienes disponibles en [nombre del departamento]?
+• ¿Puedes mostrarme los 5 indicadores de vacunación más altos y bajos en [nombre del departamento]?
 • Estadísticas completas de vacunación por departamento
-• Estadísticas completas de vacunación por municipio
 • Top 5 departamentos por cobertura promedio
 • Filtra vacunas por tipo biológico
 • Búsqueda flexible por múltiples criterios
@@ -40,8 +40,8 @@ export class VaccinationService {
 • Indicadores disponibles por departamento
 
 💡 **Ejemplos de uso:**
-• *"Vacunación en el departamento de Tunja"*
-• *"Vacunación en el municipio de Yopal"*
+• *"Vacunación en el departamento de Antioquia"*
+• *"Indicadores de vacunación más altos y bajos en Amazonas"*
 
 ¿Cuáles son los indicadores de vacunación más altos y bajos en tu departamento?`;
   }
